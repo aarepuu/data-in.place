@@ -7,6 +7,7 @@ angular.module('raw', [
   'raw.filters',
   'raw.services',
   'raw.directives',
+  'leaflet-directive',
   'raw.controllers',
   'mgcrea.ngStrap',
   'ui',

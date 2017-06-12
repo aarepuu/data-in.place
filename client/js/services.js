@@ -4,7 +4,7 @@
 
 angular.module('raw.services', [])
 
-	.factory('dataService', function ($http, $q, $timeout) {
+	.factory('dataService', ['$http', '$q', '$timeout', function ($http, $q, $timeout) {
 
 		  return {
 
@@ -152,4 +152,4 @@ angular.module('raw.services', [])
 			  }
 
 	  	}
-	})
+	}]);

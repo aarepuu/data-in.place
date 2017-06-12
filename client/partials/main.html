@@ -1,5 +1,23 @@
 <div class="wrapper">
 
+	<section class="" id="map-section">
+		<div class="container">
+			<div class="row">
+				<div class="map-container">
+					<leaflet controls="controls" center="center" layers="layers" height="480" width="100%"></leaflet>
+                    </br>
+                    <form>
+                        Latitude : <input type="number" step="any" ng-model="center.lat">
+                        Longitude : <input type="number" step="any" ng-model="center.lng">
+                        Zoom : <input type="number" step="any" ng-model="center.zoom">
+                        Save the boundary: <input type="text">
+                    </form>
+                </div>
+			</div>
+		</div>
+
+	</section>
+
 	<section class="" id="load-data">
 
 		<div class="container">
