@@ -89,10 +89,12 @@ angular.module('raw.controllers', [])
                     var layer = e.layer;
                     drawnItems.addLayer(layer);
                     console.log(JSON.stringify(layer.toGeoJSON()));
-
+                    $scope.maploading = true;
                     $http.post('/api/data', JSON.stringify(layer.toGeoJSON())).then(function(response){
                         //handle your response here
-                        console.log(response);
+                        $scope.maploading = false;
+                        console.log(response.data);
+                        $scope.lsoas = response.data;
                     });
 
                 });
