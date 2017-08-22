@@ -29,10 +29,11 @@
                         </strong>
                     </label>
                     <div class="row">
-                        <ul class="col-lg-3 list-unstyled" ng-repeat="s in lsoas" ng-click="selectSample(s)">
+                        <ul class="col-lg-3 list-unstyled" ng-repeat="s in lsoas">
                             <li>
-                                <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.lsoa11cd}}">
-                                    {{s.lsoa11cd}}
+                                <input type="checkbox" checked="true" value="">
+                                <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s}}">
+                                    {{s}}
                                 </a>
                             </li>
                         </ul>
@@ -43,7 +44,7 @@
 
 	</section>
 
-	<section class="" id="load-data">
+	<section class="" data-ng-show="lsoas" id="load-data">
 
 		<div class="container">
 
@@ -87,11 +88,11 @@
 					<div class="col-lg-2">
 
 						<ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
-							<li role="presentation" ng-class="{active:!parsed && importMode=='clipboard'}"><a href="#" ng-click="parsed=false;importMode='clipboard'"><i class="fa fa-clipboard breath-right"></i>Paste</a></li>
-				      <li role="presentation" ng-class="{active:!parsed && importMode=='file'}"><a href="#" ng-click="parsed=false;importMode='file'"><i class="fa fa-file-text breath-right"></i>Upload a file</a></li>
-				      <li role="presentation" ng-class="{active:!parsed && importMode=='url'}"><a href="#" ng-click="parsed=false;importMode='url'"><i class="fa fa-cloud breath-right"></i>From URL</a></li>
-							<li role="presentation" ng-class="{active:!parsed && importMode=='sample'}"><a href="#" ng-click="parsed=false;importMode='sample'"><i class="fa fa-gift breath-right"></i>Try our samples</a></li>
-				    </ul>
+                            <li role="presentation" ng-class="{active:!parsed && importMode=='sample'}"><a href="#" ng-click="parsed=false;importMode='sample'"><i class="fa fa-database breath-right"></i>Pick a statistic</a></li>
+                            <li role="presentation" ng-class="{active:!parsed && importMode=='clipboard'}"><a href="#" ng-click="parsed=false;importMode='clipboard'"><i class="fa fa-clipboard breath-right"></i>Paste</a></li>
+                            <li role="presentation" ng-class="{active:!parsed && importMode=='file'}"><a href="#" ng-click="parsed=false;importMode='file'"><i class="fa fa-file-text breath-right"></i>Upload a file</a></li>
+                            <li role="presentation" ng-class="{active:!parsed && importMode=='url'}"><a href="#" ng-click="parsed=false;importMode='url'"><i class="fa fa-cloud breath-right"></i>From URL</a></li>
+                        </ul>
 
 					</div>
 

@@ -11,10 +11,13 @@ angular.module('raw.controllers', [])
             center: {
                 lat: 55.00595160204387,
                 lng: -1.4644002914428713,
-                zoom: 15
+                //lat: 54.975470,
+                //lng: -1.621581,
+                zoom: 14
             },
             controls: {
                 custom: new L.Control.FullScreen(),
+                scale: true,
                 draw: {
                     draw: {
                         polyline: {
@@ -37,7 +40,6 @@ angular.module('raw.controllers', [])
                         },
                         circle: false, // Turns off this drawing tool
                         marker: false,
-
                         rectangle: false
 
                     }
@@ -55,18 +57,39 @@ angular.module('raw.controllers', [])
              },*/
             layers: {
                 baselayers: {
+                    edina: {
+                        name: 'Ordnance Survey',
+                        url: 'http://openstream.edina.ac.uk/openstream/wms',
+                        type: 'wms',
+                        layerOptions: {
+                            token: '64aa1799ff5ee4d99c488ad58c1adcefc5fe59da0ecf3d29aab65bd4d359938f',
+                            format: "image/png",
+                            layers: "osopendata",
+                            //cache: false,
+                            attribution: "Contains Ordnance Survey data. &copy;  Crown copyright and database right 2017. Data provided by Digimap OpenStream, an EDINA, University of Edinburgh Service.",
+                            detectRetina: true,
+                            reuseTiles: true,
+                        },
+                        layerParams: {
+
+                        }
+                    },
                     mapbox_light: {
-                        name: 'Mapbox Custom',
+                        name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
                         type: 'xyz',
                         layerOptions: {
                             apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                            mapid: 'cizldto5h001y2rpdzhfsurfa'
+                            mapid: 'cizldto5h001y2rpdzhfsurfa',
+                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                            detectRetina: true,
+                            reuseTiles: true,
                         },
                         layerParams: {
-                            showOnSelector: false
+                            showOnSelector: true
                         }
                     }
+
                 },
                 overlays: {
                     draw: {
@@ -85,23 +108,44 @@ angular.module('raw.controllers', [])
         leafletData.getMap().then(function (map) {
             leafletData.getLayers().then(function (baselayers) {
                 var drawnItems = baselayers.overlays.draw;
+                //Clear boundry on each draw
+                map.on('draw:drawstart ', function (e) {
+                    drawnItems.clearLayers();
+                });
                 map.on('draw:created', function (e) {
                     var layer = e.layer;
                     drawnItems.addLayer(layer);
-                    console.log(JSON.stringify(layer.toGeoJSON()));
+                    //console.log(JSON.stringify(layer.toGeoJSON()));
                     $scope.maploading = true;
-                    $http.post('/api/data', JSON.stringify(layer.toGeoJSON())).then(function(response){
+                    $http.post('/api/data/lsoa', JSON.stringify(layer.toGeoJSON())).then(function(response){
                         //handle your response here
                         $scope.maploading = false;
-                        console.log(response.data);
-                        $scope.lsoas = response.data;
+                        $scope.lsoas = response.data.lsoas;
+                        $scope.features = response.data.features;
+                        angular.extend($scope.layers.overlays, {
+                            lsoas: {
+                                name:'LSOA Boundaries',
+                                type: 'geoJSONShape',
+                                data: $scope.features,
+                                visible: true,
+                                layerOptions: {
+                                    style: {
+                                        color: '#00D',
+                                        fillColor: 'red',
+                                        weight: 2.0,
+                                        opacity: 0.6,
+                                        fillOpacity: 0.2
+                                    }
+                                }
+                            }
+                        });
+
                     });
 
                 });
             });
         });
 
-        //console.log(leafletData.getMap());
 
         //end Leaflet controller
 
@@ -293,16 +337,15 @@ angular.module('raw.controllers', [])
 
 
         $scope.samples = [
-            {title: 'Biggest cities per continent', type: 'Distributions', url: 'data/cities.csv'},
-            {title: 'Countries GDP', type: 'Other', url: 'data/countriesGDP.csv'},
-            {title: 'Cars', type: 'Multivariate', url: 'data/multivariate.csv'},
-            {title: 'Movies', type: 'Dispersions', url: 'data/dispersions.csv'},
-            {title: 'Music industry', type: 'Time Series', url: 'data/music.csv'},
-            {title: 'Lineup', type: 'Time chunks', url: 'data/lineup.tsv'},
-            {title: 'Orchestras', type: 'Hierarchies (weighted)', url: 'data/orchestra.csv'},
-            {title: 'Animal kingdom', type: 'Hierarchies', url: 'data/animals.tsv'},
-            {title: 'Titanic\'s passengers', type: 'Multi categorical', url: 'data/titanic.tsv'},
-            {title: 'Most frequent letters', type: 'Matrix (narrow)', url: 'data/letters.tsv'}
+            {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
+            {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
+            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: ''},
+            {title: 'Population', type: 'Mid 2015', url: '/api/data/pop', ctype: 'Pie chart'},
+            {title: 'Economic Activity', type: 'Census 2011', url: '/api/data/eco', ctype: ''},
+            {title: 'Long-term health problem', type: 'Census 2011', url: '/api/data/dis', ctype: ''},
+            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: ''},
+            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/crime', ctype: ''}
+
         ]
 
         $scope.selectSample = function (sample) {
@@ -310,9 +353,15 @@ angular.module('raw.controllers', [])
             if (!sample) return;
             $scope.text = "";
             $scope.loading = true;
-            dataService.loadSample(sample.url).then(
+            dataService.loadSample(sample.url, $scope.lsoas).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
+                    $scope.ctype = sample.ctype;
+                    //TODO - add stats to features
+                    //console.log($scope.text);
+                    /*$scope.features.features.forEach(function (feature) {
+                        console.log(feature);
+                    });*/
                     $scope.loading = false;
                 },
                 function (error) {
@@ -341,9 +390,9 @@ angular.module('raw.controllers', [])
         $scope.data = [];
         $scope.metadata = [];
         $scope.error = false;
-        //  $scope.loading = true;
+        //$scope.loading = true;
 
-        $scope.importMode = 'clipboard';
+        $scope.importMode = 'sample';
 
         $scope.categories = ['Hierarchies', 'Time Series', 'Distributions', 'Correlations', 'Others'];
 
@@ -498,7 +547,7 @@ angular.module('raw.controllers', [])
                         return d3.ascending(a.category(), b.category()) || d3.ascending(a.title(), b.title())
                     })
                     $scope.chart = $scope.charts.filter(function (d) {
-                        return d.title() == 'Scatter Plot'
+                        return d.title() ==  ($scope.ctype ? $scope.ctype : 'Scatter Plot');
                     })[0];
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });

@@ -97,7 +97,9 @@
           if (type) keys[key].push(type);
         }
       })
+        console.log(keys);
       return keys;
+
     }
 
     function detectDelimiter(string){
@@ -792,6 +794,7 @@
     new RegExp('^[A-z]{3,}(\\,)?\\s+([A-z]{3,}(\\,)?\\s+)?(0?[1-9]|[12][0-9]|3[01])?\\s*' + timeFormat + '\\s+([0-9]{2,4})$')
   ]
 
+
   raw.isString = function(value){
     return typeof value == 'string';
   }
@@ -813,9 +816,31 @@
     return isDate;
   }
 
+  //Additional parsers
+  raw.postcodeFormats = [
+      new RegExp('([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})'),
+      new RegExp('^((GIR &0AA)|((([A-PR-UWYZ][A-HK-Y]?[0-9][0-9]?)|(([A-PR-UWYZ][0-9][A-HJKSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRV-Y]))) &[0-9][ABD-HJLNP-UW-Z]{2}))$'),
+      //new RegExp('^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-‌​9]{1,2})|(([AZa-z][0‌​-9][A-Za-z])|([A-Za-‌​z][A-Ha-hJ-Yj-y][0-9‌​]?[A-Za-z]))))[0-9][‌​A-Za-z]{2})$')
+      new RegExp('^(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$')
+  ]
+
+  raw.isPostCode = function(value){
+      var isPostCode = false;
+      for (var format in raw.postcodeFormats){
+          if(value.trim().match(raw.postcodeFormats[format])) {
+              isPostCode = true;
+              break;
+          }
+
+      }
+      return isPostCode;
+
+  }
+
   raw.typeOf = function (value) {
     if (value === null || value.length === 0) return null;
     if (raw.isDate(value)) return Date.name;
+    if (raw.isPostCode(value)) return "Geometry";
     if (raw.isNumber(value)) return Number.name;
     if (raw.isString(value)) return String.name;
     return null;
@@ -830,6 +855,7 @@
   raw.foreground = function(color){
     return d3.hsl(color).l > .5 ? "#222222" : "#ffffff";
   }
+
 
 	exports.raw = raw;
 
