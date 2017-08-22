@@ -6,6 +6,16 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
+
+        $scope.searchPostcode = function (code) {
+            $http.get("/api/data/loc/"+code).then(function(response, status) {
+                //console.log(response.data);
+                $scope.center.lat = response.data.latitude;
+                $scope.center.lng = response.data.longitude;
+                //$scope.center.zoom = 14;
+            });
+
+        }
         //Leaflet controller
         angular.extend($scope, {
             center: {
@@ -124,7 +134,7 @@ angular.module('raw.controllers', [])
                         $scope.features = response.data.features;
                         angular.extend($scope.layers.overlays, {
                             lsoas: {
-                                name:'LSOA Boundaries',
+                                name:'lsoas',
                                 type: 'geoJSONShape',
                                 data: $scope.features,
                                 visible: true,
@@ -135,10 +145,24 @@ angular.module('raw.controllers', [])
                                         weight: 2.0,
                                         opacity: 0.6,
                                         fillOpacity: 0.2
-                                    }
+                                    },
+                                    onEachFeature: onEachFeature
                                 }
                             }
                         });
+
+                        function onEachFeature(feature, layer) {
+                            layer.on({
+                                click: function() {
+                                    console.log(layer.feature);
+                                    //$scope.country = layer.feature.properties.name;
+
+                                },
+                                mouseover: function(){
+                                    console.log(layer.feature.properties.name);
+                                }
+                            })
+                        }
 
                     });
 

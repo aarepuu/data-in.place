@@ -15,7 +15,7 @@ const _ = require('lodash');
 //require('./db');
 
 const pg = require('pg');
-//TODO - add pg-promise?, pools for connecting
+//TODO - add pg-promise?, pools for connecting Update node-pg
 
 //Setup Postgres (database)
 const connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/uk';
@@ -27,7 +27,7 @@ const connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
     return function (entity) {
-        if (entity) {gi
+        if (entity) {
             res.status(statusCode).json(entity);
         }
     };
@@ -274,6 +274,27 @@ exports.getCrime = function (req, res, next) {
     });
 }
 
+
+exports.getLoc = function (req,res,next) {
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, (err, client, done) => {
+        // Handle connection errors
+        if (err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+        // SQL Query > Select Data
+        const query = client.query("SELECT latitude, longitude from lookups.postcodes WHERE pcd7='"+req.params.postcode.toUpperCase()+"' OR pcd7='"+req.params.postcode.toUpperCase()+"';",function (err,result) {
+            console.log("SELECT latitude, longitude from lookups.postcodes WHERE pcd7='"+req.params.postcode.toUpperCase()+"' OR pcd7='"+req.params.postcode.toUpperCase()+"';");
+            done();
+            //console.log(res.rows[0]);
+            return res.json(result.rows[0]);
+
+        });
+    });
+}
+
 /**
  *
  * Function for converting objectArrays to CSV format
@@ -312,7 +333,12 @@ function ConvertToGeoJSON(geomArray) {
         "features": []
     };
 }
-
+/**
+ * Function
+ *
+ * @param items
+ * @returns {string}
+ */
 function queryParams(items) {
     var lsoas = '';
     items.forEach(function (item) {
