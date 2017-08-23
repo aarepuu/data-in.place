@@ -49,7 +49,7 @@ angular.module('raw.controllers', [])
                             }
                         },
                         circle: false, // Turns off this drawing tool
-                        marker: false,
+                        marker: true,
                         rectangle: false
 
                     }
@@ -81,7 +81,7 @@ angular.module('raw.controllers', [])
                             reuseTiles: true,
                         },
                         layerParams: {
-
+                            minZoom: 6
                         }
                     },
                     mapbox_light: {
@@ -109,15 +109,45 @@ angular.module('raw.controllers', [])
                         layerParams: {
                             showOnSelector: false
                         }
+                    },
+                    areas:{
+                        name: 'areas',
+                        type: 'geoJSONShape',
+                        data: [],
+                        visible: true,
+                        layerOptions: {
+                            style: {
+                                color: '#00D',
+                                fillColor: 'red',
+                                weight: 2.0,
+                                opacity: 0.6,
+                                fillOpacity: 0.2
+                            },
+                            onEachFeature: onEachFeature
+                        }
                     }
+
                 }
             }
         });
 
+        function onEachFeature(feature, layer) {
+            layer.on({
+                click: function() {
+                    console.log(layer.feature);
+                    //$scope.country = layer.feature.properties.name;
+
+                },
+                mouseover: function(){
+                    console.log(layer.feature.properties.name);
+                }
+            })
+        }
 
         leafletData.getMap().then(function (map) {
-            leafletData.getLayers().then(function (baselayers) {
-                var drawnItems = baselayers.overlays.draw;
+            leafletData.getLayers().then(function (layers) {
+                var drawnItems = layers.overlays.draw;
+                var areas = layers.overlays.areas;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     drawnItems.clearLayers();
@@ -125,44 +155,15 @@ angular.module('raw.controllers', [])
                 map.on('draw:created', function (e) {
                     var layer = e.layer;
                     drawnItems.addLayer(layer);
-                    //console.log(JSON.stringify(layer.toGeoJSON()));
                     $scope.maploading = true;
-                    $http.post('/api/data/lsoa', JSON.stringify(layer.toGeoJSON())).then(function(response){
+
+                    $http.post('/api/data/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(layer.toGeoJSON())}).then(function(response){
                         //handle your response here
                         $scope.maploading = false;
                         $scope.lsoas = response.data.lsoas;
-                        $scope.features = response.data.features;
-                        angular.extend($scope.layers.overlays, {
-                            lsoas: {
-                                name:'lsoas',
-                                type: 'geoJSONShape',
-                                data: $scope.features,
-                                visible: true,
-                                layerOptions: {
-                                    style: {
-                                        color: '#00D',
-                                        fillColor: 'red',
-                                        weight: 2.0,
-                                        opacity: 0.6,
-                                        fillOpacity: 0.2
-                                    },
-                                    onEachFeature: onEachFeature
-                                }
-                            }
-                        });
-
-                        function onEachFeature(feature, layer) {
-                            layer.on({
-                                click: function() {
-                                    console.log(layer.feature);
-                                    //$scope.country = layer.feature.properties.name;
-
-                                },
-                                mouseover: function(){
-                                    console.log(layer.feature.properties.name);
-                                }
-                            })
-                        }
+                        //$scope.features = response.data.features;
+                        areas.clearLayers();
+                        areas.addData(response.data.features);
 
                     });
 

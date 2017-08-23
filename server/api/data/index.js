@@ -10,7 +10,7 @@ var router = express.Router();
 //console.log(controller);
 router.get('/', controller.getHealth);
 router.get('/loc/:postcode', controller.getLoc);
-router.post('/lsoa', controller.getLsoa);
+router.post('/area', controller.getArea);
 router.post('/health', controller.getHealth);
 router.post('/travel', controller.getTravel);
 router.post('/imd', controller.getImd);

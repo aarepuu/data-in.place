@@ -33,13 +33,30 @@ function respondWithResult(res, statusCode) {
     };
 }
 
-exports.getLsoa = function (req, res, next) {
+exports.getArea = function (req, res, next) {
     const lsoas = [];
     const features = {
         "type": "FeatureCollection",
         "features": []
     };
-
+    var boundary = JSON.parse(req.body.boundary);
+    var zoom = parseInt(req.body.zoom);
+    var table_name = 'geom.oa11';
+    switch (true)
+    {
+        case zoom >= 16:
+            table_name = 'geom.oa11';
+            console.log('oa11');
+            break;
+        case (zoom < 16 && zoom >= 14):
+            console.log('lsoa11');
+            table_name = 'geom.lsoa11';
+            break;
+        case (zoom < 14 && zoom >= 12):
+            table_name = 'geom.wd16';
+        default:
+            table_name ='geom.oa11';
+    }
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, (err, client, done) => {
         // Handle connection errors
@@ -49,7 +66,7 @@ exports.getLsoa = function (req, res, next) {
             return res.status(500).json({success: false, data: err});
         }
         // SQL Query > Select Data
-        const query = client.query("SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM geom.lsoa11 WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON('" + JSON.stringify(req.body.geometry) + "'),4326))");
+        const query = client.query("SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM "+table_name+" WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON('" + JSON.stringify(boundary.geometry) + "'),4326))");
         //const query = client.query('SELECT lsoa11cd FROM geom.england_and_wales_lsoa_2011 limit 10');
         // Stream results back one row at a time
         query.on('row', (row) => {
@@ -77,7 +94,7 @@ exports.getLsoa = function (req, res, next) {
 exports.getHealth = function (req, res, next) {
     //var results = 'Area Code,Type,Year,Reports\n\r';
     //console.log(req.body);
-    var items = req.body;
+    var items = req.body.boundary;
     var lsoas = '';
     items.forEach(function (item) {
         lsoas += "'" + item + "',"

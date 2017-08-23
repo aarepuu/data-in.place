@@ -13,10 +13,10 @@ const app = express();
 const server = http.createServer(app);
 require('./config/express')(app);
 require('./routes')(app);
-require('./db')
+//require('./db')
 
 // Populate databases with sample data
-if (config.seedDB) { require('./config/seed'); }
+//if (config.seedDB) { require('./config/seed'); }
 
 
 // Start server
