@@ -13,7 +13,7 @@ var methodOverride= require('method-override');
 var cookieParser= require('cookie-parser');
 var errorHandler= require('errorhandler');
 var path= require('path');
-var lusca= require('lusca');
+var lusca = require('lusca');
 var config = require('./environment');
 //var passport= require('passport');
 var session= require('express-session');
@@ -61,7 +61,7 @@ module.exports = function (app) {
    * Lusca - express server security
    * https://github.com/krakenjs/lusca
    */
-  if (env !== 'test' && !process.env.SAUCE_USERNAME) {
+  /*if (env !== 'test') {
     app.use(lusca({
       csrf: {
         angular: true
@@ -74,7 +74,7 @@ module.exports = function (app) {
       },
       xssProtection: true
     }));
-  }
+  }*/
 
   if ('development' === env) {
     app.use(require('connect-livereload')({
