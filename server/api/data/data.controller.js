@@ -41,6 +41,7 @@ exports.getArea = function (req, res, next) {
     };
     var boundary = JSON.parse(req.body.boundary);
     var zoom = parseInt(req.body.zoom);
+    console.log(zoom);
     var table_name = 'geom.oa11';
     switch (true)
     {
@@ -48,12 +49,14 @@ exports.getArea = function (req, res, next) {
             table_name = 'geom.oa11';
             console.log('oa11');
             break;
-        case (zoom < 16 && zoom >= 14):
+        case (zoom <= 16 && zoom >= 14):
             console.log('lsoa11');
             table_name = 'geom.lsoa11';
             break;
-        case (zoom < 14 && zoom >= 12):
+        case (zoom <= 14 && zoom >= 12):
             table_name = 'geom.wd16';
+            console.log('wd16');
+            break;
         default:
             table_name ='geom.oa11';
     }

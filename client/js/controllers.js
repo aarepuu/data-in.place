@@ -6,17 +6,8 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
-
-        $scope.searchPostcode = function (code) {
-            $http.get("/api/data/loc/"+code).then(function(response, status) {
-                //console.log(response.data);
-                $scope.center.lat = response.data.latitude;
-                $scope.center.lng = response.data.longitude;
-                //$scope.center.zoom = 14;
-            });
-
-        }
         //Leaflet controller
+        $scope.maploading = false;
         angular.extend($scope, {
             center: {
                 lat: 55.00595160204387,
@@ -115,6 +106,9 @@ angular.module('raw.controllers', [])
                         type: 'geoJSONShape',
                         data: [],
                         visible: true,
+                        layerParams: {
+                            showOnSelector: false
+                        },
                         layerOptions: {
                             style: {
                                 color: '#00D',
@@ -153,23 +147,46 @@ angular.module('raw.controllers', [])
                     drawnItems.clearLayers();
                 });
                 map.on('draw:created', function (e) {
-                    var layer = e.layer;
-                    drawnItems.addLayer(layer);
-                    $scope.maploading = true;
-
-                    $http.post('/api/data/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(layer.toGeoJSON())}).then(function(response){
+                    $scope.boundary = e.layer;
+                    drawnItems.addLayer($scope.boundary);
+                    getArea($scope.boundary.toGeoJSON());
+                });
+                map.on('zoomend',function (e) {
+                    if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
+                        getArea($scope.boundary.toGeoJSON());
+                    }
+                });
+                function getArea(json){
+                    $scope.maploading = false;
+                    if (!json) return;
+                    $http.post('/api/data/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(json)}).then(function(response){
                         //handle your response here
                         $scope.maploading = false;
                         $scope.lsoas = response.data.lsoas;
                         //$scope.features = response.data.features;
                         areas.clearLayers();
                         areas.addData(response.data.features);
-
+                        //TODO - is this a good way?
+                        $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
+                }
 
-                });
             });
         });
+
+        function getArea(json){
+
+        }
+
+
+        //search postcode function
+        $scope.searchPostcode = function (code) {
+            $http.get("/api/data/loc/"+code).then(function(response) {
+                $scope.center.lat = response.data.latitude;
+                $scope.center.lng = response.data.longitude;
+            });
+
+        };
 
 
         //end Leaflet controller
