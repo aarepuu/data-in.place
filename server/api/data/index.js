@@ -16,6 +16,7 @@ router.post('/travel', controller.getTravel);
 router.post('/imd', controller.getImd);
 router.post('/pop', controller.getPop);
 router.post('/crime', controller.getCrime);
+router.post('/cc', controller.getCc);
 
 
 module.exports = router;

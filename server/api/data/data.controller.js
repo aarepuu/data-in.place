@@ -57,6 +57,10 @@ exports.getArea = function (req, res, next) {
             table_name = 'geom.wd16';
             console.log('wd16');
             break;
+        case (zoom <= 12 && zoom >= 10):
+            table_name = 'geom.lad16';
+            console.log('lad16');
+            break;
         default:
             table_name ='geom.oa11';
     }
@@ -88,7 +92,7 @@ exports.getArea = function (req, res, next) {
         // After all data is returned, close connection and return results
         query.on('end', () => {
             done();
-            return res.json({"features": features, "lsoas": lsoas});
+            return res.json({"features": features, "lsoas": lsoas,});
         });
     });
 }
@@ -311,6 +315,45 @@ exports.getLoc = function (req,res,next) {
             //console.log(res.rows[0]);
             return res.json(result.rows[0]);
 
+        });
+    });
+}
+
+
+exports.getCc = function (req,res,next) {
+    var items = req.body;
+    var lsoas = '';
+    items.forEach(function (item) {
+        lsoas += "'" + item + "',"
+    });
+    var results = []
+    var header = 'Session, start, end, oa11cd, lsoa11cd, wd16cd, lad16cd, lat, lng\r\n';
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, (err, client, done) => {
+        // Handle connection errors
+        if (err) {
+            done();
+            console.log(err);
+            return res.status(500).json({success: false, data: err});
+        }
+
+        // SQL Query > Select Data
+        const query = client.query('SELECT sessionid, starts, ends, oa11cd, lsoa11cd, wd16cd, lad16cd, lat, lng from stats.cc_simple WHERE oa11cd IN (' + lsoas.slice(0, -1) + ') OR lsoa11cd IN (' + lsoas.slice(0, -1) + ') OR wd16cd IN (' + lsoas.slice(0, -1) + ') OR lad16cd IN (' + lsoas.slice(0, -1) + ')');
+       // console.log('SELECT sessionid, start, end, oa11cd, lsoa11cd, wd16cd, lad16cd, ST_Y(loc), ST_X(loc) from stats.cc_simple WHERE oa11cd IN (' + lsoas.slice(0, -1) + ') OR lsoa11cd IN (' + lsoas.slice(0, -1) + ') OR wd16cd IN (' + lsoas.slice(0, -1) + ') OR lad16cd IN (' + lsoas.slice(0, -1) + ')');
+        //const query = client.query('SELECT lsoa11cd FROM geom.england_and_wales_lsoa_2011 limit 10');
+        // Stream results back one row at a time
+        query.on('row', (row) => {
+            //console.log(row.lsoa_code, ',', row.type, ',', row.year,',',  row.count, '\n\r');
+            //results += row.area_code + ',' + row.work_home + ',' + row.metro + ',' + row.train + ',' + row.bus + ',' + row.taxi + ',' + row.motocycle + ','
+            //  + row.car_or_van + ',' + row.car_share + ',' + row.bicycle + ',' + row.foot + ',' + row.other + ',' + row.unemployed + '\n\r';
+            //console.log(results)
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', () => {
+            done();
+            return res.send(ConvertToCSV(header, JSON.stringify(results)));
         });
     });
 }

@@ -10,10 +10,10 @@ angular.module('raw.controllers', [])
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
-                lat: 55.00595160204387,
-                lng: -1.4644002914428713,
-                //lat: 54.975470,
-                //lng: -1.621581,
+                //lat: 55.0156,
+                //lng: -1.67643,
+                lat: 55.00302271728109,
+                lng: -1.4633274078369143,
                 zoom: 14
             },
             controls: {
@@ -151,7 +151,13 @@ angular.module('raw.controllers', [])
                     drawnItems.addLayer($scope.boundary);
                     getArea($scope.boundary.toGeoJSON());
                 });
-                map.on('zoomend',function (e) {
+                /*map.on('zoomend',function (e) {
+                    if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
+                        getArea($scope.boundary.toGeoJSON());
+                    }
+                });*/
+                //TODO - make it separate
+                $scope.$watch('center.zoom',function () {
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         getArea($scope.boundary.toGeoJSON());
                     }
@@ -173,11 +179,6 @@ angular.module('raw.controllers', [])
 
             });
         });
-
-        function getArea(json){
-
-        }
-
 
         //search postcode function
         $scope.searchPostcode = function (code) {
@@ -386,7 +387,7 @@ angular.module('raw.controllers', [])
             {title: 'Economic Activity', type: 'Census 2011', url: '/api/data/eco', ctype: ''},
             {title: 'Long-term health problem', type: 'Census 2011', url: '/api/data/dis', ctype: ''},
             {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: ''},
-            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/crime', ctype: ''}
+            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/cc', ctype: ''}
 
         ]
 
