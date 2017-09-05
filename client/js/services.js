@@ -113,9 +113,9 @@ angular.module('raw.services', [])
 					return deferred.promise;
 				},
 
-		    loadSample : function(sample, lsoas){
+		    loadSample : function(sample, items){
 		      var deferred = $q.defer();
-		      $http.post(sample,lsoas)
+		      $http.post(sample,items)
 			      .then(function(response){
 			          deferred.resolve(response.data);
 			      },

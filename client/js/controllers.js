@@ -6,7 +6,44 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
+        $scope.dataView = 'table';
+        //wavesurfer options
+
+
+        $scope.options1 = {
+            waveColor      : '#c5c1be',
+            progressColor  : '#2A9FD6',
+            normalize      : true,
+            hideScrollbar  : true,
+            skipLength     : 15,
+            height         : 53,
+            cursorColor    : '#2A9FD6',
+            id             :  'mwcad-t1s1'
+        };
+
+        $scope.options2 = {
+            waveColor      : '#c5c1be',
+            progressColor  : '#2A9FD6',
+            normalize      : true,
+            hideScrollbar  : true,
+            skipLength     : 15,
+            height         : 53,
+            cursorColor    : '#2A9FD6',
+            id             :  'mwcad-t1s2'
+        };
+
+        $scope.wurl1 = './data/mwcad-t1s1.mp3';
+        $scope.wurl2 = './data/mwcad-t1s2.mp3';
+        //console.log($scope);
+        $scope.wavesurfers = [];
+        $scope.$on('wavesurferInit', function (e, wavesurfer) {
+           $scope.wavesurfers.push(wavesurfer);
+           //console.log(wavesurfer);
+
+        });
         //Leaflet controller
+
+
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
@@ -21,14 +58,14 @@ angular.module('raw.controllers', [])
                 scale: true,
                 draw: {
                     draw: {
-                        polyline: {
+                        polyline: false/*{
                             shapeOptions: {
                                 color: '#f357a1',
                                 weight: 3
 
                             },
 
-                        },
+                        }*/,
                         polygon: {
                             allowIntersection: false, // Restricts shapes to simple polygons
                             drawError: {
@@ -40,7 +77,7 @@ angular.module('raw.controllers', [])
                             }
                         },
                         circle: false, // Turns off this drawing tool
-                        marker: true,
+                        marker: false,
                         rectangle: false
 
                     }
@@ -122,10 +159,14 @@ angular.module('raw.controllers', [])
                     }
 
                 }
-            }
+            },
+            markers: {
+
+            },
         });
 
         function onEachFeature(feature, layer) {
+            layer._leaflet_id = layer.feature.properties.code;
             layer.on({
                 click: function() {
                     console.log(layer.feature);
@@ -138,10 +179,24 @@ angular.module('raw.controllers', [])
             })
         }
 
+        $scope.highlightFeature = function (id) {
+            //console.log(id)
+            var layer = $scope.areaLayer.getLayer(id);
+            layer.setStyle({fillColor :'blue'})
+
+        };
+
+        $scope.resetHighlight = function (id) {
+            var layer = $scope.areaLayer.getLayer(id);
+            layer.setStyle({fillColor :'red'})
+        };
+
+
         leafletData.getMap().then(function (map) {
             leafletData.getLayers().then(function (layers) {
                 var drawnItems = layers.overlays.draw;
-                var areas = layers.overlays.areas;
+                //TODO - not a good way
+                $scope.areaLayer = layers.overlays.areas;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     drawnItems.clearLayers();
@@ -166,12 +221,13 @@ angular.module('raw.controllers', [])
                     $scope.maploading = false;
                     if (!json) return;
                     $http.post('/api/data/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(json)}).then(function(response){
+                        //console.log(response.data);
                         //handle your response here
                         $scope.maploading = false;
-                        $scope.lsoas = response.data.lsoas;
+                        $scope.areas = response.data.areas;
                         //$scope.features = response.data.features;
-                        areas.clearLayers();
-                        areas.addData(response.data.features);
+                        $scope.areaLayer.clearLayers();
+                        $scope.areaLayer.addData(response.data.features);
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -188,8 +244,6 @@ angular.module('raw.controllers', [])
             });
 
         };
-
-
         //end Leaflet controller
 
 
@@ -380,15 +434,14 @@ angular.module('raw.controllers', [])
 
 
         $scope.samples = [
+            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/cc', ctype: 'Audio'},
             {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
             {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
             {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: ''},
-            {title: 'Population', type: 'Mid 2015', url: '/api/data/pop', ctype: 'Pie chart'},
+            {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
             {title: 'Economic Activity', type: 'Census 2011', url: '/api/data/eco', ctype: ''},
-            {title: 'Long-term health problem', type: 'Census 2011', url: '/api/data/dis', ctype: ''},
-            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: ''},
-            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/cc', ctype: ''}
-
+            {title: 'Housing', type: 'Census 2011', url: '/api/data/tenure', ctype: ''},
+            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: ''}
         ]
 
         $scope.selectSample = function (sample) {
@@ -396,7 +449,15 @@ angular.module('raw.controllers', [])
             if (!sample) return;
             $scope.text = "";
             $scope.loading = true;
-            dataService.loadSample(sample.url, $scope.lsoas).then(
+            //set current selected sample
+            $scope.currentSample = sample;
+            var codes = [];
+            $scope.areas.forEach(function (e) {
+                codes.push(e.code);
+            });
+
+
+            dataService.loadSample(sample.url, {"codes":codes,"zoom":$scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
                     $scope.ctype = sample.ctype;
@@ -420,13 +481,22 @@ angular.module('raw.controllers', [])
             $scope.$digest();
         });
 
+        $scope.$watch('areas', function(n,o){
+           if($scope.importMode == 'sample' && $scope.currentSample){
+               $scope.selectSample($scope.currentSample);
+           }
+        });
+
         $scope.$watch('dataView', function (n, o) {
+            //console.log($scope.dataView);
             if (!$('.parsed .CodeMirror')[0]) return;
             var cm = $('.parsed .CodeMirror')[0].CodeMirror;
             $timeout(function () {
                 cm.refresh()
             });
         });
+
+
 
         // init
         $scope.raw = raw;

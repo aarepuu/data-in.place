@@ -42,7 +42,8 @@
     "js-xlsx": "0.8.5",
     "d3-plugins-density": "latest",
     "leaflet-draw": "leaflet.draw#^0.4.9",
-    "leaflet.fullscreen": "^1.4.3"
+    "leaflet.fullscreen": "^1.4.3",
+    "underscore": "^1.8.3"
   },
   "resolutions": {
     "angular": "1.6.2"

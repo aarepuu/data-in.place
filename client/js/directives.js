@@ -453,7 +453,7 @@ angular.module('raw.directives', [])
     }
    })
 
-		.directive('draggable', function () {
+	.directive('draggable', function () {
 	    return {
 	      restrict: 'A',
 	      scope:false,
@@ -501,7 +501,7 @@ angular.module('raw.directives', [])
   	})
 
 
-.directive('rawTable', function () {
+    .directive('rawTable', function () {
   return {
     restrict: 'A',
     link: function postLink(scope, element, attrs) {
@@ -543,7 +543,49 @@ angular.module('raw.directives', [])
 				var rows = table.append("tbody")
 					.selectAll("tr")
 					.data(scope.data.sort(sort))
-					.enter().append("tr");
+					.enter().append("tr")
+                    .style("cursor", "pointer")
+                    .on("click", function(d) {
+                        if(!d.Latitude) return;
+                        //TODO - is it a good place for marker manipulation?
+                        if(!scope.markers.length) {
+                            angular.extend(scope, {
+                                markers: {
+                                    cc: {
+                                        lat: parseFloat(d.Latitude),
+                                        lng: parseFloat(d.Longitude),
+                                        message: "Current Conversation",
+                                        focus: true,
+
+                                    }
+                                }
+                            });
+                        } else {
+                            scope.markers.cc.lat = parseFloat(d.Latitude);
+                            scope.markers.cc.lng = parseFloat(d.Longitude);
+                        }
+
+                        scope.wavesurfers.forEach(function (wave) {
+							if(wave.container.id == d.Session){
+								wave.play(parseFloat(d.Start), parseFloat(d.End));
+								wave.playing = true;
+							} else if(wave.playing == true) {
+                                wave.pause();
+							}
+                        });
+                        //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
+                        //scope.wavesurfer.playing = true;
+
+                    })
+    		        .on("mouseover", function (d) {
+                        //var nodeSelection = d3.select(this);
+    		            //console.log(d);
+                        scope.highlightFeature(d["Area Code"]);
+                    })
+                    .on("mouseout", function (d) {
+                        scope.resetHighlight(d["Area Code"]);
+
+                    });
 
 				var cells = rows.selectAll("td")
 					.data(d3.values)
@@ -557,6 +599,10 @@ angular.module('raw.directives', [])
 	      return descending ? a[sortBy] < b[sortBy] ? -1 : a[sortBy] > b[sortBy] ? 1 : 0 : a[sortBy] < b[sortBy] ? 1 : a[sortBy] > b[sortBy] ? -1 : 0;
     	}
 
+    	function selectRow(){
+
+		}
+
     	scope.$watch('data', update);
     	scope.$watch('metadata', function(){
     		sortBy = null;
@@ -567,7 +613,7 @@ angular.module('raw.directives', [])
   };
 })
 
-.directive('copyButton', function () {
+    .directive('copyButton', function () {
   return {
     restrict: 'A',
     link: function postLink(scope, element, attrs) {
@@ -597,7 +643,7 @@ angular.module('raw.directives', [])
   };
 })
 
-.directive('coder', function () {
+    .directive('coder', function () {
   return {
     restrict: 'EA',
     template :  '<textarea id="source" readonly class="source-area" rows="4" ng-model="svgCode"></textarea>',
@@ -629,7 +675,7 @@ angular.module('raw.directives', [])
   };
 })
 
-.directive('downloader', function () {
+    .directive('downloader', function () {
     return {
       restrict: 'E',
       replace:true,
@@ -743,11 +789,10 @@ angular.module('raw.directives', [])
   };
 })
 
-
-/*
- This directive allows us to pass a function in on an enter key to do what we want.
- */
-.directive('ngEnter', function () {
+    /*
+       This directive allows us to pass a function in on an enter key to do what we want.
+    */
+    .directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
             if(event.which === 13) {
