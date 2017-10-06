@@ -6,6 +6,42 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
+
+        var points = [];
+        var heatmap = {
+            name: 'Heat Map',
+            type: 'heat',
+            data: points,
+            visible: true
+        };
+
+        var gradient = {
+            1: "#0000cc",
+            0.33: "#00ffff",
+            0.66: "#3399cc"
+        };
+
+        $http.get("data/heat-points.json").then(function(data) {
+            $scope.layers.overlays.heat = {
+
+                    name: 'Heat Map',
+                    type: 'heat',
+                    data: data.data,
+                    layerOptions: {
+                        radius: 2,
+                        blur: 3,
+                        minOpacity: 0.95,
+                        gradient: gradient
+                    },
+                    layerParams: {
+                        showOnSelector: true
+                    },
+                    visible: false
+
+            };
+        });
+
+
         $scope.dataView = 'table';
         //wavesurfer options
 
@@ -73,7 +109,7 @@ angular.module('raw.controllers', [])
                                 message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
                             },
                             shapeOptions: {
-                                color: '#bada55'
+                                color: 'rgb(86, 184, 129)'
                             }
                         },
                         circle: false, // Turns off this drawing tool
@@ -95,6 +131,21 @@ angular.module('raw.controllers', [])
              },*/
             layers: {
                 baselayers: {
+                    mapbox_light: {
+                        name: 'Mapbox Light',
+                        url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
+                        type: 'xyz',
+                        layerOptions: {
+                            apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
+                            mapid: 'cizldto5h001y2rpdzhfsurfa',
+                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                            detectRetina: true,
+                            reuseTiles: true,
+                        },
+                        layerParams: {
+                            showOnSelector: true
+                        }
+                    },
                     edina: {
                         name: 'Ordnance Survey',
                         url: 'http://openstream.edina.ac.uk/openstream/wms',
@@ -112,16 +163,17 @@ angular.module('raw.controllers', [])
                             minZoom: 6
                         }
                     },
-                    mapbox_light: {
-                        name: 'Mapbox Light',
+                   //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
+                    mapbox_notext: {
+                        name: 'Mapbox Notext',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
                         type: 'xyz',
                         layerOptions: {
                             apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                            mapid: 'cizldto5h001y2rpdzhfsurfa',
+                            mapid: 'cj7or2fkzb8ay2rqfarpanw10',
                             attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
                             detectRetina: true,
-                            reuseTiles: true,
+                            reuseTiles: false,
                         },
                         layerParams: {
                             showOnSelector: true
@@ -148,15 +200,17 @@ angular.module('raw.controllers', [])
                         },
                         layerOptions: {
                             style: {
-                                color: '#00D',
-                                fillColor: 'red',
+                                color: 'white',
+                                fillColor: '#FD8D3C',
                                 weight: 2.0,
+                                dashArray: '3',
                                 opacity: 0.6,
                                 fillOpacity: 0.2
                             },
                             onEachFeature: onEachFeature
                         }
-                    }
+                    },
+
 
                 }
             },
@@ -188,7 +242,8 @@ angular.module('raw.controllers', [])
 
         $scope.resetHighlight = function (id) {
             var layer = $scope.areaLayer.getLayer(id);
-            layer.setStyle({fillColor :'red'})
+            layer.setStyle({fillColor :'#FD8D3C'})
+
         };
 
 
@@ -434,14 +489,17 @@ angular.module('raw.controllers', [])
 
 
         $scope.samples = [
-            {title: 'Community Conversational', type: 'Open Lab', url: '/api/data/cc', ctype: 'Audio'},
+            {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
             {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
             {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
-            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: ''},
             {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
-            {title: 'Economic Activity', type: 'Census 2011', url: '/api/data/eco', ctype: ''},
-            {title: 'Housing', type: 'Census 2011', url: '/api/data/tenure', ctype: ''},
-            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: ''}
+            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
+            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
+            {title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
+            {title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
+            {title: 'Access to Car/Van', type: 'Census 2011', url: '/api/data/crime', ctype: 'Pie chart'},
+            {title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
+
         ]
 
         $scope.selectSample = function (sample) {

@@ -784,6 +784,11 @@ angular.module('raw.directives', [])
     		{ label : 'Data model (json)', download : downloadData }
     	]
     	//scope.mode = scope.modes[0]
+          scope.boundarys = [
+              { label : 'NP boundary 3', download : downloadSvg },
+              { label : 'NP boundary 2', download : downloadPng },
+              { label : 'NP boundary 1', download : downloadData }
+          ]
 
     }
   };

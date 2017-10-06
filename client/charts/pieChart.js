@@ -202,7 +202,7 @@
                     })
                     .attr("dy", ".35em")
                     .style("text-anchor", "middle")
-                    .style("font-size", "14px")
+                    .style("font-size", "10px")
                     .style("font-family", "Arial, Helvetica")
                     .style("fill", "#fff")
                     //.style({'stroke': 'Black', 'fill': 'White', 'stroke-width': '0.5px'})
