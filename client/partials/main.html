@@ -10,14 +10,15 @@
 				<div class="map-container">
 					<leaflet controls="controls" center="center" markers="markers" layers="layers" areas='areas' height="480" width="100%"></leaflet>
                     </br>
-                    <br>
-                        <!--Latitude : <input type="number" step="any" ng-model="center.lat">
+                    </br>
+                        Latitude : <input type="number" step="any" ng-model="center.lat">
                         Longitude : <input type="number" step="any" ng-model="center.lng">
                         Zoom : <input type="number" step="any" ng-model="center.zoom">
-                        Look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)"> <button class="btn btn-defaule">Search</button>--->
+						</br>
+						</br>
 						<input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname"> <button class="btn btn-success">Save</button>
 						<button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode" bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>
-
+						Look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)"> <button class="btn btn-defaule">Search</button>
                     </br>
                     <div data-ng-show="maploading" class="alert alert-loading"><i class="fa breath-right fa-refresh fa-spin"></i>Loading your boundary. Please wait.</div>
                 </div>

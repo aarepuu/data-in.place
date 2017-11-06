@@ -164,7 +164,7 @@ angular.module('raw.controllers', [])
                         }
                     },
                    //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                    mapbox_notext: {
+                   /* mapbox_notext: {
                         name: 'Mapbox Notext',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
                         type: 'xyz',
@@ -178,7 +178,7 @@ angular.module('raw.controllers', [])
                         layerParams: {
                             showOnSelector: true
                         }
-                    }
+                    }*/
 
                 },
                 overlays: {
