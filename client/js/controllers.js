@@ -275,7 +275,7 @@ angular.module('raw.controllers', [])
                 function getArea(json){
                     $scope.maploading = false;
                     if (!json) return;
-                    $http.post('/api/data/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(json)}).then(function(response){
+                    $http.post('/api/geo/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(json)}).then(function(response){
                         //console.log(response.data);
                         //handle your response here
                         $scope.maploading = false;
@@ -293,7 +293,7 @@ angular.module('raw.controllers', [])
 
         //search postcode function
         $scope.searchPostcode = function (code) {
-            $http.get("/api/data/loc/"+code).then(function(response) {
+            $http.get("/api/geo/loc/"+code).then(function(response) {
                 $scope.center.lat = response.data.latitude;
                 $scope.center.lng = response.data.longitude;
             });
@@ -495,10 +495,10 @@ angular.module('raw.controllers', [])
             {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
             {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
             {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
-            {title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
-            {title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
-            {title: 'Access to Car/Van', type: 'Census 2011', url: '/api/data/crime', ctype: 'Pie chart'},
-            {title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
+            //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
+            //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
+            //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
+            //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
 
         ]
 

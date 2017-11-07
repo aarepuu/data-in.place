@@ -4,7 +4,7 @@
   "description": "Open Data GIS tool for neighbourhood data",
   "main": "app.js",
   "dependencies": {
-    "body-parser": "^1.17.2",
+    "body-parser": "^1.18.2",
     "compression": "^1.7.0",
     "connect-livereload": "^0.6.0",
     "cookie-parser": "^1.4.3",
@@ -17,7 +17,7 @@
     "lusca": "^1.5.1",
     "method-override": "^2.3.9",
     "morgan": "^1.8.2",
-    "pg": "^6.4.2",
+    "pg": "^7.4.0",
     "serve-favicon": "^2.4.3"
   },
   "devDependencies": {},

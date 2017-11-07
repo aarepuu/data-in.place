@@ -1,16 +1,11 @@
 'use strict';
 
 var express = require('express');
-var controller = require('./data.controller');
+var controller = require('./data.controller.js');
 //var auth = require('../../auth/auth.service');
 
 var router = express.Router();
 
-
-//console.log(controller);
-router.get('/', controller.getHealth);
-router.get('/loc/:postcode', controller.getLoc);
-router.post('/area', controller.getArea);
 router.post('/health', controller.getHealth);
 router.post('/travel', controller.getTravel);
 router.post('/imd', controller.getImd);
