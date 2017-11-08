@@ -56,27 +56,22 @@ exports.getArea = function (req, res, next) {
         });
 
         return res.json({"features": features, "areas": areas});
-    })
-        .catch(e => console.error(e.stack));
+    }).catch(e => {
+        console.error(e.stack)
+        return res.status(500).json({success: false, data: e})
+    });
 }
 
 exports.getLoc = function (req, res, next) {
-    // Get a Postgres client from the connection pool
-    db.connect(connectionString, (err, client, done) => {
-        // Handle connection errors
-        if (err) {
-            done();
-            console.log(err);
-            return res.status(500).json({success: false, data: err});
-        }
-        // SQL Query > Select Data
-        const query = client.query("SELECT latitude, longitude from lookups.postcodes WHERE pcd7='" + req.params.postcode.toUpperCase() + "' OR pcd7='" + req.params.postcode.toUpperCase() + "';", function (err, result) {
-            console.log("SELECT latitude, longitude from lookups.postcodes WHERE pcd7='" + req.params.postcode.toUpperCase() + "' OR pcd7='" + req.params.postcode.toUpperCase() + "';");
-            done();
-            //console.log(res.rows[0]);
-            return res.json(result.rows[0]);
-
-        });
+    const query = {
+        text: "SELECT latitude, longitude from lookups.postcodes WHERE query=$1;",
+        values: [req.params.postcode.replace(' ', '').toUpperCase()]
+    };
+    db.query(query).then(result => {
+        return res.send(result.rows[0]);
+    }).catch(e => {
+        console.error(e.stack)
+        return res.status(500).json({success: false, data: e})
     });
 }
 
