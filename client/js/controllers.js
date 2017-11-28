@@ -148,7 +148,7 @@ angular.module('raw.controllers', [])
                     },
                     edina: {
                         name: 'Ordnance Survey',
-                        url: 'http://openstream.edina.ac.uk/openstream/wms',
+                        url: 'https://openstream.edina.ac.uk/openstream/wms',
                         type: 'wms',
                         layerOptions: {
                             token: '64aa1799ff5ee4d99c488ad58c1adcefc5fe59da0ecf3d29aab65bd4d359938f',
@@ -709,6 +709,7 @@ angular.module('raw.controllers', [])
                 var parser = raw.parser();
                 $scope.data = parser(text);
                 $scope.metadata = parser.metadata(text);
+                //TODO - parse for geodata
                 $scope.error = false;
                 pivotable($scope.data);
                 $scope.parsed = true;

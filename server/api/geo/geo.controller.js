@@ -64,7 +64,7 @@ exports.getArea = function (req, res, next) {
 
 exports.getLoc = function (req, res, next) {
     const query = {
-        text: "SELECT latitude, longitude from lookups.postcodes WHERE query=$1;",
+        text: "SELECT latitude, longitude from lookups.postcode_query WHERE pcd=$1;",
         values: [req.params.postcode.replace(' ', '').toUpperCase()]
     };
     db.query(query).then(result => {
@@ -112,8 +112,9 @@ function zoomLevel(zoom) {
             console.log('lad16');
             level = 'lad16';
             break;
+            break;
         default:
-            level = 'lad16';
+            level = 'rgn16';
     }
     return level;
 }
