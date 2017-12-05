@@ -4,28 +4,28 @@
 
 'use strict';
 
-var express = require('express'),
+const express = require('express'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
     lusca = require('lusca');
 
-var favicon = require('serve-favicon');
-var morgan = require('morgan');
-var compression = require('compression');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
+const favicon = require('serve-favicon');
+const morgan = require('morgan');
+const compression = require('compression');
+const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
 
-var errorHandler = require('errorhandler');
-var path = require('path');
+const errorHandler = require('errorhandler');
+const path = require('path');
 
-var config = require('./environment');
-//var passport= require('passport');
+const config = require('./environment');
+//const passport= require('passport');
 
 
-var cors = require('cors');
+const cors = require('cors');
 
 module.exports = function (app) {
-    var env = app.get('env');
+    const env = app.get('env');
 
 
     if (env === 'development' || env === 'test') {
@@ -64,7 +64,7 @@ module.exports = function (app) {
     }));
 
 
-    //TODO - look at this racing contition
+    //TODO - look at this racing condition
     /**
      * Lusca - express server security
      * https://github.com/krakenjs/lusca

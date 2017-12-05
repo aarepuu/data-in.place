@@ -8,8 +8,14 @@
 
 const _ = require('lodash');
 //var Data =  require('./geo.model');
-const db = require('../../db')
+const db = require('../../db');
 
+//Geojson validator
+const GJV = require("geojson-validation");
+
+//GeoJson converter
+//TODO - use this for making features from Postgres
+const  GeoJSON = require('geojson');
 
 const schema = 'geom';
 
@@ -74,6 +80,27 @@ exports.getLoc = function (req, res, next) {
         return res.status(500).json({success: false, data: e})
     });
 }
+
+exports.validateGeoJson = function (req, res, next) {
+    var json = JSON.parse(req.params.rawJson);
+    GJV.valid(json, function (isValid, errs) {
+        if (isValid) {
+            console.log('valid!');
+        } else {
+            errs.forEach(function (err) {
+                console.log(err);
+            });
+        }
+    });
+    return;
+};
+
+exports.parseGeoJson = function (req, res, next) {
+    //console.log(req.body.rawdata);
+    var geoJson = GeoJSON.parse(req.body.rawdata,{Point: [req.body.lat, req.body.lng]})
+    return res.json(geoJson);
+}
+
 
 /**
  *

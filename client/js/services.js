@@ -45,8 +45,7 @@ angular.module('raw.services', [])
 				},
 
 				loadURL : function(url) {
-
-
+						console.log("URL")
 
 				},
 

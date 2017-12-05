@@ -6,6 +6,7 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
+        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
 
         var points = [];
         var heatmap = {
@@ -21,22 +22,22 @@ angular.module('raw.controllers', [])
             0.66: "#3399cc"
         };
 
-        $http.get("data/heat-points.json").then(function(data) {
+        $http.get("data/heat-points.json").then(function (data) {
             $scope.layers.overlays.heat = {
 
-                    name: 'Heat Map',
-                    type: 'heat',
-                    data: data.data,
-                    layerOptions: {
-                        radius: 2,
-                        blur: 3,
-                        minOpacity: 0.95,
-                        gradient: gradient
-                    },
-                    layerParams: {
-                        showOnSelector: true
-                    },
-                    visible: false
+                name: 'Heat Map',
+                type: 'heat',
+                data: data.data,
+                layerOptions: {
+                    radius: 2,
+                    blur: 3,
+                    minOpacity: 0.95,
+                    gradient: gradient
+                },
+                layerParams: {
+                    showOnSelector: true
+                },
+                visible: false
 
             };
         });
@@ -47,25 +48,25 @@ angular.module('raw.controllers', [])
 
 
         $scope.options1 = {
-            waveColor      : '#c5c1be',
-            progressColor  : '#2A9FD6',
-            normalize      : true,
-            hideScrollbar  : true,
-            skipLength     : 15,
-            height         : 53,
-            cursorColor    : '#2A9FD6',
-            id             :  'mwcad-t1s1'
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s1'
         };
 
         $scope.options2 = {
-            waveColor      : '#c5c1be',
-            progressColor  : '#2A9FD6',
-            normalize      : true,
-            hideScrollbar  : true,
-            skipLength     : 15,
-            height         : 53,
-            cursorColor    : '#2A9FD6',
-            id             :  'mwcad-t1s2'
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s2'
         };
 
         $scope.wurl1 = './data/mwcad-t1s1.mp3';
@@ -73,8 +74,8 @@ angular.module('raw.controllers', [])
         //console.log($scope);
         $scope.wavesurfers = [];
         $scope.$on('wavesurferInit', function (e, wavesurfer) {
-           $scope.wavesurfers.push(wavesurfer);
-           //console.log(wavesurfer);
+            $scope.wavesurfers.push(wavesurfer);
+            //console.log(wavesurfer);
 
         });
         //Leaflet controller
@@ -95,13 +96,13 @@ angular.module('raw.controllers', [])
                 draw: {
                     draw: {
                         polyline: false/*{
-                            shapeOptions: {
-                                color: '#f357a1',
-                                weight: 3
+                         shapeOptions: {
+                         color: '#f357a1',
+                         weight: 3
 
-                            },
+                         },
 
-                        }*/,
+                         }*/,
                         polygon: {
                             allowIntersection: false, // Restricts shapes to simple polygons
                             drawError: {
@@ -163,22 +164,22 @@ angular.module('raw.controllers', [])
                             minZoom: 6
                         }
                     },
-                   //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                   /* mapbox_notext: {
-                        name: 'Mapbox Notext',
-                        url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
-                        type: 'xyz',
-                        layerOptions: {
-                            apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                            mapid: 'cj7or2fkzb8ay2rqfarpanw10',
-                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                            detectRetina: true,
-                            reuseTiles: false,
-                        },
-                        layerParams: {
-                            showOnSelector: true
-                        }
-                    }*/
+                    //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
+                    /* mapbox_notext: {
+                     name: 'Mapbox Notext',
+                     url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
+                     type: 'xyz',
+                     layerOptions: {
+                     apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
+                     mapid: 'cj7or2fkzb8ay2rqfarpanw10',
+                     attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                     detectRetina: true,
+                     reuseTiles: false,
+                     },
+                     layerParams: {
+                     showOnSelector: true
+                     }
+                     }*/
 
                 },
                 overlays: {
@@ -190,7 +191,7 @@ angular.module('raw.controllers', [])
                             showOnSelector: false
                         }
                     },
-                    areas:{
+                    areas: {
                         name: 'areas',
                         type: 'geoJSONShape',
                         data: [],
@@ -210,39 +211,66 @@ angular.module('raw.controllers', [])
                             onEachFeature: onEachFeature
                         }
                     },
+                    data: {
+                        name: 'datalayer',
+                        type: 'geoJSONShape',
+                        data: [],
+                        visible: true,
+                        layerParams: {
+                            showOnSelector: true
+                        },
+                        layerOptions: {
+                            pointToLayer: function (feature, latlng) {
+                                return L.circleMarker(latlng, {
+                                    radius: getPointSize(feature.properties),
+                                    fillColor: getPointColour(feature.properties),
+                                    color: "#000",
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                });
+                            }
+                        }
+
+                    }
 
 
                 }
             },
-            markers: {
-
-            },
+            markers: {},
         });
 
+        function getPointColour(props) {
+            return "#ff7800";
+        }
+        function getPointSize(props){
+            return 8;
+        }
         function onEachFeature(feature, layer) {
             layer._leaflet_id = layer.feature.properties.code;
             layer.on({
-                click: function() {
+                click: function () {
                     console.log(layer.feature);
                     //$scope.country = layer.feature.properties.name;
 
                 },
-                mouseover: function(){
+                mouseover: function () {
                     console.log(layer.feature.properties.name);
                 }
             })
         }
 
         $scope.highlightFeature = function (id) {
-            //console.log(id)
+            if(!id) return;
             var layer = $scope.areaLayer.getLayer(id);
-            layer.setStyle({fillColor :'blue'})
+            layer.setStyle({fillColor: 'blue'})
 
         };
 
         $scope.resetHighlight = function (id) {
+            if(!id) return;
             var layer = $scope.areaLayer.getLayer(id);
-            layer.setStyle({fillColor :'#FD8D3C'})
+            layer.setStyle({fillColor: '#FD8D3C'})
 
         };
 
@@ -251,7 +279,9 @@ angular.module('raw.controllers', [])
             leafletData.getLayers().then(function (layers) {
                 var drawnItems = layers.overlays.draw;
                 //TODO - not a good way
+                $scope.map = map;
                 $scope.areaLayer = layers.overlays.areas;
+                $scope.dataLayer = layers.overlays.data;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     drawnItems.clearLayers();
@@ -262,20 +292,23 @@ angular.module('raw.controllers', [])
                     getArea($scope.boundary.toGeoJSON());
                 });
                 /*map.on('zoomend',function (e) {
-                    if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
-                        getArea($scope.boundary.toGeoJSON());
-                    }
-                });*/
+                 if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
+                 getArea($scope.boundary.toGeoJSON());
+                 }
+                 });*/
                 //TODO - make it separate
-                $scope.$watch('center.zoom',function () {
+                $scope.$watch('center.zoom', function () {
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         getArea($scope.boundary.toGeoJSON());
                     }
                 });
-                function getArea(json){
+                function getArea(json) {
                     $scope.maploading = false;
                     if (!json) return;
-                    $http.post('/api/geo/area', {zoom: $scope.center.zoom, boundary: JSON.stringify(json)}).then(function(response){
+                    $http.post('/api/geo/area', {
+                        zoom: $scope.center.zoom,
+                        boundary: JSON.stringify(json)
+                    }).then(function (response) {
                         //console.log(response.data);
                         //handle your response here
                         $scope.maploading = false;
@@ -293,7 +326,7 @@ angular.module('raw.controllers', [])
 
         //search postcode function
         $scope.searchPostcode = function (code) {
-            $http.get("/api/geo/loc/"+code).then(function(response) {
+            $http.get("/api/geo/loc/" + code).then(function (response) {
                 $scope.center.lat = response.data.latitude;
                 $scope.center.lng = response.data.longitude;
             });
@@ -515,15 +548,15 @@ angular.module('raw.controllers', [])
             });
 
 
-            dataService.loadSample(sample.url, {"codes":codes,"zoom":$scope.center.zoom}).then(
+            dataService.loadSample(sample.url, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
                     $scope.ctype = sample.ctype;
                     //TODO - add stats to features
                     //console.log($scope.text);
                     /*$scope.features.features.forEach(function (feature) {
-                        console.log(feature);
-                    });*/
+                     console.log(feature);
+                     });*/
                     $scope.loading = false;
                 },
                 function (error) {
@@ -539,10 +572,10 @@ angular.module('raw.controllers', [])
             $scope.$digest();
         });
 
-        $scope.$watch('areas', function(n,o){
-           if($scope.importMode == 'sample' && $scope.currentSample){
-               $scope.selectSample($scope.currentSample);
-           }
+        $scope.$watch('areas', function (n, o) {
+            if ($scope.importMode == 'sample' && $scope.currentSample) {
+                $scope.selectSample($scope.currentSample);
+            }
         });
 
         $scope.$watch('dataView', function (n, o) {
@@ -553,7 +586,6 @@ angular.module('raw.controllers', [])
                 cm.refresh()
             });
         });
-
 
 
         // init
@@ -597,6 +629,13 @@ angular.module('raw.controllers', [])
             $scope.worksheets = [];
             $scope.fileName = null;
             $scope.url = "";
+            $scope.georeference = false;
+            $scope.georeferencing = false;
+            $scope.geotype = false;
+            $scope.geoType = false;
+            $scope.lngColumn = false;
+            $scope.latColumn = false;
+            $scope.pcodeColumn = false;
             //$scope.$apply();
         })
 
@@ -625,6 +664,41 @@ angular.module('raw.controllers', [])
 
             $scope.unstacked = true;
 
+        }
+
+        $scope.geoReference = function () {
+            if (!$scope.pcodeColumn && (!$scope.latColumn || !$scope.lngColumn)) return;
+
+
+            var data = $scope.data;
+            if ($scope.geoType == 'Longitude and Latitude') {
+
+                $scope.maploading = true;
+                //console.log(data.map(function(d) { return d[$scope.latColumn.key] +","+d[$scope.lngColumn.key]; }));
+                $http.post('/api/geo/parse', {
+                    rawdata: data,
+                    lng: $scope.lngColumn.key,
+                    lat: $scope.latColumn.key
+                }).then(function (response) {
+                    //TODO - what happens with big data?
+                    $scope.dataLayer.clearLayers();
+                    $scope.dataLayer.addData(response.data);
+                    $scope.map.fitBounds($scope.dataLayer.getBounds());
+                    $scope.maploading = false;
+                });
+
+            } else {
+                //postcode
+                var postcodes = data.map(function(d) { return d[$scope.pColumn.key]; })
+                $http.post('/api/geo/pcodes', postcodes).then(function (response) {
+
+
+
+                });
+
+            }
+            $scope.georeferencing = false;
+            $scope.georeference = true;
         }
 
         $scope.stack = function () {
@@ -719,7 +793,7 @@ angular.module('raw.controllers', [])
                         return d3.ascending(a.category(), b.category()) || d3.ascending(a.title(), b.title())
                     })
                     $scope.chart = $scope.charts.filter(function (d) {
-                        return d.title() ==  ($scope.ctype ? $scope.ctype : 'Scatter Plot');
+                        return d.title() == ($scope.ctype ? $scope.ctype : 'Scatter Plot');
                     })[0];
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });
