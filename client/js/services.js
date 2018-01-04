@@ -50,7 +50,6 @@ angular.module('raw.services', [])
 				},
 
 				loadExcel : function(file){
-
 					var deferred = $q.defer();
 
 					var reader = new FileReader();

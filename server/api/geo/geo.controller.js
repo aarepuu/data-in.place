@@ -70,13 +70,13 @@ exports.getArea = function (req, res, next) {
 
 exports.getLoc = function (req, res, next) {
     const query = {
-        text: "SELECT latitude, longitude from lookups.postcode_query WHERE pcd=$1;",
+        text: "SELECT latitude as lat, longitude as lng from geom.postcode_query WHERE pcd=$1;",
         values: [req.params.postcode.replace(' ', '').toUpperCase()]
     };
     db.query(query).then(result => {
         return res.send(result.rows[0]);
     }).catch(e => {
-        console.error(e.stack)
+        console.error(e.stack);
         return res.status(500).json({success: false, data: e})
     });
 }
@@ -101,6 +101,18 @@ exports.parseGeoJson = function (req, res, next) {
     return res.json(geoJson);
 }
 
+exports.geoCode = function (req, res, next) {
+    var pcodes = queryParams(req.body);
+    const query = {
+        text: "SELECT * from geom.postcode_query WHERE pcd IN ("+pcodes+");",
+    };
+    db.query(query).then(result => {
+        return res.json(result.rows);
+    }).catch(e => {
+        console.error(e.stack)
+        return res.status(500).json({success: false, data: e})
+    });
+}
 
 /**
  *
@@ -112,6 +124,21 @@ function ConvertToGeoJSON(geomArray) {
         "type": "FeatureCollection",
         "features": []
     };
+}
+
+
+/**
+ * Function for converting array to sql comma separated list
+ *
+ * @param items
+ * @returns {string}
+ */
+function queryParams(items) {
+    var areas = '';
+    items.forEach(function (item) {
+        areas += "'" + item + "',"
+    });
+    return areas.slice(0, -1);
 }
 
 /**

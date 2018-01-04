@@ -158,7 +158,7 @@
             var re = new RegExp(/\blon(g|gitude)|lng|lat(itude)?\b/ig);
 
             string.forEach(function (d) {
-                if(re.exec(d)){
+                if (re.exec(d)) {
                     console.log("match")
                 }
             });
@@ -922,11 +922,23 @@
 
     }
 
+    raw.osnFormat = new RegExp(/^[EWSN]{1}\d{8}$/g);
+
+    raw.isOsnCode = function (value) {
+        var isOsnCode = false;
+        if (value.trim().match(raw.osnFormat)) {
+            isOsnCode = true;
+        }
+        return isOsnCode;
+    }
+
+
     raw.typeOf = function (value) {
         if (value === null || value.length === 0) return null;
         if (raw.isDate(value)) return Date.name;
         if (raw.isPostCode(value)) return "Geometry";
         //if (raw.isLnglat(value)) return "Geometry";
+        if (raw.isOsnCode(value)) return "Geometry";
         if (raw.isNumber(value)) return Number.name;
         if (raw.isString(value)) return String.name;
         return null;

@@ -8,39 +8,15 @@ angular.module('raw.controllers', [])
 
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
 
+
         var points = [];
-        var heatmap = {
-            name: 'Heat Map',
-            type: 'heat',
-            data: points,
-            visible: true
-        };
+
 
         var gradient = {
             1: "#0000cc",
             0.33: "#00ffff",
             0.66: "#3399cc"
         };
-
-        $http.get("data/heat-points.json").then(function (data) {
-            $scope.layers.overlays.heat = {
-
-                name: 'Heat Map',
-                type: 'heat',
-                data: data.data,
-                layerOptions: {
-                    radius: 2,
-                    blur: 3,
-                    minOpacity: 0.95,
-                    gradient: gradient
-                },
-                layerParams: {
-                    showOnSelector: true
-                },
-                visible: false
-
-            };
-        });
 
 
         $scope.dataView = 'table';
@@ -232,6 +208,22 @@ angular.module('raw.controllers', [])
                             }
                         }
 
+                    },
+                    heat: {
+                        name: 'Heat Map',
+                        type: 'heat',
+                        data: points,
+                        layerOptions: {
+                            radius: 2,
+                            blur: 3,
+                            minOpacity: 0.95,
+                            gradient: gradient
+                        },
+                        layerParams: {
+                            showOnSelector: true
+                        },
+                        visible: true
+
                     }
 
 
@@ -243,9 +235,11 @@ angular.module('raw.controllers', [])
         function getPointColour(props) {
             return "#ff7800";
         }
-        function getPointSize(props){
+
+        function getPointSize(props) {
             return 8;
         }
+
         function onEachFeature(feature, layer) {
             layer._leaflet_id = layer.feature.properties.code;
             layer.on({
@@ -261,14 +255,14 @@ angular.module('raw.controllers', [])
         }
 
         $scope.highlightFeature = function (id) {
-            if(!id) return;
+            if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
             layer.setStyle({fillColor: 'blue'})
 
         };
 
         $scope.resetHighlight = function (id) {
-            if(!id) return;
+            if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
             layer.setStyle({fillColor: '#FD8D3C'})
 
@@ -282,6 +276,7 @@ angular.module('raw.controllers', [])
                 $scope.map = map;
                 $scope.areaLayer = layers.overlays.areas;
                 $scope.dataLayer = layers.overlays.data;
+                $scope.heatLayer = layers.overlays.heat;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     drawnItems.clearLayers();
@@ -314,8 +309,12 @@ angular.module('raw.controllers', [])
                         $scope.maploading = false;
                         $scope.areas = response.data.areas;
                         //$scope.features = response.data.features;
+                        /*response.data.features.features.forEach(function (feature) {
+                         console.log(feature.code);
+                         });*/
                         $scope.areaLayer.clearLayers();
                         $scope.areaLayer.addData(response.data.features);
+
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -444,6 +443,18 @@ angular.module('raw.controllers', [])
 
         }
 
+        function uniq(a) {
+            var prims = {"boolean": {}, "number": {}, "string": {}}, objs = [];
+
+            return a.filter(function (item) {
+                var type = typeof item;
+                if (type in prims)
+                    return prims[type].hasOwnProperty(item) ? false : (prims[type][item] = true);
+                else
+                    return objs.indexOf(item) >= 0 ? false : objs.push(item);
+            });
+        }
+
         // load URl
         $scope.$watch('url', function (url) {
 
@@ -467,7 +478,7 @@ angular.module('raw.controllers', [])
 
                     $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer'})
                         .then(function (response) {
-
+                                console.log(response);
                                 var data = new Uint8Array(response.data);
                                 var arr = new Array();
                                 for (var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
@@ -514,7 +525,7 @@ angular.module('raw.controllers', [])
                                 $scope.loading = false;
                                 $scope.error = "Something wrong with the URL you provided. Please be sure it is the correct address.";
                             }
-                        )
+                        );
 
                 });
 
@@ -668,37 +679,71 @@ angular.module('raw.controllers', [])
 
         $scope.geoReference = function () {
             if (!$scope.pcodeColumn && (!$scope.latColumn || !$scope.lngColumn)) return;
-
-
+            $scope.loading = true;
             var data = $scope.data;
             if ($scope.geoType == 'Longitude and Latitude') {
-
-                $scope.maploading = true;
-                //console.log(data.map(function(d) { return d[$scope.latColumn.key] +","+d[$scope.lngColumn.key]; }));
+                //lng and lat
                 $http.post('/api/geo/parse', {
                     rawdata: data,
                     lng: $scope.lngColumn.key,
                     lat: $scope.latColumn.key
                 }).then(function (response) {
+                    $scope.loading = false;
+                    $scope.maploading = true;
                     //TODO - what happens with big data?
                     $scope.dataLayer.clearLayers();
                     $scope.dataLayer.addData(response.data);
                     $scope.map.fitBounds($scope.dataLayer.getBounds());
                     $scope.maploading = false;
                 });
-
             } else {
                 //postcode
-                var postcodes = data.map(function(d) { return d[$scope.pColumn.key]; })
-                $http.post('/api/geo/pcodes', postcodes).then(function (response) {
+                //var postcodes = data.map(function(d) { return d[$scope.pcodeColumn.key].replace(' ', '').toUpperCase(); });
+                //remove empty ones
+                data = data.filter(function (d) {
+                    if (!(!d[$scope.pcodeColumn.key] || /^\s*$/.test(d[$scope.pcodeColumn.key]))) return d[$scope.pcodeColumn.key];
+                });
+                var nested_data = d3.nest()
+                    .key(function (d) {
+                        return d[$scope.pcodeColumn.key].replace(/\s+/g, '').toUpperCase()
+                    })
+                    .rollup(function (leaves) {
+                        return leaves.length;
+                    })
+                    .entries(data);
+                var max = d3.max(nested_data.map(function (d) {
+                    return d.values;
+                }));
+                var postcodes = nested_data.map(function (d) {
+                    return d.key;
+                });
+                $http.post('/api/geo/code', postcodes).then(function (response) {
+                    var result = join(nested_data, response.data, "key", "pcd", function (geom, places) {
+                        /*return {
+                         postcode: geom.pcd,
+                         latitude: geom.latitude,
+                         longitude: geom.longitude,
+                         value: (places !== undefined) ? places.values/max : null,
+                         };*/
+                        return [
+                            geom.latitude,
+                            geom.longitude,
+                            (places !== undefined) ? places.values / max : null
+                        ];
+                    });
+                    $scope.loading = false;
+                    $scope.maploading = true;
 
+                    $scope.heatLayer.setLatLngs(result);
 
-
+                    $scope.maploading = false;
+                    //TODO - reset fields properly
+                    $scope.georeferencing = false;
+                    $scope.georeference = true;
                 });
 
             }
-            $scope.georeferencing = false;
-            $scope.georeference = true;
+
         }
 
         $scope.stack = function () {
@@ -714,6 +759,23 @@ angular.module('raw.controllers', [])
             $scope.structure = [];
             //console.log(JSON.parse(json));
             expand(tree);
+        }
+
+        function join(lookupTable, mainTable, lookupKey, mainKey, select) {
+            var l = lookupTable.length,
+                m = mainTable.length,
+                lookupIndex = [],
+                output = [];
+            for (var i = 0; i < l; i++) { // loop through l items
+                var row = lookupTable[i];
+                lookupIndex[row[lookupKey]] = row; // create an index for lookup table
+            }
+            for (var j = 0; j < m; j++) { // loop through m items
+                var y = mainTable[j];
+                var x = lookupIndex[y[mainKey]]; // get corresponding row from lookupTable
+                output.push(select(y, x)); // select only the columns you need
+            }
+            return output;
         }
 
 

@@ -10,6 +10,7 @@ router.get('/loc/:postcode', controller.getLoc);
 router.post('/area', controller.getArea);
 router.post('/lint', controller.validateGeoJson);
 router.post('/parse', controller.parseGeoJson);
+router.post('/code', controller.geoCode);
 
 
 module.exports = router;
