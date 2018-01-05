@@ -19,6 +19,7 @@
     "lusca": "^1.5.1",
     "method-override": "^2.3.9",
     "morgan": "^1.8.2",
+    "nodemon": "^1.14.7",
     "pg": "^7.4.0",
     "serve-favicon": "^2.4.3"
   },
