@@ -6,6 +6,32 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
+
+        /*$scope.samples = [
+            {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
+            {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
+            {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
+            {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
+            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
+            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
+            {title: 'Police Streets', type: 'January 2017', url: $scope.coords, ctype: 'Pie chart', api: true},
+            //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
+            //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
+            //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
+            //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
+
+        ]*/
+
+
+
+            //get the datasets
+            $http.get("/api/data/sources").then(function (response) {
+                $scope.datasets = response.data;
+            });
+
+
+
+
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
 
 
@@ -54,9 +80,8 @@ angular.module('raw.controllers', [])
             //console.log(wavesurfer);
 
         });
+
         //Leaflet controller
-
-
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
@@ -283,6 +308,8 @@ angular.module('raw.controllers', [])
                 });
                 map.on('draw:created', function (e) {
                     $scope.boundary = e.layer;
+                    //Police query format
+                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0].join(':');
                     drawnItems.addLayer($scope.boundary);
                     getArea($scope.boundary.toGeoJSON());
                 });
@@ -308,6 +335,11 @@ angular.module('raw.controllers', [])
                         //handle your response here
                         $scope.maploading = false;
                         $scope.areas = response.data.areas;
+                        //All areas in a comma separated string
+                        $scope.areastring = $scope.areas.map(function (area) {
+                            return area.code;
+                        }).toString();
+                        //TODO - add properties to areas
                         //$scope.features = response.data.features;
                         /*response.data.features.features.forEach(function (feature) {
                          console.log(feature.code);
@@ -326,8 +358,8 @@ angular.module('raw.controllers', [])
         //search postcode function
         $scope.searchPostcode = function (code) {
             $http.get("/api/geo/loc/" + code).then(function (response) {
-                $scope.center.lat = response.data.latitude;
-                $scope.center.lng = response.data.longitude;
+                $scope.center.lat = response.data.lat;
+                $scope.center.lng = response.data.lng;
             });
 
         };
@@ -532,37 +564,31 @@ angular.module('raw.controllers', [])
         });
 
 
-        $scope.samples = [
-            {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
-            {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
-            {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
-            {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
-            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
-            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
-            //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
-            //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
-            //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
-            //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
+        $scope.selectDataset = function (dataset) {
+            if (!dataset) return;
 
-        ]
+            //process url
+            if (dataset.api) {
+                console.log(dataset.url)
+                $scope.url = dataset.url;
+                return;
+            }
 
-        $scope.selectSample = function (sample) {
-//    $scope.$watch('sample', function (sample){
-            if (!sample) return;
             $scope.text = "";
             $scope.loading = true;
-            //set current selected sample
-            $scope.currentSample = sample;
-            var codes = [];
-            $scope.areas.forEach(function (e) {
-                codes.push(e.code);
+            //set current selected dataset
+            $scope.currentDataset = dataset;
+
+
+            var codes = $scope.areas.map(function (area) {
+                return area.code;
             });
 
 
-            dataService.loadSample(sample.url, {"codes": codes, "zoom": $scope.center.zoom}).then(
+            dataService.loadDataset(dataset.url, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
-                    $scope.ctype = sample.ctype;
+                    $scope.ctype = dataset.ctype;
                     //TODO - add stats to features
                     //console.log($scope.text);
                     /*$scope.features.features.forEach(function (feature) {
@@ -584,8 +610,8 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
-            if ($scope.importMode == 'sample' && $scope.currentSample) {
-                $scope.selectSample($scope.currentSample);
+            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+                $scope.selectDataset($scope.currentDataset);
             }
         });
 
@@ -606,7 +632,7 @@ angular.module('raw.controllers', [])
         $scope.error = false;
         //$scope.loading = true;
 
-        $scope.importMode = 'sample';
+        $scope.importMode = 'dataset';
 
         $scope.categories = ['Hierarchies', 'Time Series', 'Distributions', 'Correlations', 'Others'];
 

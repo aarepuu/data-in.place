@@ -6,6 +6,7 @@ var controller = require('./data.controller.js');
 
 var router = express.Router();
 
+router.get('/sources',controller.getDatasets);
 router.post('/health', controller.getHealth);
 router.post('/travel', controller.getTravel);
 router.post('/imd', controller.getImd);

@@ -23,6 +23,18 @@ function respondWithResult(res, statusCode) {
     };
 }
 
+
+exports.getDatasets = function (req, res, next) {
+    const query = {
+        text: "SELECT * from stats.datasets;",
+    };
+    db.query(query).then(result => {
+        return res.json(result.rows);
+    }).catch(e => {
+        console.error(e.stack);
+        return res.status(500).json({success: false, data: e})
+    });
+}
 exports.getHealth = function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
@@ -186,6 +198,7 @@ function ConvertToCSV(header, objArray) {
     return str;
 }
 
+//TODO - try if toString() works
 /**
  * Function for converting array to sql comma separated list
  *

@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 </br>
-                <!-- Lsos -->
+                <!-- Areas -->
                 <div ng-show="areas">
                     <label>
                         <strong>
@@ -38,15 +38,15 @@
                         </strong>
                     </label>
                     <div class="row">
-                        <ul class="col-lg-3 list-unstyled" ng-repeat="s in areas">
-                            <li ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
+                        <div class="col-lg-2 list-unstyled" ng-repeat="s in areas">
+                            <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
                                 <input type="checkbox" checked="true" value="{{s.code}}">
                                 <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
                                    target="_blank">
                                     {{s.name}}
                                 </a>
-                            </li>
-                        </ul>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -98,8 +98,8 @@
                 <div class="col-lg-2">
 
                     <ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
-                        <li role="presentation" ng-class="{active:!parsed && importMode=='sample'}"><a href="#"
-                                                                                                       ng-click="parsed=false;importMode='sample'"><i
+                        <li role="presentation" ng-class="{active:!parsed && importMode=='dataset'}"><a href="#"
+                                                                                                       ng-click="parsed=false;importMode='dataset'"><i
                                 class="fa fa-database breath-right"></i>Pick a dataset</a></li>
                         <li role="presentation" ng-class="{active:!parsed && importMode=='clipboard'}"><a href="#"
                                                                                                           ng-click="parsed=false;importMode='clipboard'"><i
@@ -203,14 +203,14 @@
                     <p ng-show="json" class="help-block">Please select the array <strong>[ ]</strong> containing the
                         records you want to load from the JSON above.</p>
 
-                    <!-- Sample -->
-                    <div ng-show="importMode=='sample' && !parsed">
+                    <!-- Dataset -->
+                    <div ng-show="importMode=='dataset' && !parsed">
                         <div class="row">
-                            <div class="col-lg-3" ng-repeat="s in samples" ng-click="selectSample(s)">
+                            <div class="col-lg-3" ng-repeat="s in datasets" ng-click="selectDataset(s)">
                                 <div class="layout">
                                     <div class="layout-inner">
                                         <span>{{s.title}}</span>
-                                        <span class="text-muted layout-category">{{s.type}}</span>
+                                        <span class="text-muted layout-category">{{s.source}}</span>
                                     </div>
                                 </div>
                             </div>

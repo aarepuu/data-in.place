@@ -540,11 +540,11 @@ angular.module('raw.directives', [])
 					.attr("class", function (d){ return descending ? "fa fa-sort-desc pull-right" : "fa fa-sort-asc pull-right"})
 					.style("opacity", function (d){ return d.key == sortBy ? 1 : 0; })
 
-            	var viewdata = scope.data.slice((1-1)*40,1*40);
+            	//var viewdata = scope.data.slice((1-1)*40,1*40);
 
 				var rows = table.append("tbody")
 					.selectAll("tr")
-					.data(viewdata.sort(sort))
+					.data(scope.data.sort(sort))
 					.enter().append("tr")
                     .style("cursor", "pointer")
                     .on("click", function(d) {
