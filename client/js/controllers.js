@@ -504,13 +504,12 @@ angular.module('raw.controllers', [])
             // first trying jsonp
             $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback'})
                 .then(function (response) {
+                    if (!$scope.currentDataset)
                     $scope.fileName = url;
                     parseData(response.data);
                 }, function (response) {
-
                     $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer'})
                         .then(function (response) {
-                                console.log(response);
                                 var data = new Uint8Array(response.data);
                                 var arr = new Array();
                                 for (var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
@@ -529,7 +528,7 @@ angular.module('raw.controllers', [])
                                             rows: worksheet['!range'].e.r
                                         })
                                     });
-
+                                    if (!$scope.currentDataset)
                                     $scope.fileName = url;
                                     $scope.loading = false;
 
@@ -542,6 +541,7 @@ angular.module('raw.controllers', [])
                                     }
                                 }
                                 catch (error) {
+                                    if (!$scope.currentDataset)
                                     $scope.fileName = url;
                                     try {
                                         var json = JSON.parse(bstr);
@@ -567,24 +567,23 @@ angular.module('raw.controllers', [])
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
 
-            //process url
-            if (dataset.api) {
-                console.log(dataset.url)
-                $scope.url = dataset.url;
-                return;
-            }
-
             $scope.text = "";
             $scope.loading = true;
             //set current selected dataset
             $scope.currentDataset = dataset;
 
+            //process url
+            if (dataset.api_link) {
+                $scope.url = dataset.api_link+$scope.areastring;
+                return;
+            }
+
+
+
 
             var codes = $scope.areas.map(function (area) {
                 return area.code;
             });
-
-
             dataService.loadDataset(dataset.url, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
@@ -610,7 +609,10 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
-            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+            //TODO - workaround with url datasets
+            //if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+            if ($scope.currentDataset) {
+                console.log("update");
                 $scope.selectDataset($scope.currentDataset);
             }
         });
@@ -684,8 +686,11 @@ angular.module('raw.controllers', [])
             var data = $scope.data;
             var base = $scope.stackDimension.key;
 
+            //TODO - hard coded values
             var unstacked = [];
+            //var unstacked = pivot(data,0,1,2,base);
 
+            //TODO - look into this stacking
             data.forEach(function (row) {
                 for (var column in row) {
                     if (column == base) continue;
@@ -696,6 +701,9 @@ angular.module('raw.controllers', [])
                     unstacked.push(obj);
                 }
             })
+
+
+
             $scope.oldData = data;
             parseText(d3.tsv.format(unstacked));
 
@@ -822,7 +830,6 @@ angular.module('raw.controllers', [])
         // calculate if values usually appear in more columns
 
         function pivotable(array) {
-
             var n = array.length;
             var rows = {};
 
@@ -854,6 +861,45 @@ angular.module('raw.controllers', [])
         }
 
 
+        //TODO - test performance
+        function pivot(dataArray, rowIndex, colIndex, dataIndex,stackDimension) {
+            //inspired by code from http://techbrij.com
+            var result = {}, ret = [];
+            var newCols = [];
+            var keys = Object.keys(dataArray[0])
+            for (var i = 0; i < dataArray.length; i++) {
+                if (!result[dataArray[i][keys[rowIndex]]]) {
+                    result[dataArray[i][keys[rowIndex]]] = {};
+                }
+                result[dataArray[i][keys[rowIndex]]][dataArray[i][keys[colIndex]]] = dataArray[i][keys[dataIndex]];
+
+                //To get column names
+                if (newCols.indexOf(dataArray[i][keys[colIndex]]) == -1) {
+                    newCols.push(dataArray[i][keys[colIndex]]);
+                }
+            }
+
+
+            //newCols.sort();
+            //var headers = [];
+
+            //Add Header Row
+            //headers.push(stackDimension);
+            //headers.push.apply(headers, newCols);
+            //ret.push(item);
+
+            //Add content
+            for (var key in result) {
+                var item = {};
+                item[stackDimension] = key;
+                for (var i = 0; i < newCols.length; i++) {
+                    item[newCols[i]] = result[key][newCols[i]] || "-";
+                }
+                ret.push(item);
+            }
+            return ret;
+        }
+
         $scope.parse = function (text) {
 
             if ($scope.model) $scope.model.clear();
@@ -869,6 +915,9 @@ angular.module('raw.controllers', [])
 
             try {
                 var parser = raw.parser();
+
+                //$scope.data = getPivotArray(parser(text),0,1,2);
+                //$scope.metadata = parser.metadata(d3.tsv.format($scope.data));
                 $scope.data = parser(text);
                 $scope.metadata = parser.metadata(text);
                 //TODO - parse for geodata

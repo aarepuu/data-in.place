@@ -581,11 +581,10 @@ angular.module('raw.directives', [])
                     })
     		        .on("mouseover", function (d) {
                         //var nodeSelection = d3.select(this);
-    		            //console.log(d);
-                        scope.highlightFeature(d["Area Code"]);
+                        scope.highlightFeature(d[Object.keys(d)[0]]);
                     })
                     .on("mouseout", function (d) {
-                        scope.resetHighlight(d["Area Code"]);
+                        scope.resetHighlight(d[Object.keys(d)[0]]);
 
                     });
 

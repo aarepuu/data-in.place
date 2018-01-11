@@ -874,7 +874,7 @@
         return isDate;
     }
 
-    //Additional parsers
+    //Additional parsers written by Aare Puussaar
     raw.postcodeFormats = [
         new RegExp('([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]))))\s?[0-9][A-Za-z]{2})'),
         new RegExp('^((GIR &0AA)|((([A-PR-UWYZ][A-HK-Y]?[0-9][0-9]?)|(([A-PR-UWYZ][0-9][A-HJKSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRV-Y]))) &[0-9][ABD-HJLNP-UW-Z]{2}))$'),
@@ -922,15 +922,16 @@
 
     }
 
-    raw.osnFormat = new RegExp(/^[EWSN]{1}\d{8}$/g);
+    raw.onsFormat = new RegExp(/^[EWSN]{1}\d{8}$/g);
 
-    raw.isOsnCode = function (value) {
-        var isOsnCode = false;
-        if (value.trim().match(raw.osnFormat)) {
-            isOsnCode = true;
+    raw.isOnsCode = function (value) {
+        var isOnsCode = false;
+        if (value.trim().match(raw.onsFormat)) {
+            isOnsCode = true;
         }
-        return isOsnCode;
+        return isOnsCode;
     }
+    // end Additional parsers
 
 
     raw.typeOf = function (value) {
@@ -938,7 +939,7 @@
         if (raw.isDate(value)) return Date.name;
         if (raw.isPostCode(value)) return "Geometry";
         //if (raw.isLnglat(value)) return "Geometry";
-        if (raw.isOsnCode(value)) return "Geometry";
+        if (raw.isOnsCode(value)) return "Geometry";
         if (raw.isNumber(value)) return Number.name;
         if (raw.isString(value)) return String.name;
         return null;
