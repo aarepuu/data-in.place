@@ -1,6 +1,7 @@
 'use strict';
 
 /* Controllers */
+//TODO - separate GIS (leaflet) controller
 
 angular.module('raw.controllers', [])
 
@@ -8,28 +9,25 @@ angular.module('raw.controllers', [])
 
 
         /*$scope.samples = [
-            {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
-            {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
-            {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
-            {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
-            {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
-            {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
-            {title: 'Police Streets', type: 'January 2017', url: $scope.coords, ctype: 'Pie chart', api: true},
-            //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
-            //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
-            //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
-            //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
+         {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
+         {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
+         {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
+         {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
+         {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
+         {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
+         {title: 'Police Streets', type: 'January 2017', url: $scope.coords, ctype: 'Pie chart', api: true},
+         //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
+         //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
+         //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
+         //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
 
-        ]*/
-
-
-
-            //get the datasets
-            $http.get("/api/data/sources").then(function (response) {
-                $scope.datasets = response.data;
-            });
+         ]*/
 
 
+        //get the datasets
+        $http.get("/api/data/sources").then(function (response) {
+            $scope.datasets = response.data;
+        });
 
 
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
@@ -46,9 +44,8 @@ angular.module('raw.controllers', [])
 
 
         $scope.dataView = 'table';
+
         //wavesurfer options
-
-
         $scope.options1 = {
             waveColor: '#c5c1be',
             progressColor: '#2A9FD6',
@@ -310,6 +307,7 @@ angular.module('raw.controllers', [])
                     $scope.boundary = e.layer;
                     //Police query format
                     $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0].join(':');
+                    $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
                     drawnItems.addLayer($scope.boundary);
                     getArea($scope.boundary.toGeoJSON());
                 });
@@ -318,6 +316,9 @@ angular.module('raw.controllers', [])
                  getArea($scope.boundary.toGeoJSON());
                  }
                  });*/
+                map.on('moveend', function () {
+                    $scope.mapBbox = map.getBounds().toBBoxString();
+                });
                 //TODO - make it separate
                 $scope.$watch('center.zoom', function () {
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
@@ -505,7 +506,7 @@ angular.module('raw.controllers', [])
             $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback'})
                 .then(function (response) {
                     if (!$scope.currentDataset)
-                    $scope.fileName = url;
+                        $scope.fileName = url;
                     parseData(response.data);
                 }, function (response) {
                     $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer'})
@@ -529,7 +530,7 @@ angular.module('raw.controllers', [])
                                         })
                                     });
                                     if (!$scope.currentDataset)
-                                    $scope.fileName = url;
+                                        $scope.fileName = url;
                                     $scope.loading = false;
 
                                     // multiple sheets
@@ -542,7 +543,7 @@ angular.module('raw.controllers', [])
                                 }
                                 catch (error) {
                                     if (!$scope.currentDataset)
-                                    $scope.fileName = url;
+                                        $scope.fileName = url;
                                     try {
                                         var json = JSON.parse(bstr);
                                         selectArray(json);
@@ -573,12 +574,14 @@ angular.module('raw.controllers', [])
             $scope.currentDataset = dataset;
 
             //process url
-            if (dataset.api_link) {
-                $scope.url = dataset.api_link+$scope.areastring;
+            if (dataset.levels == 'latlon'){
+                $scope.url = dataset.api_link + $scope.coords;
                 return;
             }
-
-
+            else {
+                $scope.url = dataset.api_link + $scope.areastring;
+                return;
+            }
 
 
             var codes = $scope.areas.map(function (area) {
@@ -681,16 +684,19 @@ angular.module('raw.controllers', [])
 
         var arrays = [];
 
+
+        //data will be stacked with this function
         $scope.unstack = function () {
+            console.log($scope.unstacked);
+            console.log("unstack");
             if (!$scope.stackDimension) return;
             var data = $scope.data;
             var base = $scope.stackDimension.key;
 
-            //TODO - hard coded values
             var unstacked = [];
             //var unstacked = pivot(data,0,1,2,base);
 
-            //TODO - look into this stacking
+            //TODO - look into this unstacking
             data.forEach(function (row) {
                 for (var column in row) {
                     if (column == base) continue;
@@ -703,11 +709,58 @@ angular.module('raw.controllers', [])
             })
 
 
-
             $scope.oldData = data;
             parseText(d3.tsv.format(unstacked));
 
             $scope.unstacked = true;
+
+        }
+
+        //Data will be unstacked with this function
+        $scope.restack = function () {
+            if (!$scope.stackDimension) return;
+            var data = $scope.data;
+            var base = $scope.stackDimension.key;
+            //TODO - hard coded values
+            //stack value
+            var rowIndex = 0;
+            //column
+            var colIndex = 1;
+            //data
+            var dataIndex = 1;
+
+            //TODO - test performance
+            //inspired by code from http://techbrij.com
+            var result = {}, stacked = [];
+            var newCols = [];
+            var keys = Object.keys(dataArray[0])
+            for (var i = 0; i < dataArray.length; i++) {
+                if (!result[dataArray[i][keys[rowIndex]]]) {
+                    result[dataArray[i][keys[rowIndex]]] = {};
+                }
+                result[dataArray[i][keys[rowIndex]]][dataArray[i][keys[colIndex]]] = dataArray[i][keys[dataIndex]];
+
+                //To get column names
+                if (newCols.indexOf(dataArray[i][keys[colIndex]]) == -1) {
+                    newCols.push(dataArray[i][keys[colIndex]]);
+                }
+            }
+
+
+            //Add content
+            for (var key in result) {
+                var item = {};
+                item[base] = key;
+                for (var i = 0; i < newCols.length; i++) {
+                    item[newCols[i]] = result[key][newCols[i]] || "";
+                }
+                stacked.push(item);
+            }
+
+            $scope.oldData = data;
+            parseText(d3.tsv.format(stacked));
+
+            $scope.unstacked = false;
 
         }
 
@@ -718,6 +771,7 @@ angular.module('raw.controllers', [])
             if ($scope.geoType == 'Longitude and Latitude') {
                 //lng and lat
                 $http.post('/api/geo/parse', {
+                    //TODO - Just send lon/lat?
                     rawdata: data,
                     lng: $scope.lngColumn.key,
                     lat: $scope.latColumn.key
@@ -780,7 +834,9 @@ angular.module('raw.controllers', [])
 
         }
 
+        //data will be (unstacked) turn to original
         $scope.stack = function () {
+            console.log($scope.unstacked)
             parseText(d3.tsv.format($scope.oldData));
             $scope.unstacked = false;
         }
@@ -858,46 +914,6 @@ angular.module('raw.controllers', [])
             //console.log(d3.mean(m),m)
             $scope.pivot = d3.mean(m);
 
-        }
-
-
-        //TODO - test performance
-        function pivot(dataArray, rowIndex, colIndex, dataIndex,stackDimension) {
-            //inspired by code from http://techbrij.com
-            var result = {}, ret = [];
-            var newCols = [];
-            var keys = Object.keys(dataArray[0])
-            for (var i = 0; i < dataArray.length; i++) {
-                if (!result[dataArray[i][keys[rowIndex]]]) {
-                    result[dataArray[i][keys[rowIndex]]] = {};
-                }
-                result[dataArray[i][keys[rowIndex]]][dataArray[i][keys[colIndex]]] = dataArray[i][keys[dataIndex]];
-
-                //To get column names
-                if (newCols.indexOf(dataArray[i][keys[colIndex]]) == -1) {
-                    newCols.push(dataArray[i][keys[colIndex]]);
-                }
-            }
-
-
-            //newCols.sort();
-            //var headers = [];
-
-            //Add Header Row
-            //headers.push(stackDimension);
-            //headers.push.apply(headers, newCols);
-            //ret.push(item);
-
-            //Add content
-            for (var key in result) {
-                var item = {};
-                item[stackDimension] = key;
-                for (var i = 0; i < newCols.length; i++) {
-                    item[newCols[i]] = result[key][newCols[i]] || "-";
-                }
-                ret.push(item);
-            }
-            return ret;
         }
 
         $scope.parse = function (text) {

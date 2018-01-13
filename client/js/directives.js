@@ -581,11 +581,21 @@ angular.module('raw.directives', [])
                     })
     		        .on("mouseover", function (d) {
                         //var nodeSelection = d3.select(this);
-                        scope.highlightFeature(d[Object.keys(d)[0]]);
+                        scope.metadata.find((o,i) => {
+                        	if(o.type === 'Geometry') {
+                                scope.highlightFeature(d[Object.keys(d)[i]]);
+							}
+                        });
+
+
                     })
                     .on("mouseout", function (d) {
-                        scope.resetHighlight(d[Object.keys(d)[0]]);
-
+                        scope.metadata.find((o,i) => {
+                            if(o.type === 'Geometry') {
+                                console.log(o);
+                                scope.resetHighlight(d[Object.keys(d)[i]]);
+                            }
+                        });
                     });
 
 				var cells = rows.selectAll("td")
