@@ -305,9 +305,16 @@ angular.module('raw.controllers', [])
                 });
                 map.on('draw:created', function (e) {
                     $scope.boundary = e.layer;
+                    //Had
                     //Police query format
-                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0].join(':');
+                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
+                    for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                        $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+                    }
+                    $scope.coords = $scope.coords.join(':');
+                    console.log($scope.coords);
                     $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+
                     drawnItems.addLayer($scope.boundary);
                     getArea($scope.boundary.toGeoJSON());
                 });
@@ -502,6 +509,7 @@ angular.module('raw.controllers', [])
 
             $scope.loading = true;
             var error = null;
+            //TODO - look into using dataservice for this
             // first trying jsonp
             $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback'})
                 .then(function (response) {
@@ -573,13 +581,23 @@ angular.module('raw.controllers', [])
             //set current selected dataset
             $scope.currentDataset = dataset;
 
-            //process url
-            if (dataset.levels == 'latlon'){
-                $scope.url = dataset.api_link + $scope.coords;
-                return;
-            }
-            else {
-                $scope.url = dataset.api_link + $scope.areastring;
+            let requestURL = dataset.api_link;
+            //TODO - rework this
+            if (dataset.ext) {
+                console.log(dataset.geom)
+                switch (dataset.geom) {
+                    case "ons":
+                        requestURL = requestURL + $scope.areastring;
+                        break;
+                    case "poly":
+                        requestURL = requestURL + + $scope.coords;
+                        break;
+                    case "bbox":
+                        break;
+                    default:
+                    //latlon?local
+                }
+                $scope.url = requestURL;
                 return;
             }
 
@@ -587,7 +605,7 @@ angular.module('raw.controllers', [])
             var codes = $scope.areas.map(function (area) {
                 return area.code;
             });
-            dataService.loadDataset(dataset.url, {"codes": codes, "zoom": $scope.center.zoom}).then(
+            dataService.loadDataset(requestURL, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
                     $scope.ctype = dataset.ctype;

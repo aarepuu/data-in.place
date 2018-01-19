@@ -884,6 +884,7 @@
 
     raw.isPostCode = function (value) {
         var isPostCode = false;
+        if(value.trim().length > 8) return isPostCode;
         for (var format in raw.postcodeFormats) {
             if (value.trim().match(raw.postcodeFormats[format])) {
                 isPostCode = true;

@@ -26,7 +26,7 @@ function respondWithResult(res, statusCode) {
 
 exports.getDatasets = function (req, res, next) {
     const query = {
-        text: "SELECT * from stats.datasets;",
+        text: "SELECT * from stats.datasets where active = true;",
     };
     db.query(query).then(result => {
         return res.json(result.rows);
