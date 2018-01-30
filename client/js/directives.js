@@ -582,7 +582,7 @@ angular.module('raw.directives', [])
     		        .on("mouseover", function (d) {
                         //var nodeSelection = d3.select(this);
                         scope.metadata.find((o,i) => {
-                        	if(o.type === 'Geometry') {
+                        	if(o.type === 'ONSCode') {
                                 scope.highlightFeature(d[Object.keys(d)[i]]);
 							}
                         });
@@ -591,8 +591,7 @@ angular.module('raw.directives', [])
                     })
                     .on("mouseout", function (d) {
                         scope.metadata.find((o,i) => {
-                            if(o.type === 'Geometry') {
-                                console.log(o);
+                            if(o.type === 'ONSCode') {
                                 scope.resetHighlight(d[Object.keys(d)[i]]);
                             }
                         });

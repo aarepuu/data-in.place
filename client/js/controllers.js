@@ -24,27 +24,6 @@ angular.module('raw.controllers', [])
          ]*/
 
 
-        //get the datasets
-        $http.get("/api/data/sources").then(function (response) {
-            $scope.datasets = response.data;
-        });
-
-
-        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
-
-
-        var points = [];
-
-
-        var gradient = {
-            1: "#0000cc",
-            0.33: "#00ffff",
-            0.66: "#3399cc"
-        };
-
-
-        $scope.dataView = 'table';
-
         //wavesurfer options
         $scope.options1 = {
             waveColor: '#c5c1be',
@@ -78,7 +57,64 @@ angular.module('raw.controllers', [])
 
         });
 
+
+        //get the datasets
+        $http.get("/api/data/sources").then(function (response) {
+            $scope.datasets = response.data;
+        });
+
+
+        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
+
+
+        var points = [];
+
+
+        var gradient = {
+            1: "#0000cc",
+            0.33: "#00ffff",
+            0.66: "#3399cc"
+        };
+
+
+        $scope.dataView = 'table';
+        $scope.previousZoom = 14;
+
+
         //Leaflet controller
+
+
+        L.DrawToolbar.include({
+            getModeHandlers: function (map) {
+                return [
+                    {
+                        enabled: true,
+                        handler: new L.Draw.Polygon(map, {
+                            allowIntersection: false, // Restricts shapes to simple polygons
+                            drawError: {
+                                color: '#e1e100', // Color the shape will turn when intersects
+                                message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                            },
+                            shapeOptions: {
+                                color: 'rgb(86, 184, 129)'
+                            }
+                        }),
+                        title: 'Draw a boundary'
+                    },
+                    {
+                        enabled: true,
+                        handler: new L.Draw.Marker(map, {icon: new L.Icon.Default()}),
+                        title: 'Place an Issue marker'
+                    },
+                    {
+                        enabled: true,
+                        handler: new L.Draw.Marker(map, {icon: new L.Icon.Default()}),
+                        title: 'Place a Data Marker'
+                    }
+                ];
+            }
+        });
+
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
@@ -112,7 +148,7 @@ angular.module('raw.controllers', [])
                             }
                         },
                         circle: false, // Turns off this drawing tool
-                        marker: false,
+                        marker: true,
                         rectangle: false
 
                     }
@@ -304,19 +340,24 @@ angular.module('raw.controllers', [])
                     drawnItems.clearLayers();
                 });
                 map.on('draw:created', function (e) {
-                    $scope.boundary = e.layer;
-                    //Had
-                    //Police query format
-                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
-                    for (var i = 0, l = $scope.coords.length; i < l; i++) {
-                        $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
-                    }
-                    $scope.coords = $scope.coords.join(':');
-                    console.log($scope.coords);
-                    $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+                    if (e.layerType == 'polygon') {
+                        console.log(e);
+                        $scope.boundary = e.layer;
+                        //Had
+                        //Police query format
+                        $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
+                        for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                            $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+                        }
+                        $scope.coords = $scope.coords.join(':');
+                        $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
 
-                    drawnItems.addLayer($scope.boundary);
-                    getArea($scope.boundary.toGeoJSON());
+                        drawnItems.addLayer($scope.boundary);
+                        getArea($scope.boundary.toGeoJSON());
+                    } else {
+                        drawnItems.addLayer(e.layer);
+                    }
+
                 });
                 /*map.on('zoomend',function (e) {
                  if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
@@ -329,7 +370,11 @@ angular.module('raw.controllers', [])
                 //TODO - make it separate
                 $scope.$watch('center.zoom', function () {
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
-                        getArea($scope.boundary.toGeoJSON());
+                        if (Math.abs($scope.previousZoom - $scope.center.zoom) > 1 && !($scope.center.zoom > 16)) {
+                            getArea($scope.boundary.toGeoJSON());
+                            $scope.previousZoom = $scope.center.zoom;
+                        }
+
                     }
                 });
                 function getArea(json) {
@@ -590,9 +635,10 @@ angular.module('raw.controllers', [])
                         requestURL = requestURL + $scope.areastring;
                         break;
                     case "poly":
-                        requestURL = requestURL + + $scope.coords;
+                        requestURL = requestURL + $scope.coords;
                         break;
                     case "bbox":
+                        requestURL = requestURL + $scope.areaBbox;
                         break;
                     default:
                     //latlon?local
@@ -801,6 +847,9 @@ angular.module('raw.controllers', [])
                     $scope.dataLayer.addData(response.data);
                     $scope.map.fitBounds($scope.dataLayer.getBounds());
                     $scope.maploading = false;
+                    //TODO - reset fields properly
+                    $scope.georeferencing = false;
+                    $scope.georeference = true;
                 });
             } else {
                 //postcode
@@ -934,6 +983,27 @@ angular.module('raw.controllers', [])
 
         }
 
+        //auto georeference function
+        function geomFields() {
+            let obj = $scope.metadata.find(o => o.type === 'Latitude');
+            if (obj !== undefined) {
+                $scope.geoType = 'Longitude and Latitude';
+                $scope.latColumn = obj;
+                $scope.lngColumn = $scope.metadata.find(o => o.type === 'Longitude');
+                $scope.geotype = true;
+                $scope.geoReference();
+                return;
+            }
+            obj = $scope.metadata.find(o => o.type === 'Postcode');
+            if (obj !== undefined) {
+                $scope.geoType = 'Postal Codes';
+                $scope.pcodeColumn = obj;
+                $scope.geotype = true;
+                $scope.geoReference();
+            }
+            //console.log(obj.key)
+        }
+
         $scope.parse = function (text) {
 
             if ($scope.model) $scope.model.clear();
@@ -957,6 +1027,7 @@ angular.module('raw.controllers', [])
                 //TODO - parse for geodata
                 $scope.error = false;
                 pivotable($scope.data);
+                geomFields();
                 $scope.parsed = true;
 
                 $timeout(function () {

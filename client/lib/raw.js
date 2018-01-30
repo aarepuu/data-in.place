@@ -56,7 +56,7 @@
             }
 
             var header = rows[0];
-            detectGeometry(header);
+            //detectGeometry(header);
 
             for (var i = 1; i < rows.length; i++) {
                 if (rows[i].length == 1 && rows[i][0].length == 0 && rows[i].length != header.length) continue;
@@ -96,7 +96,9 @@
             });
             objs.forEach(function (d) {
                 for (var key in keys) {
-                    var type = raw.typeOf(d[key]);
+                    //Lat-lon header detection
+                    var type = raw.detectGeometry(key);
+                    type = (type) ? type : raw.typeOf(d[key]);
                     if (type) keys[key].push(type);
                 }
             })
@@ -923,6 +925,19 @@
 
     }
 
+    raw.detectGeometry = function (value) {
+        var isGeom = null;
+        var lat = new RegExp(/\blat(itude)?\b/ig);
+        var lng = new RegExp(/\blon(g|gitude)|lng?\b/ig);
+
+        if (value.trim().match(lat)) {
+            isGeom = 'Latitude';
+        } else if (value.trim().match(lng)){
+            isGeom = 'Longitude';
+        }
+        return isGeom;
+    }
+
     raw.onsFormat = new RegExp(/^[EWSN]{1}\d{8}$/g);
 
     raw.isOnsCode = function (value) {
@@ -938,9 +953,9 @@
     raw.typeOf = function (value) {
         if (value === null || value.length === 0) return null;
         if (raw.isDate(value)) return Date.name;
-        if (raw.isPostCode(value)) return "Geometry";
+        if (raw.isPostCode(value)) return "Postcode";
         //if (raw.isLnglat(value)) return "Geometry";
-        if (raw.isOnsCode(value)) return "Geometry";
+        if (raw.isOnsCode(value)) return "ONSCode";
         if (raw.isNumber(value)) return Number.name;
         if (raw.isString(value)) return String.name;
         return null;
