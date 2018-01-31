@@ -84,6 +84,30 @@ angular.module('raw.controllers', [])
         //Leaflet controller
 
 
+        var dataMarker = L.ExtraMarkers.icon({
+            icon: 'fa-database',
+            markerColor: 'green',
+            shape: 'star',
+            prefix: 'fa'
+        });
+
+
+
+        var issueMarker = L.ExtraMarkers.icon({
+            icon: 'fa-exclamation',
+            markerColor: 'red',
+            shape: 'circle',
+            prefix: 'fa'
+        });
+
+
+        var sensorMarker = L.ExtraMarkers.icon({
+            icon: 'fa-thermometer-full',
+            markerColor: 'blue',
+            shape: 'square',
+            prefix: 'fa'
+        });
+
         L.DrawToolbar.include({
             getModeHandlers: function (map) {
                 return [
@@ -103,13 +127,18 @@ angular.module('raw.controllers', [])
                     },
                     {
                         enabled: true,
-                        handler: new L.Draw.Marker(map, {icon: new L.Icon.Default()}),
-                        title: 'Place an Issue marker'
+                        handler: new L.Draw.Marker(map, {icon: issueMarker}),
+                        title: 'Place an Issue Marker',
                     },
                     {
                         enabled: true,
-                        handler: new L.Draw.Marker(map, {icon: new L.Icon.Default()}),
+                        handler: new L.Draw.Marker(map, {icon: dataMarker}),
                         title: 'Place a Data Marker'
+                    },
+                    {
+                        enabled: true,
+                        handler: new L.Draw.Marker(map, {icon: sensorMarker}),
+                        title: 'Place a Sensor Marker'
                     }
                 ];
             }
@@ -128,30 +157,30 @@ angular.module('raw.controllers', [])
                 custom: new L.Control.FullScreen(),
                 scale: true,
                 draw: {
-                    draw: {
-                        polyline: false/*{
-                         shapeOptions: {
-                         color: '#f357a1',
-                         weight: 3
+                    /*draw: {
+                     polyline: false/*{
+                     shapeOptions: {
+                     color: '#f357a1',
+                     weight: 3
 
-                         },
+                     },
 
-                         }*/,
-                        polygon: {
-                            allowIntersection: false, // Restricts shapes to simple polygons
-                            drawError: {
-                                color: '#e1e100', // Color the shape will turn when intersects
-                                message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
-                            },
-                            shapeOptions: {
-                                color: 'rgb(86, 184, 129)'
-                            }
-                        },
-                        circle: false, // Turns off this drawing tool
-                        marker: true,
-                        rectangle: false
+                     },
+                     polygon: {
+                     allowIntersection: false, // Restricts shapes to simple polygons
+                     drawError: {
+                     color: '#e1e100', // Color the shape will turn when intersects
+                     message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                     },
+                     shapeOptions: {
+                     color: 'rgb(86, 184, 129)'
+                     }
+                     },
+                     circle: false, // Turns off this drawing tool
+                     marker: true,
+                     rectangle: false
 
-                    }
+                     }*/
                 }
 
             },
@@ -217,8 +246,16 @@ angular.module('raw.controllers', [])
 
                 },
                 overlays: {
-                    draw: {
-                        name: 'draw',
+                    boundary: {
+                        name: 'boundary',
+                        type: 'group',
+                        visible: true,
+                        layerParams: {
+                            showOnSelector: false
+                        }
+                    },
+                    markers: {
+                        name: 'markers',
                         type: 'group',
                         visible: true,
                         layerParams: {
@@ -329,20 +366,25 @@ angular.module('raw.controllers', [])
 
         leafletData.getMap().then(function (map) {
             leafletData.getLayers().then(function (layers) {
-                var drawnItems = layers.overlays.draw;
+                //var drawnItems = layers.overlays.draw;
+                var boundaryLayer = layers.overlays.boundary;
                 //TODO - not a good way
                 $scope.map = map;
                 $scope.areaLayer = layers.overlays.areas;
                 $scope.dataLayer = layers.overlays.data;
                 $scope.heatLayer = layers.overlays.heat;
+                $scope.markerLayer = layers.overlays.markers;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
-                    drawnItems.clearLayers();
+                    console.log(e);
+                    if (e.layerType === 'polygon')
+                        boundaryLayer.clearLayers();
                 });
                 map.on('draw:created', function (e) {
-                    if (e.layerType == 'polygon') {
-                        console.log(e);
-                        $scope.boundary = e.layer;
+                    var type = e.layerType,
+                        layer = e.layer;
+                    if (type == 'polygon') {
+                        $scope.boundary = layer;
                         //Had
                         //Police query format
                         $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
@@ -352,10 +394,13 @@ angular.module('raw.controllers', [])
                         $scope.coords = $scope.coords.join(':');
                         $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
 
-                        drawnItems.addLayer($scope.boundary);
+                        boundaryLayer.addLayer($scope.boundary);
                         getArea($scope.boundary.toGeoJSON());
                     } else {
-                        drawnItems.addLayer(e.layer);
+
+                        layer.bindPopup('<input type="text" name="issue">');
+                        $scope.markerLayer.addLayer(layer);
+                        layer.dragging.enable();
                     }
 
                 });

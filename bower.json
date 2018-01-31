@@ -43,7 +43,8 @@
     "d3-plugins-density": "latest",
     "leaflet-draw": "leaflet.draw#^0.4.9",
     "leaflet.fullscreen": "^1.4.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "Leaflet.extra-markers": "^1.0.6"
   },
   "resolutions": {
     "angular": "1.6.2"
