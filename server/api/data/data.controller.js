@@ -171,6 +171,24 @@ exports.getCc = function (req, res, next) {
     });
 }
 
+exports.getObes = function (req, res, next) {
+    var items = req.body.codes;
+    var zoom = req.body.zoom;
+    var areas = queryParams(items);
+    var area_level = zoomLevel(zoom);
+    var header = 'Area Code,Area Name,Year,Classification,Metric,Value\r\n';
+    const query = {
+        text: 'SELECT area_code, org_name, year, classification, metric, value from stats.obes where area_code IN (' + areas + ')',
+        rowMode: 'array'
+    };
+    db.query(query).then(result => {
+        return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
+    }).catch(e => {
+        console.error(e.stack)
+        return res.status(500).json({success: false, data: e})
+    });
+}
+
 /**
  *
  * Function for converting objectArrays to CSV format

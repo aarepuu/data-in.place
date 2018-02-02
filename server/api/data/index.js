@@ -15,6 +15,7 @@ router.post('/crime', controller.getCrime);
 router.post('/tenure',controller.getTenure);
 router.post('/eco', controller.getEco);
 router.post('/cc', controller.getCc);
+router.post('/obes', controller.getObes);
 
 
 module.exports = router;

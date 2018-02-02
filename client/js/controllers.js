@@ -92,7 +92,6 @@ angular.module('raw.controllers', [])
         });
 
 
-
         var issueMarker = L.ExtraMarkers.icon({
             icon: 'fa-exclamation',
             markerColor: 'red',
@@ -376,7 +375,6 @@ angular.module('raw.controllers', [])
                 $scope.markerLayer = layers.overlays.markers;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
-                    console.log(e);
                     if (e.layerType === 'polygon')
                         boundaryLayer.clearLayers();
                 });
@@ -397,10 +395,16 @@ angular.module('raw.controllers', [])
                         boundaryLayer.addLayer($scope.boundary);
                         getArea($scope.boundary.toGeoJSON());
                     } else {
-
-                        layer.bindPopup('<input type="text" name="issue">');
                         $scope.markerLayer.addLayer(layer);
+                        let id = layer._leaflet_id
+                        layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
                         layer.dragging.enable();
+                        layer.on('popupclose', function () {
+                            //layer._popup.setContent(layer._popup.getContent())
+                            if ($('#' + id).val())
+                                layer._popup.setContent($('#' + id).val())
+                        })
+
                     }
 
                 });
@@ -663,6 +667,29 @@ angular.module('raw.controllers', [])
         });
 
 
+        $scope.aggregate = function () {
+            if (!$scope.aggregator) return;
+            var data = $scope.data;
+            var aggregatedData = d3.nest()
+                .key(function (d) {
+                    return d[$scope.aggregator.key];
+                })
+                .rollup(function (v) {
+                    return v.length;
+                })
+                .entries(data)
+                 .map(function (group) {
+                    return {
+                        aggregator: group.key,
+                        count: group.values
+                     }
+                });
+            console.log(JSON.stringify(aggregatedData));
+            $scope.oldData = data;
+            parseText(d3.tsv.format(aggregatedData));
+
+
+        }
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
 
@@ -670,6 +697,7 @@ angular.module('raw.controllers', [])
             $scope.loading = true;
             //set current selected dataset
             $scope.currentDataset = dataset;
+            $scope.ctype = dataset.ctype;
 
             let requestURL = dataset.api_link;
             //TODO - rework this
@@ -699,7 +727,6 @@ angular.module('raw.controllers', [])
             dataService.loadDataset(requestURL, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     $scope.text = data.replace(/\r/g, '');
-                    $scope.ctype = dataset.ctype;
                     //TODO - add stats to features
                     //console.log($scope.text);
                     /*$scope.features.features.forEach(function (feature) {
@@ -722,8 +749,7 @@ angular.module('raw.controllers', [])
 
         $scope.$watch('areas', function (n, o) {
             //TODO - workaround with url datasets
-            //if ($scope.importMode == 'dataset' && $scope.currentDataset) {
-            if ($scope.currentDataset) {
+            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 console.log("update");
                 $scope.selectDataset($scope.currentDataset);
             }
@@ -774,6 +800,7 @@ angular.module('raw.controllers', [])
             $scope.loading = false;
             $scope.clipboardText = "";
             $scope.unstacked = false;
+            $scope.restacked = false;
             $scope.text = "";
             $scope.data = [];
             $scope.json = null;
@@ -836,22 +863,23 @@ angular.module('raw.controllers', [])
             //column
             var colIndex = 1;
             //data
-            var dataIndex = 1;
+            var dataIndex = 2;
 
             //TODO - test performance
             //inspired by code from http://techbrij.com
             var result = {}, stacked = [];
             var newCols = [];
-            var keys = Object.keys(dataArray[0])
-            for (var i = 0; i < dataArray.length; i++) {
-                if (!result[dataArray[i][keys[rowIndex]]]) {
-                    result[dataArray[i][keys[rowIndex]]] = {};
+            var keys = Object.keys($scope.data[0])
+            console.log(keys)
+            for (var i = 0; i < $scope.data.length; i++) {
+                if (!result[$scope.data[i][keys[rowIndex]]]) {
+                    result[$scope.data[i][keys[rowIndex]]] = {};
                 }
-                result[dataArray[i][keys[rowIndex]]][dataArray[i][keys[colIndex]]] = dataArray[i][keys[dataIndex]];
+                result[$scope.data[i][keys[rowIndex]]][$scope.data[i][keys[colIndex]]] = $scope.data[i][keys[dataIndex]];
 
                 //To get column names
-                if (newCols.indexOf(dataArray[i][keys[colIndex]]) == -1) {
-                    newCols.push(dataArray[i][keys[colIndex]]);
+                if (newCols.indexOf($scope.data[i][keys[colIndex]]) == -1) {
+                    newCols.push($scope.data[i][keys[colIndex]]);
                 }
             }
 
@@ -869,7 +897,7 @@ angular.module('raw.controllers', [])
             $scope.oldData = data;
             parseText(d3.tsv.format(stacked));
 
-            $scope.unstacked = false;
+            $scope.restacked = true;
 
         }
 
@@ -948,9 +976,9 @@ angular.module('raw.controllers', [])
 
         //data will be (unstacked) turn to original
         $scope.stack = function () {
-            console.log($scope.unstacked)
             parseText(d3.tsv.format($scope.oldData));
-            $scope.unstacked = false;
+            $scope.unstacked = ($scope.unstacked) ? false : true;
+            $scope.restacked = ($scope.restacked) ? false : true;
         }
 
 

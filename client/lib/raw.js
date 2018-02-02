@@ -928,7 +928,7 @@
     raw.detectGeometry = function (value) {
         var isGeom = null;
         var lat = new RegExp(/\blat(itude)?\b/ig);
-        var lng = new RegExp(/\blon(g|gitude)|lng?\b/ig);
+        var lng = new RegExp(/\blon(|g|gitude)|lng?\b/ig);
 
         if (value.trim().match(lat)) {
             isGeom = 'Latitude';

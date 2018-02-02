@@ -62,14 +62,18 @@
                 <div class="col-lg-2">
 
                     <h3 id="data">Load your data
-                        <!--<button type="button"
-                            class="choose btn btn-default"
-                            ng-model="sample"
-                            placeholder="or choose one of our samples"
-                            ng-options="s as s.title for s in samples" bs-select>
-                        </button>-->
+
 
                     </h3>
+                    <div  class="pull-left">
+                        <button
+                                class="btn btn-default"
+                                ng-model="aggregator"
+                                ng-change="aggregate()"
+                                placeholder="Select an aggregator"
+                                bs-options="dimension.key for dimension in metadata" bs-select>
+                        </button>
+                    </div>
 
                 </div>
 
@@ -235,18 +239,34 @@
 
                         <div class="pull-right">
 
-                            <p ng-show="pivot<=0 && !unstacked">Your data seems unstacked. <a
+                            <p ng-show="pivot<=0 && !restacked">Your data seems unstacked. <a
                                     ng-click="unstacking=true">Click here to stack it</a></p>
-                            <p class="text-muted" ng-show="pivot>0 && !unstacked">Your data seems ready to go. But if
-                                you want to stack it anyway, <a ng-click="unstacking=true">click here</a></p>
-                            <p ng-show="unstacked">Data is stacked now. <a ng-click="stack()">Click here to revert to
+
+                            <p class="text-muted" ng-show="pivot>0 && !restacked">Your data seems stacked. If
+                                you want to unstack it, <a ng-click="restacking=true">click here</a></p>
+
+
+
+                            <p ng-show="restacked">Data is unstacked now. <a ng-click="stack()">Click here to revert to
                                 your original data</a></p>
+
                             <div ng-show="unstacking" class="pull-right">
                                 <button
                                         class="btn btn-default"
                                         ng-model="stackDimension"
                                         ng-change="unstack();unstacking=false"
                                         placeholder="Select a dimension to stack on"
+                                        bs-options="dimension.key for dimension in metadata" bs-select>
+                                </button>
+                            </div>
+
+
+                            <div ng-show="restacking" class="pull-right">
+                                <button
+                                        class="btn btn-default"
+                                        ng-model="stackDimension"
+                                        ng-change="restack();restacking=false"
+                                        placeholder="Select a dimension to unstack on"
                                         bs-options="dimension.key for dimension in metadata" bs-select>
                                 </button>
                             </div>
