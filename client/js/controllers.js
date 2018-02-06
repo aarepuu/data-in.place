@@ -1073,6 +1073,13 @@ angular.module('raw.controllers', [])
                 $scope.pcodeColumn = obj;
                 $scope.geotype = true;
                 $scope.geoReference();
+                return;
+            }
+            obj = $scope.metadata.find(o => o.type === 'ONSCode');
+            if (obj !== undefined) {
+                $scope.geotype = true;
+                $scope.georeference = true;
+                return;
             }
             //console.log(obj.key)
         }

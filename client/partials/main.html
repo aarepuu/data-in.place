@@ -59,26 +59,25 @@
 
             <div class="row">
 
-                <div class="col-lg-2">
+                <div>
 
-                    <h3 id="data">Load your data
+                    <h3 id="data">Load your data <a class="powered-by" href="http://rawgraphs.io/" target="_blank">powered by <img alt="RawGraphs" src="imgs/rawgraphslogo.png"></a>
 
-
+                        <a data-toggle="tooltip" data-title="Learning" class="pull-right light" href="http://rawgraphs.io/learning/" target="_blank"><i class="fa fa-info"></i></a>
                     </h3>
-                    <div  class="pull-left">
-                        <button
-                                class="btn btn-default"
-                                ng-model="aggregator"
-                                ng-change="aggregate()"
-                                placeholder="Select an aggregator"
-                                bs-options="dimension.key for dimension in metadata" bs-select>
-                        </button>
-                    </div>
-
                 </div>
 
-                <div class="col-lg-10">
+                <div class="col-lg-12">
                     <h3><span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl}}</span>
+                        <span class="pull-left"  ng-show="data.length">
+                            <button
+                                    class="btn btn-default"
+                                    ng-model="aggregator"
+                                    ng-change="aggregate()"
+                                    placeholder="Select an aggregator"
+                                    bs-options="dimension.key for dimension in metadata" bs-select>
+                            </button>
+                        </span>
                         <span class="list-type pull-right" ng-show="data.length">
 								<i class="type fa fa-table breath-left"
                                    data-toggle="tooltip"
@@ -102,7 +101,7 @@
 
                     <ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
                         <li role="presentation" ng-class="{active:!parsed && importMode=='dataset'}"><a href="#"
-                                                                                                       ng-click="parsed=false;importMode='dataset'"><i
+                                                                                                        ng-click="parsed=false;importMode='dataset'"><i
                                 class="fa fa-database breath-right"></i>Pick a dataset</a></li>
                         <li role="presentation" ng-class="{active:!parsed && importMode=='clipboard'}"><a href="#"
                                                                                                           ng-click="parsed=false;importMode='clipboard'"><i
@@ -217,6 +216,21 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                                <a href="https://github.com/densitydesign/raw/wiki/Adding-New-Charts" target="_blank">
+                                    <div class="layout yours">
+                                        <div class="layout-thumb">
+                                            <i class="fa fa-plus"></i>
+                                        </div>
+
+                                        <p class="layout-inner">
+                                            <span class="layout-title">Custom</span>
+                                            <span class="text-muted layout-category">Add new dataset!</span>
+                                        </p>
+                                    </div>
+                                </a>
+
+                            </div>
 
                         </div>
                     </div>
@@ -246,7 +260,6 @@
                                 you want to unstack it, <a ng-click="restacking=true">click here</a></p>
 
 
-
                             <p ng-show="restacked">Data is unstacked now. <a ng-click="stack()">Click here to revert to
                                 your original data</a></p>
 
@@ -274,10 +287,12 @@
                         </div>
 
                         <div class="pull-left">
-                            <p ng-show="!georeference" class="text-muted">We didn't detect any geography. To choose the fields, <a
-                                    ng-click="georeferencing=true">click here</a></p>
-                            <p ng-show="georeference" class="text-muted">Data is now georeferenced. To choose another field, <a
-                                    ng-click="georeferencing=true">click here</a></p>
+                            <p ng-show="!georeference" class="text-muted">We didn't detect any geography. To choose the
+                                fields, <a
+                                        ng-click="georeferencing=true">click here</a></p>
+                            <p ng-show="georeference" class="text-muted">Data is georeferenced. To choose another
+                                field, <a
+                                        ng-click="georeferencing=true">click here</a></p>
                             <div ng-show="georeferencing" class="pull-left">
                                 <button
                                         class="btn btn-default"
@@ -292,7 +307,7 @@
                                             class="btn btn-default"
                                             ng-model="lngColumn"
                                             ng-change="geoReference()"
-                                            placeholder="Select a longitude column"
+                                            placeholder="Longitude field"
                                             bs-options="dimension.key for dimension in metadata" bs-select>
                                     </button>
                                     <button
@@ -300,7 +315,7 @@
                                             class="btn btn-default"
                                             ng-model="latColumn"
                                             ng-change="geoReference()"
-                                            placeholder="Select a latitude column"
+                                            placeholder="Latitude field"
                                             bs-options="dimension.key for dimension in metadata" bs-select>
                                     </button>
                                     <button
@@ -308,7 +323,7 @@
                                             class="btn btn-default"
                                             ng-model="pcodeColumn"
                                             ng-change="geoReference()"
-                                            placeholder="Select a postal code field"
+                                            placeholder="Postal code field"
                                             bs-options="dimension.key for dimension in metadata" bs-select>
                                     </button>
                                 </div>
@@ -420,7 +435,7 @@
 
                 </div>
 
-               <div data-ng-show="ctype =='Audio'" class="row">
+                <div data-ng-show="ctype =='Audio'" class="row">
                     <wavesurfer-angular url="wurl1" options="options1"></wavesurfer-angular>
                     <wavesurfer-angular url="wurl2" options="options2"></wavesurfer-angular>
                 </div>

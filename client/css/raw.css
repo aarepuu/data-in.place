@@ -1266,3 +1266,16 @@ pre.CodeMirror-placeholder {
   top: -9999px;
   left: -9999px;
 }
+
+/* powered by RawGraphs*/
+
+.powered-by {
+  height: 50px;
+  padding: 15px 15px;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.powered-by>img {
+  max-height: 20px;
+}
