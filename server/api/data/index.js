@@ -16,6 +16,7 @@ router.post('/tenure',controller.getTenure);
 router.post('/eco', controller.getEco);
 router.post('/cc', controller.getCc);
 router.post('/obes', controller.getObes);
+router.post('/pubhealth',controller.getPublicHealth);
 
 
 module.exports = router;

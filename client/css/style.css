@@ -1,0 +1,52 @@
+/* Data-in.place styles*/
+
+.powered-by {
+    height: 50px;
+    padding: 15px 15px;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+.powered-by>img {
+    max-height: 20px;
+}
+
+
+.layout.yours .layout-custom {
+    background-color: transparent;
+    text-align: center;
+    font-size: 50px;
+    line-height: 85px;
+    opacity: .2;
+}
+
+.layout.yours:hover .layout-custom {
+}
+
+.layout-custom {
+    height: 15px;
+    background-position: 50% 50%;
+    background-size: 120%;
+    background-color: #F5F5F5;
+    opacity: .85;
+
+    -webkit-transition: opacity .1s ease-in-out;
+    -moz-transition: opacity .1s ease-in-out;
+    -ms-transition: opacity .1s ease-in-out;
+    -o-transition: opacity .1s ease-in-out;
+    transition: opacity .1s ease-in-out;
+
+}
+
+.layout:hover .layout-custom {
+    opacity: .3;
+}
+
+.layout.selected .layout-custom {
+    opacity: .1;
+}
+
+.layout.disabled{
+    pointer-events: none;
+    opacity: .4;
+}

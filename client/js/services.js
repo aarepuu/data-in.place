@@ -111,14 +111,14 @@ angular.module('raw.services', [])
 					return deferred.promise;
 				},
 
-		    loadDataset : function(sample, items){
+		    loadDataset : function(dataset, items){
 		      var deferred = $q.defer();
-		      $http.post(sample,items)
+		      $http.post(dataset.api_link,items)
 			      .then(function(response){
 			          deferred.resolve(response.data);
 			      },
 			      function(){
-			          deferred.reject("An error occured while getting sample (" + sample.title + ")");
+			          deferred.reject("An error occured while getting dataset (" + dataset.title + ")");
 			      });
 
 		      return deferred.promise;

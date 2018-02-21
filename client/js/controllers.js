@@ -24,41 +24,6 @@ angular.module('raw.controllers', [])
          ]*/
 
 
-        //wavesurfer options
-        $scope.options1 = {
-            waveColor: '#c5c1be',
-            progressColor: '#2A9FD6',
-            normalize: true,
-            hideScrollbar: true,
-            skipLength: 15,
-            height: 53,
-            cursorColor: '#2A9FD6',
-            id: 'mwcad-t1s1'
-        };
-
-        $scope.options2 = {
-            waveColor: '#c5c1be',
-            progressColor: '#2A9FD6',
-            normalize: true,
-            hideScrollbar: true,
-            skipLength: 15,
-            height: 53,
-            cursorColor: '#2A9FD6',
-            id: 'mwcad-t1s2'
-        };
-
-        $scope.wurl1 = './data/mwcad-t1s1.mp3';
-        $scope.wurl2 = './data/mwcad-t1s2.mp3';
-        //console.log($scope);
-        $scope.wavesurfers = [];
-        $scope.$on('wavesurferInit', function (e, wavesurfer) {
-            $scope.wavesurfers.push(wavesurfer);
-            //console.log(wavesurfer);
-
-        });
-
-
-
         //get the datasets
         $http.get("/api/data/sources").then(function (response) {
             $scope.datasets = response.data;
@@ -443,12 +408,12 @@ angular.module('raw.controllers', [])
                             return area.code;
                         }).toString();
                         //TODO - add properties to areas
-                        //$scope.features = response.data.features;
+                        $scope.features = response.data.features;
                         /*response.data.features.features.forEach(function (feature) {
                          console.log(feature.code);
                          });*/
                         $scope.areaLayer.clearLayers();
-                        $scope.areaLayer.addData(response.data.features);
+                        $scope.areaLayer.addData($scope.features);
 
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
@@ -679,11 +644,11 @@ angular.module('raw.controllers', [])
                     return v.length;
                 })
                 .entries(data)
-                 .map(function (group) {
+                .map(function (group) {
                     return {
                         aggregator: group.key,
                         count: group.values
-                     }
+                    }
                 });
             console.log(JSON.stringify(aggregatedData));
             $scope.oldData = data;
@@ -694,6 +659,7 @@ angular.module('raw.controllers', [])
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
 
+            reset();
             $scope.text = "";
             $scope.loading = true;
             //set current selected dataset
@@ -725,9 +691,23 @@ angular.module('raw.controllers', [])
             var codes = $scope.areas.map(function (area) {
                 return area.code;
             });
-            dataService.loadDataset(requestURL, {"codes": codes, "zoom": $scope.center.zoom}).then(
+            dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
-                    $scope.text = data.replace(/\r/g, '');
+                    console.log(data);
+                    if (Array.isArray(data)) {
+                        try {
+                            //var json = JSON.parse(data);
+                            selectArray(data);
+                        }
+                        catch (error) {
+                            $scope.text = data.replace(/\r/g, '');
+                            //parseText(data);
+                        }
+                    } else {
+                        $scope.text = data.replace(/\r/g, '');
+                    }
+
+
                     //TODO - add stats to features
                     //console.log($scope.text);
                     /*$scope.features.features.forEach(function (feature) {
@@ -797,25 +777,7 @@ angular.module('raw.controllers', [])
 
         $scope.$watch('importMode', function () {
             // reset
-            $scope.parsed = false;
-            $scope.loading = false;
-            $scope.clipboardText = "";
-            $scope.unstacked = false;
-            $scope.restacked = false;
-            $scope.text = "";
-            $scope.data = [];
-            $scope.json = null;
-            $scope.worksheets = [];
-            $scope.fileName = null;
-            $scope.url = "";
-            $scope.georeference = false;
-            $scope.georeferencing = false;
-            $scope.geotype = false;
-            $scope.geoType = false;
-            $scope.lngColumn = false;
-            $scope.latColumn = false;
-            $scope.pcodeColumn = false;
-            //$scope.$apply();
+            reset();
         })
 
 
@@ -983,6 +945,29 @@ angular.module('raw.controllers', [])
         }
 
 
+        function reset() {
+            $scope.parsed = false;
+            $scope.loading = false;
+            $scope.clipboardText = "";
+            $scope.unstacked = false;
+            $scope.restacked = false;
+            $scope.text = "";
+            $scope.data = [];
+            $scope.json = null;
+            $scope.worksheets = [];
+            $scope.fileName = null;
+            $scope.url = "";
+            $scope.georeference = false;
+            $scope.georeferencing = false;
+            $scope.geotype = false;
+            $scope.geoType = false;
+            $scope.lngColumn = false;
+            $scope.latColumn = false;
+            $scope.pcodeColumn = false;
+            $scope.stackDimension = false;
+            //$scope.$apply();
+        }
+
         function jsonTree(json) {
             // mettere try
             var tree = JSON.parse(json);
@@ -1052,7 +1037,7 @@ angular.module('raw.controllers', [])
             var m = d3.values(rows).map(d3.values).map(function (d) {
                 return d3.sum(d) / n;
             });
-            //console.log(d3.mean(m),m)
+            console.log(d3.mean(m),m)
             $scope.pivot = d3.mean(m);
 
         }
@@ -1103,13 +1088,25 @@ angular.module('raw.controllers', [])
 
                 //$scope.data = getPivotArray(parser(text),0,1,2);
                 //$scope.metadata = parser.metadata(d3.tsv.format($scope.data));
+                //TODO - already iterates data
                 $scope.data = parser(text);
+
                 $scope.metadata = parser.metadata(text);
                 //TODO - parse for geodata
                 $scope.error = false;
                 pivotable($scope.data);
                 geomFields();
                 $scope.parsed = true;
+                //TODO - Nomisweb specific??
+                if ($scope.currentDataset.geom == "ons" && $scope.currentDataset.ext) {
+                    $scope.data.forEach(function (row) {
+                        var layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
+                        let propkey = Object.keys(row)[1];
+                        let propval = Object.keys(row)[2];
+                        layer.feature.properties[row[propkey]] = row[propval];
+                    });
+                }
+
 
                 $timeout(function () {
                     $scope.charts = raw.charts.values().sort(function (a, b) {

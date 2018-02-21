@@ -10,6 +10,7 @@ const _ = require('lodash');
 //var Data =  require('./data.model');
 const db = require('../../db')
 
+const request = require('request');
 
 const schema = 'stats';
 
@@ -189,6 +190,17 @@ exports.getObes = function (req, res, next) {
     });
 }
 
+
+exports.getPublicHealth = function (req, res, next) {
+    var resbond = res;
+    request('http://fingertips.phe.org.uk/api/profiles', { json: true }, (err, res, body) => {
+        if (err) {
+            console.log(err);
+            return resbond.status(500).json({success: false, data: err})
+        }
+        return resbond.send(body);
+    });
+}
 /**
  *
  * Function for converting objectArrays to CSV format

@@ -211,8 +211,10 @@
                             <div class="col-lg-3" ng-repeat="s in datasets" ng-click="selectDataset(s)">
                                 <div class="layout">
                                     <div class="layout-inner">
+                                        <span data-toggle="tooltip" data-title="{{s.description}}" class="pull-right light"><i class="fa fa-info"></i></span>
                                         <span>{{s.title}}</span>
-                                        <span class="text-muted layout-category">{{s.source}}</span>
+                                        <a class="text-muted layout-category" href="{{s.publisher_link}}" target="_blank">{{s.source}}</a>
+
                                     </div>
                                 </div>
                             </div>
@@ -241,6 +243,9 @@
                         </div>
                         <div data-ng-show="!loading && error" class="alert alert-warning"><i
                                 class="fa fa-thumbs-down breath-right"></i><strong>Whoops! </strong>{{error}}
+                        </div>
+                        <div data-ng-show="loading && !text.length" class="alert alert-loading"><i
+                                class="fa breath-right fa-refresh fa-spin"></i>Fetching your data. Please wait.
                         </div>
                         <div data-ng-show="loading && text.length" class="alert alert-loading"><i
                                 class="fa breath-right fa-refresh fa-spin"></i>Loading your data. Please wait.
@@ -284,7 +289,7 @@
 
                         </div>
 
-                        <div class="pull-left">
+                        <div ng-show="data.length" class="pull-left">
                             <p ng-show="!georeference" class="text-muted">We didn't detect any geography. To choose the
                                 fields, <a
                                         ng-click="georeferencing=true">click here</a></p>
@@ -433,10 +438,11 @@
 
                 </div>
 
+                <!--
                 <div data-ng-show="ctype =='Audio'" class="row">
                     <wavesurfer-angular url="wurl1" options="options1"></wavesurfer-angular>
                     <wavesurfer-angular url="wurl2" options="options2"></wavesurfer-angular>
-                </div>
+                </div> -->
 
 
             </div>

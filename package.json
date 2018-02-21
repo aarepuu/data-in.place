@@ -21,6 +21,7 @@
     "morgan": "^1.8.2",
     "nodemon": "^1.14.12",
     "pg": "^7.4.0",
+    "request": "^2.83.0",
     "serve-favicon": "^2.4.3"
   },
   "devDependencies": {},
