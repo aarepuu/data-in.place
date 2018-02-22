@@ -119,7 +119,7 @@ angular.module('raw.controllers', [])
                 zoom: 14
             },
             controls: {
-                custom: new L.Control.FullScreen(),
+                fullscreen: {},
                 scale: true,
                 draw: {
                     /*draw: {
@@ -146,7 +146,8 @@ angular.module('raw.controllers', [])
                      rectangle: false
 
                      }*/
-                }
+                },
+                custom: [new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'}), new L.Control.Legend()]
 
             },
             /*defaults: {
@@ -303,21 +304,27 @@ angular.module('raw.controllers', [])
         function onEachFeature(feature, layer) {
             layer._leaflet_id = layer.feature.properties.code;
             layer.on({
-                click: function () {
-                    console.log(layer.feature);
-                    //$scope.country = layer.feature.properties.name;
-
-                },
+                click: zoomToFeature,
                 mouseover: function () {
-                    console.log(layer.feature.properties.name);
+                    $scope.highlightFeature(layer._leaflet_id);
+                },
+                mouseout: function () {
+                    $scope.resetHighlight(layer._leaflet_id);
                 }
             })
+
+            //layer.bindPopup('<h2>' + feature.properties.name + '</h2><p>name: ' + feature.properties.code + '</p>');
+        }
+
+        function zoomToFeature(e) {
+            $scope.map.fitBounds(e.target.getBounds());
         }
 
         $scope.highlightFeature = function (id) {
             if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
             layer.setStyle({fillColor: 'blue'})
+            $scope.infoControl.setContent('<h4>' + layer.feature.properties.name + '</h4><p>Code: ' + layer.feature.properties.code + '</p>')
 
         };
 
@@ -325,6 +332,7 @@ angular.module('raw.controllers', [])
             if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
             layer.setStyle({fillColor: '#FD8D3C'})
+            $scope.infoControl.setContent('<h4>Quick Stats</h4> Hover over an area')
 
         };
 
@@ -339,6 +347,7 @@ angular.module('raw.controllers', [])
                 $scope.dataLayer = layers.overlays.data;
                 $scope.heatLayer = layers.overlays.heat;
                 $scope.markerLayer = layers.overlays.markers;
+                $scope.infoControl = map.infoControl;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     if (e.layerType === 'polygon')
@@ -414,6 +423,7 @@ angular.module('raw.controllers', [])
                          });*/
                         $scope.areaLayer.clearLayers();
                         $scope.areaLayer.addData($scope.features);
+
 
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
@@ -833,7 +843,6 @@ angular.module('raw.controllers', [])
             var result = {}, stacked = [];
             var newCols = [];
             var keys = Object.keys($scope.data[0])
-            console.log(keys)
             for (var i = 0; i < $scope.data.length; i++) {
                 if (!result[$scope.data[i][keys[rowIndex]]]) {
                     result[$scope.data[i][keys[rowIndex]]] = {};
@@ -1037,7 +1046,7 @@ angular.module('raw.controllers', [])
             var m = d3.values(rows).map(d3.values).map(function (d) {
                 return d3.sum(d) / n;
             });
-            console.log(d3.mean(m),m)
+            console.log(d3.mean(m), m)
             $scope.pivot = d3.mean(m);
 
         }
@@ -1070,6 +1079,32 @@ angular.module('raw.controllers', [])
             //console.log(obj.key)
         }
 
+        //function for adding data to geometry
+        //TODO - test with unstacking!!
+        function datatoGeom() {
+            //TODO - Nomisweb specific??
+            if ($scope.currentDataset.geom == "ons") {
+                if ($scope.currentDataset.ext) {
+                    $scope.data.forEach(function (row) {
+                        //TODO - find index of geotype!!
+                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
+                        let propkey = Object.keys(row)[1];
+                        let propval = Object.keys(row)[2];
+                        layer.feature.properties[row[propkey]] = row[propval];
+                    });
+                } else {
+                    $scope.data.forEach(function (row) {
+                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
+                        let rowCopy = Object.assign({}, row);
+                        //TODO - hardcoded position, expect the area to be first?
+                        delete rowCopy[Object.keys(row)[0]]
+                        $.extend(layer.feature.properties, rowCopy)
+                    });
+                }
+
+            }
+        }
+
         $scope.parse = function (text) {
 
             if ($scope.model) $scope.model.clear();
@@ -1097,16 +1132,7 @@ angular.module('raw.controllers', [])
                 pivotable($scope.data);
                 geomFields();
                 $scope.parsed = true;
-                //TODO - Nomisweb specific??
-                if ($scope.currentDataset.geom == "ons" && $scope.currentDataset.ext) {
-                    $scope.data.forEach(function (row) {
-                        var layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
-                        let propkey = Object.keys(row)[1];
-                        let propval = Object.keys(row)[2];
-                        layer.feature.properties[row[propkey]] = row[propval];
-                    });
-                }
-
+                datatoGeom();
 
                 $timeout(function () {
                     $scope.charts = raw.charts.values().sort(function (a, b) {

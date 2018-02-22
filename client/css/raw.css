@@ -605,7 +605,7 @@ textarea:focus {
   font-weight: 400;
   color: #999;
   margin: 0px;
-  display: block;
+  display: inline-block;
 }
 
 .layout.selected .layout-category {

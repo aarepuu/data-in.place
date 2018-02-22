@@ -208,11 +208,12 @@
                     <!-- Dataset -->
                     <div ng-show="importMode=='dataset' && !parsed">
                         <div class="row">
-                            <div class="col-lg-3" ng-repeat="s in datasets" ng-click="selectDataset(s)">
+                            <div class="col-lg-3" ng-repeat="s in datasets" ng-click="selectDataset(s); $event.stopPropagation();">
                                 <div class="layout">
                                     <div class="layout-inner">
                                         <span data-toggle="tooltip" data-title="{{s.description}}" class="pull-right light"><i class="fa fa-info"></i></span>
                                         <span>{{s.title}}</span>
+                                        </br>
                                         <a class="text-muted layout-category" href="{{s.publisher_link}}" target="_blank">{{s.source}}</a>
 
                                     </div>
@@ -221,11 +222,12 @@
                             <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
                                     <div class="layout yours">
                                         <div class="layout-custom">
-                                            <i class="fa fa-plus"></i>
+                                            <i class="pull-right fa fa-plus"></i>
                                         </div>
 
                                         <p class="layout-inner">
                                             <span class="layout-title">Custom</span>
+                                            </br>
                                             <span class="text-muted layout-category">Add new dataset!</span>
                                         </p>
                                     </div>
@@ -407,6 +409,7 @@
                                          ng-style="{'background-image':'url(' + c.thumbnail() + ')'}"></div>
                                     <p class="layout-inner">
                                         <span class="layout-title">{{c.title()}}</span>
+                                        </br>
                                         <span class="text-muted layout-category">{{c.category() || 'Other'}}</span>
                                     </p>
                                     <div class="layout-check">

@@ -344,7 +344,7 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
     },
     fullscreen: {
       isPluginLoaded: function() {
-        if (!angular.isDefined(L.Control.Fullscreen)) {
+        if (!angular.isDefined(L.Control.FullScreen)) {
           $log.error(errorHeader + ' Fullscreen plugin is not loaded.');
           return false;
         }
@@ -357,7 +357,7 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
       },
 
       createControl: function(params) {
-        return new L.Control.Fullscreen(params);
+        return new L.Control.FullScreen(params);
       },
     },
     search: {
@@ -379,6 +379,7 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
       },
     },
     custom: {},
+    info: {},
     minimap: {
       isPluginLoaded: function() {
         if (!angular.isDefined(L.Control.MiniMap)) {

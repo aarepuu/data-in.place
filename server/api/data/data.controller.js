@@ -74,12 +74,13 @@ exports.getTravel = function (req, res, next) {
 exports.getImd = function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
-    var header = 'Area Code,Rank,Decile\r\n';
+    var header = 'Area Code,Score,Rank,Decile\r\n';
     const query = {
-        text: 'SELECT lsoa_code_2011, imd_rank, imd_decile FROM stats.imd_2015 WHERE lsoa_code_2011 IN (' + areas + ')',
+        text: 'SELECT lsoa_code_2011, index_of_multiple_deprivation_imd_score, index_of_multiple_deprivation_imd_rank, index_of_multiple_deprivation_imd_decile FROM stats.all_ranks_imd_2015 WHERE lsoa_code_2011 IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
+        console.log(result)
         return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
     }).catch(e => {
         console.error(e.stack)
