@@ -40,7 +40,7 @@
                     <div class="row">
                         <div class="col-lg-2 list-unstyled" ng-repeat="s in areas">
                             <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
-                                <input type="checkbox" checked="true" value="{{s.code}}">
+                                <input type="checkbox" checked="true" "/>
                                 <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
                                    target="_blank">
                                     {{s.name}}
@@ -409,7 +409,7 @@
                                          ng-style="{'background-image':'url(' + c.thumbnail() + ')'}"></div>
                                     <p class="layout-inner">
                                         <span class="layout-title">{{c.title()}}</span>
-                                        </br>
+
                                         <span class="text-muted layout-category">{{c.category() || 'Other'}}</span>
                                     </p>
                                     <div class="layout-check">

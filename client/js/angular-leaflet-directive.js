@@ -379,7 +379,6 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
       },
     },
     custom: {},
-    info: {},
     minimap: {
       isPluginLoaded: function() {
         if (!angular.isDefined(L.Control.MiniMap)) {

@@ -91,17 +91,17 @@ angular.module('raw.controllers', [])
                         title: 'Draw a boundary'
                     },
                     {
-                        enabled: true,
+                        enabled: false,
                         handler: new L.Draw.Marker(map, {icon: issueMarker}),
                         title: 'Place an Issue Marker',
                     },
                     {
-                        enabled: true,
+                        enabled: false,
                         handler: new L.Draw.Marker(map, {icon: dataMarker}),
                         title: 'Place a Data Marker'
                     },
                     {
-                        enabled: true,
+                        enabled: false,
                         handler: new L.Draw.Marker(map, {icon: sensorMarker}),
                         title: 'Place a Sensor Marker'
                     }
@@ -147,7 +147,7 @@ angular.module('raw.controllers', [])
 
                      }*/
                 },
-                custom: [new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'}), new L.Control.Legend()]
+                //custom: [new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'})]
 
             },
             /*defaults: {
@@ -213,7 +213,7 @@ angular.module('raw.controllers', [])
                 },
                 overlays: {
                     boundary: {
-                        name: 'boundary',
+                        name: 'Boundary',
                         type: 'group',
                         visible: true,
                         layerParams: {
@@ -221,7 +221,7 @@ angular.module('raw.controllers', [])
                         }
                     },
                     markers: {
-                        name: 'markers',
+                        name: 'Markers',
                         type: 'group',
                         visible: true,
                         layerParams: {
@@ -229,7 +229,7 @@ angular.module('raw.controllers', [])
                         }
                     },
                     areas: {
-                        name: 'areas',
+                        name: 'Areas',
                         type: 'geoJSONShape',
                         data: [],
                         visible: true,
@@ -247,14 +247,14 @@ angular.module('raw.controllers', [])
                             },
                             onEachFeature: onEachFeature
                         }
-                    },
+                    },//TODO - markerclustering
                     data: {
-                        name: 'datalayer',
+                        name: 'Data',
                         type: 'geoJSONShape',
                         data: [],
                         visible: true,
                         layerParams: {
-                            showOnSelector: true
+                            showOnSelector: false
                         },
                         layerOptions: {
                             pointToLayer: function (feature, latlng) {
@@ -281,7 +281,7 @@ angular.module('raw.controllers', [])
                             gradient: gradient
                         },
                         layerParams: {
-                            showOnSelector: true
+                            showOnSelector: false
                         },
                         visible: true
 
@@ -323,8 +323,16 @@ angular.module('raw.controllers', [])
         $scope.highlightFeature = function (id) {
             if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
-            layer.setStyle({fillColor: 'blue'})
-            $scope.infoControl.setContent('<h4>' + layer.feature.properties.name + '</h4><p>Code: ' + layer.feature.properties.code + '</p>')
+            layer.setStyle({fillColor: 'blue'});
+            //TODO - make it into a funtions or build when data is added
+            let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>'
+            for (let key in layer.feature.properties) {
+                if (key !== 'name' && key !== 'code'){
+                    info += key +': ' + layer.feature.properties[key] + '</br>';
+
+                }
+            }
+            $scope.infoControl.setContent(info)
 
         };
 
@@ -340,18 +348,17 @@ angular.module('raw.controllers', [])
         leafletData.getMap().then(function (map) {
             leafletData.getLayers().then(function (layers) {
                 //var drawnItems = layers.overlays.draw;
-                var boundaryLayer = layers.overlays.boundary;
                 //TODO - not a good way
                 $scope.map = map;
+                $scope.boundaryLayer = layers.overlays.boundary;
                 $scope.areaLayer = layers.overlays.areas;
                 $scope.dataLayer = layers.overlays.data;
                 $scope.heatLayer = layers.overlays.heat;
                 $scope.markerLayer = layers.overlays.markers;
-                $scope.infoControl = map.infoControl;
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
                     if (e.layerType === 'polygon')
-                        boundaryLayer.clearLayers();
+                        $scope.boundaryLayer.clearLayers();
                 });
                 map.on('draw:created', function (e) {
                     var type = e.layerType,
@@ -367,7 +374,8 @@ angular.module('raw.controllers', [])
                         $scope.coords = $scope.coords.join(':');
                         $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
 
-                        boundaryLayer.addLayer($scope.boundary);
+                        $scope.boundaryLayer.addLayer($scope.boundary);
+                        $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
                         getArea($scope.boundary.toGeoJSON());
                     } else {
                         $scope.markerLayer.addLayer(layer);
@@ -391,6 +399,19 @@ angular.module('raw.controllers', [])
                 map.on('moveend', function () {
                     $scope.mapBbox = map.getBounds().toBBoxString();
                 });
+
+
+                map.on('overlayadd', function (eventLayer) {
+                    // Switch to the Population legend...
+                    /*if (eventLayer.name === 'Population') {
+                        this.removeControl(populationChangeLegend);
+                        populationLegend.addTo(this);
+                    } else { // Or switch to the Population Change legend...
+                        this.removeControl(populationLegend);
+                        populationChangeLegend.addTo(this);
+                    }*/
+                });
+
                 //TODO - make it separate
                 $scope.$watch('center.zoom', function () {
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
@@ -423,8 +444,15 @@ angular.module('raw.controllers', [])
                          });*/
                         $scope.areaLayer.clearLayers();
                         $scope.areaLayer.addData($scope.features);
-
-
+                        //TODO - add on event
+                        if (!$scope.infoControl) {
+                            $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
+                            $scope.infoControl.addTo($scope.map)
+                        }
+                        /*if (!$scope.legendControl) {
+                            $scope.legendControl = new L.Control.Legend();
+                            $scope.legendControl.addTo($scope.map);
+                        }*/
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -891,6 +919,7 @@ angular.module('raw.controllers', [])
                     $scope.dataLayer.clearLayers();
                     $scope.dataLayer.addData(response.data);
                     $scope.map.fitBounds($scope.dataLayer.getBounds());
+                    $scope.layers.overlays.data.layerParams.showOnSelector = true;
                     $scope.maploading = false;
                     //TODO - reset fields properly
                     $scope.georeferencing = false;
@@ -935,6 +964,7 @@ angular.module('raw.controllers', [])
                     $scope.maploading = true;
 
                     $scope.heatLayer.setLatLngs(result);
+                    $scope.layers.overlays.heat.layerParams.showOnSelector = true;
 
                     $scope.maploading = false;
                     //TODO - reset fields properly
@@ -1105,6 +1135,9 @@ angular.module('raw.controllers', [])
             }
         }
 
+        $scope.addremoveArea = function(e){
+            console.log(e);
+        }
         $scope.parse = function (text) {
 
             if ($scope.model) $scope.model.clear();
