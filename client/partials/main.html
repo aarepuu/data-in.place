@@ -40,7 +40,7 @@
                     <div class="row">
                         <div class="col-lg-2 list-unstyled" ng-repeat="s in areas">
                             <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
-                                <input type="checkbox" checked="true" "/>
+                                <input type="checkbox" ng-model="s.isChecked" ng-change="addremoveArea(s)"/>
                                 <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
                                    target="_blank">
                                     {{s.name}}
@@ -160,7 +160,7 @@
                     <!-- URl -->
                     <div ng-show="importMode=='url' && !json && !parsed">
                         <input type="text" class="form-control margin-bottom" ng-model="url" placeholder="http://"
-                               ng-show="!worksheets.length"></input>
+                               ng-show="!worksheets.length"/>
                         <p class="help-block">Enter a web address (URL) pointing to the data (e.g. a public Dropbox
                             file, a public API, ...). Please, be sure the server is CORS-enabled.
                         <p>
@@ -209,7 +209,7 @@
                     <div ng-show="importMode=='dataset' && !parsed">
                         <div class="row">
                             <div class="col-lg-3" ng-repeat="s in datasets" ng-click="selectDataset(s); $event.stopPropagation();">
-                                <div class="layout">
+                                <div class="layout" ng-class="dataAvailable(s.levels)">
                                     <div class="layout-inner">
                                         <span data-toggle="tooltip" data-title="{{s.description}}" class="pull-right light"><i class="fa fa-info"></i></span>
                                         <span>{{s.title}}</span>
@@ -409,7 +409,7 @@
                                          ng-style="{'background-image':'url(' + c.thumbnail() + ')'}"></div>
                                     <p class="layout-inner">
                                         <span class="layout-title">{{c.title()}}</span>
-
+                                        </br>
                                         <span class="text-muted layout-category">{{c.category() || 'Other'}}</span>
                                     </p>
                                     <div class="layout-check">
@@ -581,7 +581,7 @@
 
                             <div ng-switch="" on="option.type()">
                                 <input type="number" min="0" class="form-control" ng-model="option.value"
-                                       ng-switch-when="number"></input>
+                                       ng-switch-when="number"/>
 
                                 <div ng-switch-when="checkbox">
                                     <label class="">

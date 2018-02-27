@@ -35,6 +35,8 @@ angular.module('raw.controllers', [])
 
         var points = [];
 
+        $scope.removedAreaLayers = {};
+
 
         var gradient = {
             1: "#0000cc",
@@ -323,12 +325,13 @@ angular.module('raw.controllers', [])
         $scope.highlightFeature = function (id) {
             if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
+            if (layer == undefined) return;
             layer.setStyle({fillColor: 'blue'});
             //TODO - make it into a funtions or build when data is added
             let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>'
             for (let key in layer.feature.properties) {
-                if (key !== 'name' && key !== 'code'){
-                    info += key +': ' + layer.feature.properties[key] + '</br>';
+                if (key !== 'name' && key !== 'code') {
+                    info += key + ': ' + layer.feature.properties[key] + '</br>';
 
                 }
             }
@@ -337,10 +340,12 @@ angular.module('raw.controllers', [])
         };
 
         $scope.resetHighlight = function (id) {
+            if ($scope.infoControl)
+                $scope.infoControl.setContent('<h4>Quick Stats</h4> Hover over an area');
             if (!id) return;
-            var layer = $scope.areaLayer.getLayer(id);
+            let layer = $scope.areaLayer.getLayer(id);
+            if (layer == undefined) return;
             layer.setStyle({fillColor: '#FD8D3C'})
-            $scope.infoControl.setContent('<h4>Quick Stats</h4> Hover over an area')
 
         };
 
@@ -403,17 +408,19 @@ angular.module('raw.controllers', [])
 
                 map.on('overlayadd', function (eventLayer) {
                     // Switch to the Population legend...
-                    /*if (eventLayer.name === 'Population') {
-                        this.removeControl(populationChangeLegend);
-                        populationLegend.addTo(this);
-                    } else { // Or switch to the Population Change legend...
-                        this.removeControl(populationLegend);
-                        populationChangeLegend.addTo(this);
-                    }*/
+                    /*if (eventLayer.name === 'Areas') {
+                     this.removeControl($scope.infoControl);
+                     populationLegend.addTo(this);
+                     } else { // Or switch to the Population Change legend...
+                     this.removeControl(populationLegend);
+                     populationChangeLegend.addTo(this);
+                     }*/
                 });
+
 
                 //TODO - make it separate
                 $scope.$watch('center.zoom', function () {
+                    setLevel($scope.center.zoom);
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         if (Math.abs($scope.previousZoom - $scope.center.zoom) > 1 && !($scope.center.zoom > 16)) {
                             getArea($scope.boundary.toGeoJSON());
@@ -421,6 +428,7 @@ angular.module('raw.controllers', [])
                         }
 
                     }
+
                 });
                 function getArea(json) {
                     $scope.maploading = false;
@@ -433,10 +441,9 @@ angular.module('raw.controllers', [])
                         //handle your response here
                         $scope.maploading = false;
                         $scope.areas = response.data.areas;
-                        //All areas in a comma separated string
-                        $scope.areastring = $scope.areas.map(function (area) {
-                            return area.code;
-                        }).toString();
+                        $scope.areas.forEach(function (obj) {
+                            obj.isChecked = true;
+                        });
                         //TODO - add properties to areas
                         $scope.features = response.data.features;
                         /*response.data.features.features.forEach(function (feature) {
@@ -450,9 +457,9 @@ angular.module('raw.controllers', [])
                             $scope.infoControl.addTo($scope.map)
                         }
                         /*if (!$scope.legendControl) {
-                            $scope.legendControl = new L.Control.Legend();
-                            $scope.legendControl.addTo($scope.map);
-                        }*/
+                         $scope.legendControl = new L.Control.Legend();
+                         $scope.legendControl.addTo($scope.map);
+                         }*/
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -707,10 +714,21 @@ angular.module('raw.controllers', [])
             let requestURL = dataset.api_link;
             //TODO - rework this
             if (dataset.ext) {
-                console.log(dataset.geom)
+                console.log(dataset.geom);
                 switch (dataset.geom) {
                     case "ons":
-                        requestURL = requestURL + $scope.areastring;
+                        //All areas in a comma separated string
+                        let areastring = [];
+                        $scope.areas.forEach(function (area) {
+                            if (area.isChecked)
+                                areastring.push(area.code);
+                        });
+                        if (!areastring.length) {
+                            //TODO - show message of nothing selected
+                            $scope.loading = false;
+                            return;
+                        }
+                        requestURL = requestURL + areastring.toString();
                         break;
                     case "poly":
                         requestURL = requestURL + $scope.coords;
@@ -1135,8 +1153,56 @@ angular.module('raw.controllers', [])
             }
         }
 
-        $scope.addremoveArea = function(e){
-            console.log(e);
+        //TODO - quick and hacky solution should have geo type variable for levels
+        $scope.dataAvailable = function (levels) {
+            let larray = levels.split(',');
+            if (!larray.includes($scope.level) && !larray.includes('latlon') && !larray.includes('bbox'))
+                return 'disabled'
+        }
+
+
+        function setLevel(zoom) {
+            let level = '';
+            switch (true) {
+                case zoom >= 16:
+                    level = 'oa';
+                    break;
+                case (zoom <= 16 && zoom >= 14):
+                    level = 'lsoa';
+                    break;
+                case (zoom <= 14 && zoom >= 12):
+                    level = 'wd';
+                    break;
+                case (zoom <= 12 && zoom >= 10):
+                    level = 'lad';
+                    break;
+                default:
+                    level = 'lsoa';
+            }
+            $scope.level = level;
+        }
+
+        $scope.addremoveArea = function (e) {
+            if (e.isChecked) {
+                $scope.areaLayer.addLayer($scope.removedAreaLayers[e.code]);
+                delete $scope.removedAreaLayers[e.code];
+                if (!$scope.infoControl) {
+                    $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
+                    $scope.infoControl.addTo($scope.map)
+                }
+
+            } else {
+                $scope.removedAreaLayers[e.code] = $scope.areaLayer.getLayer(e.code);
+                $scope.areaLayer.removeLayer(e.code);
+                if (!Object.keys($scope.areaLayer.getLayers()).length) {
+                    $scope.map.removeControl($scope.infoControl);
+                    $scope.infoControl = null;
+                }
+            }
+            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+                console.log("update");
+                $scope.selectDataset($scope.currentDataset);
+            }
         }
         $scope.parse = function (text) {
 

@@ -553,7 +553,7 @@ angular.module('raw.directives', [])
                     d3.select(element[0]).selectAll("*").remove();
 
                     if (!scope.data || !scope.data.length) {
-                        d3.select(element[0]).append("span").text("Please, review your data")
+                        d3.select(element[0]).append("span").text("Please, review your data.")
                         return;
                     }
 
