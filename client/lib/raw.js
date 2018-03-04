@@ -95,9 +95,9 @@
                 keys[d] = [];
             });
             objs.forEach(function (d) {
-                for (var key in keys) {
+                for (let key in keys) {
                     //Lat-lon header detection
-                    var type = raw.detectGeometry(key);
+                    let type = raw.detectGeometry(key);
                     type = (type) ? type : raw.typeOf(d[key]);
                     if (type) keys[key].push(type);
                 }

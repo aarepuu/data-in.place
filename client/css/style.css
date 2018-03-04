@@ -1,5 +1,12 @@
-/* Data-in.place styles*/
+/**
+reset
+ */
 
+ol, ul {
+    list-style: none;
+}
+
+/* Data-in.place styles*/
 .powered-by {
     height: 50px;
     padding: 15px 15px;
@@ -73,4 +80,80 @@
     float: left;
     margin-right: 8px;
     opacity: 0.7;
+}
+
+.infowindow-list {
+    position: relative;
+    max-height: 200px;
+    padding-top: 12px;
+    padding-bottom: 18px;
+    overflow: scroll;
+}
+
+.infowindow-list .infowindow-listItem {
+    margin-right: 20px;
+}
+
+.infowindow-listItem:first-child {
+    margin-top: 0;
+}
+
+.infowindow-subtitle {
+    color: #636D72;
+}
+
+.infowindow-subtitle {
+    margin-bottom: 2px;
+    font-size: 10px;
+    font-weight: 300;
+    line-height: 14px;
+    text-transform: uppercase;
+}
+
+.infowindow-title {
+    color: #2E3C43;
+}
+
+.infowindow-title {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+
+/** Areas list */
+.read-more-state {
+    display: none;
+}
+
+.read-more-target {
+    opacity: 0;
+    max-height: 0;
+    font-size: 0;
+    transition: .25s ease;
+}
+
+.read-more-state:checked ~ .read-more-wrap .read-more-target {
+    opacity: 1;
+    font-size: inherit;
+    max-height: 999em;
+}
+
+.read-more-state ~ .read-more-trigger:before {
+    content: 'Show more';
+}
+
+.read-more-state:checked ~ .read-more-trigger:before {
+    content: 'Show less';
+}
+
+.read-more-trigger {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 .5em;
+    color: #666;
+    font-size: .9em;
+    line-height: 2;
+    border: 1px solid #ddd;
+    border-radius: .25em;
 }

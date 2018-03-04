@@ -116,8 +116,8 @@ angular.module('raw.controllers', [])
             center: {
                 //lat: 55.0156,
                 //lng: -1.67643,
-                lat: 55.00302271728109,
-                lng: -1.4633274078369143,
+                lat: 54.97328,
+                lng: -1.61396,
                 zoom: 14
             },
             controls: {
@@ -268,6 +268,14 @@ angular.module('raw.controllers', [])
                                     opacity: 1,
                                     fillOpacity: 0.8
                                 });
+                            },
+                            onEachFeature: function (feature, layer) {
+                                let popup_html = '<ul class="infowindow-list">';
+                                for (let key in feature.properties) {
+                                    popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">'+key+'</h5> <h4 class="infowindow-title">'+feature.properties[key]+'</h4></li>';
+                                }
+                                popup_html += '</ul>';
+                                layer.bindPopup(popup_html);
                             }
                         }
 
@@ -370,8 +378,10 @@ angular.module('raw.controllers', [])
                         layer = e.layer;
                     if (type == 'polygon') {
                         $scope.boundary = layer;
-                        //Had
+
+
                         //Police query format
+                        //TODO - use areas for query not the boundary
                         $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
                         for (var i = 0, l = $scope.coords.length; i < l; i++) {
                             $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
@@ -451,15 +461,16 @@ angular.module('raw.controllers', [])
                          });*/
                         $scope.areaLayer.clearLayers();
                         $scope.areaLayer.addData($scope.features);
+                        $scope.dataLayer.bringToFront();
                         //TODO - add on event
                         if (!$scope.infoControl) {
                             $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
                             $scope.infoControl.addTo($scope.map)
                         }
-                        /*if (!$scope.legendControl) {
-                         $scope.legendControl = new L.Control.Legend();
-                         $scope.legendControl.addTo($scope.map);
-                         }*/
+                        if (!$scope.legendControl) {
+                            $scope.legendControl = new L.Control.Legend();
+                            $scope.legendControl.addTo($scope.map);
+                        }
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -600,8 +611,9 @@ angular.module('raw.controllers', [])
             });
         }
 
-        // load URl
+        // load URL
         $scope.$watch('url', function (url) {
+            console.log(url);
 
             if (!url || !url.length) {
                 return;
@@ -675,7 +687,7 @@ angular.module('raw.controllers', [])
 
                 });
 
-        });
+        },true);
 
 
         $scope.aggregate = function () {
@@ -695,7 +707,6 @@ angular.module('raw.controllers', [])
                         count: group.values
                     }
                 });
-            console.log(JSON.stringify(aggregatedData));
             $scope.oldData = data;
             parseText(d3.tsv.format(aggregatedData));
 
@@ -706,12 +717,11 @@ angular.module('raw.controllers', [])
 
             reset();
             $scope.text = "";
-            $scope.loading = true;
             //set current selected dataset
             $scope.currentDataset = dataset;
             $scope.ctype = dataset.ctype;
 
-            let requestURL = dataset.api_link;
+            var requestURL = dataset.api_link;
             //TODO - rework this
             if (dataset.ext) {
                 console.log(dataset.geom);
@@ -747,9 +757,9 @@ angular.module('raw.controllers', [])
             var codes = $scope.areas.map(function (area) {
                 return area.code;
             });
+            $scope.loading = true;
             dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
-                    console.log(data);
                     if (Array.isArray(data)) {
                         try {
                             //var json = JSON.parse(data);
@@ -785,12 +795,15 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
-            //TODO - workaround with url datasets
+            //workaround with url datasets
             if ($scope.importMode == 'dataset' && $scope.currentDataset) {
-                console.log("update");
-                $scope.selectDataset($scope.currentDataset);
+                let larray = $scope.currentDataset.levels.split(',');
+                if (!larray.includes('latlon') && !larray.includes('bbox')) {
+                    console.log("update");
+                    $scope.selectDataset($scope.currentDataset);
+                }
             }
-        });
+        },true);
 
         $scope.$watch('dataView', function (n, o) {
             //console.log($scope.dataView);
@@ -936,6 +949,7 @@ angular.module('raw.controllers', [])
                     //TODO - what happens with big data?
                     $scope.dataLayer.clearLayers();
                     $scope.dataLayer.addData(response.data);
+                    $scope.dataLayer.setZIndex(9999);
                     $scope.map.fitBounds($scope.dataLayer.getBounds());
                     $scope.layers.overlays.data.layerParams.showOnSelector = true;
                     $scope.maploading = false;
@@ -1094,7 +1108,6 @@ angular.module('raw.controllers', [])
             var m = d3.values(rows).map(d3.values).map(function (d) {
                 return d3.sum(d) / n;
             });
-            console.log(d3.mean(m), m)
             $scope.pivot = d3.mean(m);
 
         }
@@ -1199,10 +1212,10 @@ angular.module('raw.controllers', [])
                     $scope.infoControl = null;
                 }
             }
-            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+            /*if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 console.log("update");
                 $scope.selectDataset($scope.currentDataset);
-            }
+            }*/
         }
         $scope.parse = function (text) {
 
