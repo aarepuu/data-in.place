@@ -17,6 +17,7 @@ router.post('/eco', controller.getEco);
 router.post('/cc', controller.getCc);
 router.post('/obes', controller.getObes);
 router.post('/pubhealth',controller.getPublicHealth);
+router.post('/schools',controller.getSchools);
 
 
 module.exports = router;

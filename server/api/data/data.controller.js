@@ -24,7 +24,6 @@ function respondWithResult(res, statusCode) {
     };
 }
 
-
 exports.getDatasets = function (req, res, next) {
     const query = {
         text: "SELECT * from stats.datasets where active = true;",
@@ -201,6 +200,23 @@ exports.getPublicHealth = function (req, res, next) {
         }
         return resbond.send(body);
     });
+}
+
+exports.getSchools = function (req, res, next) {
+    let boundary = JSON.parse(req.body.boundary);
+    let header = 'establishment_name,type,status,statutory_highage,statutory_lowage,open_date,education_phase,gender,street,locality,address3,town,county,website,email,phone_std,phone_num,fax_std,fax_num,head_title,head_firstname,head_lastname,head_jobtitle,latitude,longitude\r\n';
+    const query = {
+        text: "SELECT establishment_name,type,status,statutory_highage,statutory_lowage,open_date,education_phase,gender,street,locality,address3,town,county,website,email,phone_std,phone_num,fax_std,fax_num,head_title,head_firstname,head_lastname,head_jobtitle,latitude,longitude FROM " + schema + ".ukschools_loc WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
+        values: [JSON.stringify(boundary.geometry)],
+        rowMode: 'array'
+    };
+    db.query(query).then(result => {
+        return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
+    }).catch(e => {
+        console.error(e.stack)
+        return res.status(500).json({success: false, data: e})
+    });
+
 }
 /**
  *

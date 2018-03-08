@@ -272,7 +272,7 @@ angular.module('raw.controllers', [])
                             onEachFeature: function (feature, layer) {
                                 let popup_html = '<ul class="infowindow-list">';
                                 for (let key in feature.properties) {
-                                    popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">'+key+'</h5> <h4 class="infowindow-title">'+feature.properties[key]+'</h4></li>';
+                                    popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">' + key + '</h5> <h4 class="infowindow-title">' + feature.properties[key] + '</h4></li>';
                                 }
                                 popup_html += '</ul>';
                                 layer.bindPopup(popup_html);
@@ -382,11 +382,17 @@ angular.module('raw.controllers', [])
 
                         //Police query format
                         //TODO - use areas for query not the boundary
+                        //TODO - use the actual areas
                         $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
                         for (var i = 0, l = $scope.coords.length; i < l; i++) {
                             $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
                         }
                         $scope.coords = $scope.coords.join(':');
+                        if ($scope.areaBbox == undefined) {
+                            $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
+                        } else {
+                            $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
+                        }
                         $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
 
                         $scope.boundaryLayer.addLayer($scope.boundary);
@@ -687,7 +693,7 @@ angular.module('raw.controllers', [])
 
                 });
 
-        },true);
+        }, true);
 
 
         $scope.aggregate = function () {
@@ -758,7 +764,11 @@ angular.module('raw.controllers', [])
                 return area.code;
             });
             $scope.loading = true;
-            dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom}).then(
+            let reqparams = {"codes": codes, "zoom": $scope.center.zoom};
+            if (dataset.geom == 'latlon')
+                reqparams.boundary = JSON.stringify($scope.boundary.toGeoJSON());
+
+            dataService.loadDataset(dataset, reqparams).then(
                 function (data) {
                     if (Array.isArray(data)) {
                         try {
@@ -798,12 +808,12 @@ angular.module('raw.controllers', [])
             //workaround with url datasets
             if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 let larray = $scope.currentDataset.levels.split(',');
-                if (!larray.includes('latlon') && !larray.includes('bbox')) {
+                if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
                     console.log("update");
                     $scope.selectDataset($scope.currentDataset);
                 }
             }
-        },true);
+        }, true);
 
         $scope.$watch('dataView', function (n, o) {
             //console.log($scope.dataView);
@@ -1213,9 +1223,9 @@ angular.module('raw.controllers', [])
                 }
             }
             /*if ($scope.importMode == 'dataset' && $scope.currentDataset) {
-                console.log("update");
-                $scope.selectDataset($scope.currentDataset);
-            }*/
+             console.log("update");
+             $scope.selectDataset($scope.currentDataset);
+             }*/
         }
         $scope.parse = function (text) {
 
