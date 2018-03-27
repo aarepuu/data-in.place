@@ -1105,9 +1105,12 @@ textarea.source-area {
 /* Table */
 
 .data-table {
+  table-layout:fixed;
   font-size: 11px;
   font-weight: 400;
   height: 275px;
+  width: 100%;
+  max-width: 100%;
   overflow: scroll;
   margin-bottom: 10px;
   background-color: #fff;
@@ -1144,9 +1147,12 @@ textarea.source-area {
   cursor: pointer;
 }
 
+
+
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
   border-top: none;
   border-right: 1px solid #eee;
+  min-width: 100px;
 }
 
 .data-table table {

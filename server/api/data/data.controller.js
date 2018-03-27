@@ -39,7 +39,7 @@ exports.getHealth = function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
-    const header = 'Area Code,Very Good,Good,Fair,Bad,Very Bad\r\n';
+    const header = 'Area Code;Very Good;Good;Fair;Bad;Very Bad\r\n';
     const query = {
         text: 'SELECT area_code, very_good, good, fair, bad, very_bad FROM stats.census_2011_health WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
@@ -73,13 +73,12 @@ exports.getTravel = function (req, res, next) {
 exports.getImd = function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
-    var header = 'Area Code,Score,Rank,Decile\r\n';
+    var header = 'Area Code;Score;Rank;Decile\r\n';
     const query = {
         text: 'SELECT lsoa_code_2011, index_of_multiple_deprivation_imd_score, index_of_multiple_deprivation_imd_rank, index_of_multiple_deprivation_imd_decile FROM stats.all_ranks_imd_2015 WHERE lsoa_code_2011 IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
-        console.log(result)
         return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
     }).catch(e => {
         console.error(e.stack)
@@ -91,7 +90,7 @@ exports.getImd = function (req, res, next) {
 exports.getPop = function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
-    var header = 'Area code,All ages,16 and under,aged 16-24,aged 25-64,aged 65-84,aged 85 and over\r\n';
+    var header = 'Area code;All ages;16 and under;aged 16-24;aged 25-64;aged 65-84;aged 85 and over\r\n';
     const query = {
         text: 'SELECT area_code, all_ages, ("0" + "1" + "2" + "3" + "4" + "5" + "6" + "7" + "8" + "9" + "10" + "11" + "12" + "13" + "14" + "15") AS "16 and under",("16" + "17" + "18" + "19" + "20" + "21" + "22" + "23" + "24") AS "aged 16-24", ("25" + "26" + "27" + "28" + "29" + "30" + "31" + "32" + "33" + "34" + "35" + "36" + "37" + "38" + "39" + "40" + "41" + "42" + "43" + "44" + "45" + "46" + "47" + "48" + "49" + "50" + "51" + "52" + "53" + "54" + "55" + "56" + "57" + "58" + "59" + "60" + "61" + "62" + "63" + "64") AS "aged 25-64", ("65" + "66" + "67" + "68" + "69" + "70" + "71" + "72" + "73" + "74" + "75" + "76" + "77" + "78" + "79" + "80" + "81" + "82" + "83" + "84") AS "aged 65-84", ("85"+"86"+"87"+"88"+"89"+"90+") AS "aged 85 and over" FROM stats.mid16_est_lsoa_pop WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
@@ -107,7 +106,7 @@ exports.getPop = function (req, res, next) {
 exports.getCrime = function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
-    var header = 'Area Code,Year,Type,Number of Reports\r\n';
+    var header = 'Area Code;Year;Type,Number of Reports\r\n';
     const query = {
         text: 'SELECT lsoa_code,year,type, COUNT(*) FROM stats.police_years WHERE lsoa_code IN (' + areas + ') GROUP by lsoa_code, year,type',
         rowMode: 'array'
@@ -176,7 +175,6 @@ exports.getObes = function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
-    var area_level = zoomLevel(zoom);
     var header = 'Area Code,Area Name,Year,Classification,Metric,Value\r\n';
     const query = {
         text: 'SELECT area_code, org_name, year, classification, metric, value from stats.obes where area_code IN (' + areas + ')',
@@ -203,13 +201,20 @@ exports.getPublicHealth = function (req, res, next) {
 }
 
 exports.getSchools = function (req, res, next) {
-    let boundary = JSON.parse(req.body.boundary);
-    let header = 'establishment_name,type,status,statutory_highage,statutory_lowage,open_date,education_phase,gender,street,locality,address3,town,county,website,email,phone_std,phone_num,fax_std,fax_num,head_title,head_firstname,head_lastname,head_jobtitle,latitude,longitude\r\n';
-    const query = {
+    //let boundary = JSON.parse(req.body.boundary);
+    let items = req.body.codes;
+    let areas = queryParams(items);
+    let header = 'Unique reference number;Establishment name;Town;Is closed;School type;Phase of education;Absence trend;Reading average score;Previous reading average score;Grammar average score;Maths average score;Previous maths average score;Reading progress score;Writing progress score;Maths progress score;Previous reading progress score;Previous writing progress score;Previous maths progress score;Postcode;Latitude;Longitude;Link\r\n';
+    /*const query = {
         text: "SELECT establishment_name,type,status,statutory_highage,statutory_lowage,open_date,education_phase,gender,street,locality,address3,town,county,website,email,phone_std,phone_num,fax_std,fax_num,head_title,head_firstname,head_lastname,head_jobtitle,latitude,longitude FROM " + schema + ".ukschools_loc WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
         values: [JSON.stringify(boundary.geometry)],
         rowMode: 'array'
+    };*/
+    const query = {
+        text: 'SELECT urn, schname, town, iclose, nftype, phase, absence_trend, read_average, read_average_16, gps_average, mat_average, mat_average_16, readprog, writprog, matprog, readprog_16, writprog_16, matprog_16, postcode, latitude, longitude,link FROM ' + schema + '.ukschools_selection WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
+        rowMode: 'array'
     };
+
     db.query(query).then(result => {
         return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
     }).catch(e => {
@@ -234,7 +239,7 @@ function ConvertToCSV(header, objArray) {
     for (var i = 0; i < array.length; i++) {
         var line = '';
         for (var index in array[i]) {
-            if (line != '') line += ','
+            if (line != '') line += ';'
 
             line += array[i][index];
         }
@@ -274,15 +279,15 @@ function zoomLevel(zoom) {
             level = 'oa11';
             console.log('oa11');
             break;
-        case (zoom <= 16 && zoom >= 14):
+        case (zoom < 16 && zoom >= 14):
             level = 'lsoa11';
             console.log('lsoa11');
             break;
-        case (zoom <= 14 && zoom >= 12):
+        case (zoom < 14 && zoom >= 12):
             console.log('wd16');
             level = 'wd16';
             break;
-        case (zoom <= 12 && zoom >= 10):
+        case (zoom < 12 && zoom >= 10):
             console.log('lad16');
             level = 'lad16';
             break;

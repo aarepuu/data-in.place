@@ -39,8 +39,8 @@
                     </label>
                     <div class="row">
                         <ul id="read-more-wrap">
-                            <li class="col-lg-2 list-unstyled" ng-class="{ 'read-more-target': $index > 20}"
-                                ng-repeat="s in areas track by $index">
+                            <!--<li class="col-lg-2 list-unstyled" ng-class="{ 'read-more-target': $index > 20}" ng-repeat="s in areas track by $index">-->
+                            <li class="col-lg-2 list-unstyled" ng-repeat="s in areas track by $index">
                             <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
                                 <input type="checkbox" ng-model="s.isChecked" ng-change="addremoveArea(s)"/>
                                 <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
@@ -49,11 +49,12 @@
                                 </a>
                             </span>
                             </li>
+                            <!--
                             <li class="col-lg-2 list-unstyled light" ng-show="areas.length > 20">
                                 <input type="checkbox" class="read-more-state" id="show-more"/>
                                 ...(plus {{areas.length - 20}} more)
                                 <label class="read-more-trigger" for="show-more"></label>
-                            </li>
+                            </li>-->
                         </ul>
                     </div>
                 </div>
@@ -108,7 +109,7 @@
 
                     <ul class="nav nav-pills nav-stacked nav-pills-stacked-example">
                         <li role="presentation" ng-class="{active:!parsed && importMode=='dataset'}"><a href="#"
-                                                                                                        ng-click="parsed=false;importMode='dataset'"><i
+                                                                                                        ng-click="parsed=false;currentDataset=false;importMode='dataset'"><i
                                 class="fa fa-database breath-right"></i>Pick a dataset</a></li>
                         <li role="presentation" ng-class="{active:!parsed && importMode=='clipboard'}"><a href="#"
                                                                                                           ng-click="parsed=false;importMode='clipboard'"><i

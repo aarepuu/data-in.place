@@ -272,7 +272,8 @@ angular.module('raw.controllers', [])
                             onEachFeature: function (feature, layer) {
                                 let popup_html = '<ul class="infowindow-list">';
                                 for (let key in feature.properties) {
-                                    popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">' + key + '</h5> <h4 class="infowindow-title">' + feature.properties[key] + '</h4></li>';
+                                    popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">' + key + '</h5> <h4 class="infowindow-title">'
+                                        + (validURL(feature.properties[key]) ? '<a href="'+feature.properties[key]+'" target="_blank">'+feature.properties[key]+'</a>': feature.properties[key]) + '</h4></li>';
                                 }
                                 popup_html += '</ul>';
                                 layer.bindPopup(popup_html);
@@ -304,7 +305,12 @@ angular.module('raw.controllers', [])
         });
 
         function getPointColour(props) {
-            return "#ff7800";
+            if($scope.currentDataset){
+                return "#ff7800";
+            } else{
+                return "#00ADEF";
+            }
+
         }
 
         function getPointSize(props) {
@@ -321,7 +327,7 @@ angular.module('raw.controllers', [])
                 mouseout: function () {
                     $scope.resetHighlight(layer._leaflet_id);
                 }
-            })
+            });
 
             //layer.bindPopup('<h2>' + feature.properties.name + '</h2><p>name: ' + feature.properties.code + '</p>');
         }
@@ -336,7 +342,7 @@ angular.module('raw.controllers', [])
             if (layer == undefined) return;
             layer.setStyle({fillColor: 'blue'});
             //TODO - make it into a funtions or build when data is added
-            let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>'
+            let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>';
             for (let key in layer.feature.properties) {
                 if (key !== 'name' && key !== 'code') {
                     info += key + ': ' + layer.feature.properties[key] + '</br>';
@@ -400,7 +406,7 @@ angular.module('raw.controllers', [])
                         getArea($scope.boundary.toGeoJSON());
                     } else {
                         $scope.markerLayer.addLayer(layer);
-                        let id = layer._leaflet_id
+                        let id = layer._leaflet_id;
                         layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
                         layer.dragging.enable();
                         layer.on('popupclose', function () {
@@ -436,7 +442,6 @@ angular.module('raw.controllers', [])
 
                 //TODO - make it separate
                 $scope.$watch('center.zoom', function () {
-                    setLevel($scope.center.zoom);
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         if (Math.abs($scope.previousZoom - $scope.center.zoom) > 1 && !($scope.center.zoom > 16)) {
                             getArea($scope.boundary.toGeoJSON());
@@ -449,6 +454,7 @@ angular.module('raw.controllers', [])
                 function getArea(json) {
                     $scope.maploading = false;
                     if (!json) return;
+                    setLevel($scope.center.zoom);
                     $http.post('/api/geo/area', {
                         zoom: $scope.center.zoom,
                         boundary: JSON.stringify(json)
@@ -473,10 +479,11 @@ angular.module('raw.controllers', [])
                             $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
                             $scope.infoControl.addTo($scope.map)
                         }
-                        if (!$scope.legendControl) {
-                            $scope.legendControl = new L.Control.Legend();
-                            $scope.legendControl.addTo($scope.map);
-                        }
+                        /*
+                         if (!$scope.legendControl) {
+                         $scope.legendControl = new L.Control.Legend();
+                         $scope.legendControl.addTo($scope.map);
+                         }*/
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -528,7 +535,7 @@ angular.module('raw.controllers', [])
             $scope.loading = true;
             var json = dataService.flatJSON(d);
             parseText(d3.tsv.format(json))
-        }
+        };
 
         // select Array in JSON
         function selectArray(json) {
@@ -599,7 +606,7 @@ angular.module('raw.controllers', [])
                 selectArray(json);
             }
             catch (error) {
-                console.log(error)
+                console.log(error);
                 parseText(json);
             }
 
@@ -643,7 +650,7 @@ angular.module('raw.controllers', [])
                     $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer'})
                         .then(function (response) {
                                 var data = new Uint8Array(response.data);
-                                var arr = new Array();
+                                var arr = [];
                                 for (var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
                                 var bstr = arr.join("");
 
@@ -717,7 +724,7 @@ angular.module('raw.controllers', [])
             parseText(d3.tsv.format(aggregatedData));
 
 
-        }
+        };
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
 
@@ -764,11 +771,7 @@ angular.module('raw.controllers', [])
                 return area.code;
             });
             $scope.loading = true;
-            let reqparams = {"codes": codes, "zoom": $scope.center.zoom};
-            if (dataset.geom == 'latlon')
-                reqparams.boundary = JSON.stringify($scope.boundary.toGeoJSON());
-
-            dataService.loadDataset(dataset, reqparams).then(
+            dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom}).then(
                 function (data) {
                     if (Array.isArray(data)) {
                         try {
@@ -809,6 +812,7 @@ angular.module('raw.controllers', [])
             if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 let larray = $scope.currentDataset.levels.split(',');
                 if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
+                    $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
                     console.log("update");
                     $scope.selectDataset($scope.currentDataset);
                 }
@@ -842,7 +846,7 @@ angular.module('raw.controllers', [])
             'Distributions': 'rgb(5, 205, 255)',
             'Correlations': '#df0',
             'Others': '#0f0'
-        }
+        };
 
 
         $scope.$watch('files', function () {
@@ -857,7 +861,7 @@ angular.module('raw.controllers', [])
         $scope.$watch('importMode', function () {
             // reset
             reset();
-        })
+        });
 
 
         var arrays = [];
@@ -884,7 +888,7 @@ angular.module('raw.controllers', [])
                     obj.value = row[column];
                     unstacked.push(obj);
                 }
-            })
+            });
 
 
             $scope.oldData = data;
@@ -892,7 +896,7 @@ angular.module('raw.controllers', [])
 
             $scope.unstacked = true;
 
-        }
+        };
 
         //Data will be unstacked with this function
         $scope.restack = function () {
@@ -911,7 +915,7 @@ angular.module('raw.controllers', [])
             //inspired by code from http://techbrij.com
             var result = {}, stacked = [];
             var newCols = [];
-            var keys = Object.keys($scope.data[0])
+            var keys = Object.keys($scope.data[0]);
             for (var i = 0; i < $scope.data.length; i++) {
                 if (!result[$scope.data[i][keys[rowIndex]]]) {
                     result[$scope.data[i][keys[rowIndex]]] = {};
@@ -940,7 +944,7 @@ angular.module('raw.controllers', [])
 
             $scope.restacked = true;
 
-        }
+        };
 
         $scope.geoReference = function () {
             if (!$scope.pcodeColumn && (!$scope.latColumn || !$scope.lngColumn)) return;
@@ -1016,14 +1020,14 @@ angular.module('raw.controllers', [])
 
             }
 
-        }
+        };
 
         //data will be (unstacked) turn to original
         $scope.stack = function () {
             parseText(d3.tsv.format($scope.oldData));
             $scope.unstacked = ($scope.unstacked) ? false : true;
             $scope.restacked = ($scope.restacked) ? false : true;
-        }
+        };
 
 
         function reset() {
@@ -1046,6 +1050,7 @@ angular.module('raw.controllers', [])
             $scope.latColumn = false;
             $scope.pcodeColumn = false;
             $scope.stackDimension = false;
+            $scope.currentDataset = false;
             //$scope.$apply();
         }
 
@@ -1102,7 +1107,7 @@ angular.module('raw.controllers', [])
                     if (!rows[p].hasOwnProperty(o[p])) rows[p][o[p]] = -1;
                     rows[p][o[p]] += 1;
                 }
-            })
+            });
 
             for (var r in rows) {
                 for (var p in rows[r]) {
@@ -1145,7 +1150,7 @@ angular.module('raw.controllers', [])
             if (obj !== undefined) {
                 $scope.geotype = true;
                 $scope.georeference = true;
-                return;
+
             }
             //console.log(obj.key)
         }
@@ -1158,17 +1163,17 @@ angular.module('raw.controllers', [])
                 if ($scope.currentDataset.ext) {
                     $scope.data.forEach(function (row) {
                         //TODO - find index of geotype!!
-                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
+                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);
                         let propkey = Object.keys(row)[1];
                         let propval = Object.keys(row)[2];
                         layer.feature.properties[row[propkey]] = row[propval];
                     });
                 } else {
                     $scope.data.forEach(function (row) {
-                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]])
+                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);
                         let rowCopy = Object.assign({}, row);
                         //TODO - hardcoded position, expect the area to be first?
-                        delete rowCopy[Object.keys(row)[0]]
+                        delete rowCopy[Object.keys(row)[0]];
                         $.extend(layer.feature.properties, rowCopy)
                     });
                 }
@@ -1181,7 +1186,7 @@ angular.module('raw.controllers', [])
             let larray = levels.split(',');
             if (!larray.includes($scope.level) && !larray.includes('latlon') && !larray.includes('bbox'))
                 return 'disabled'
-        }
+        };
 
 
         function setLevel(zoom) {
@@ -1190,19 +1195,28 @@ angular.module('raw.controllers', [])
                 case zoom >= 16:
                     level = 'oa';
                     break;
-                case (zoom <= 16 && zoom >= 14):
+                case (zoom < 16 && zoom >= 14):
                     level = 'lsoa';
                     break;
-                case (zoom <= 14 && zoom >= 12):
+                case (zoom < 14 && zoom >= 12):
                     level = 'wd';
                     break;
-                case (zoom <= 12 && zoom >= 10):
+                case (zoom < 12 && zoom >= 10):
                     level = 'lad';
                     break;
                 default:
-                    level = 'lsoa';
+                    level = 'rgn';
             }
             $scope.level = level;
+        }
+
+        function validURL(str) {
+            var pattern = new RegExp(/^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/g);
+            if (!pattern.test(str)) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         $scope.addremoveArea = function (e) {
@@ -1226,7 +1240,7 @@ angular.module('raw.controllers', [])
              console.log("update");
              $scope.selectDataset($scope.currentDataset);
              }*/
-        }
+        };
         $scope.parse = function (text) {
 
             if ($scope.model) $scope.model.clear();
@@ -1259,7 +1273,7 @@ angular.module('raw.controllers', [])
                 $timeout(function () {
                     $scope.charts = raw.charts.values().sort(function (a, b) {
                         return d3.ascending(a.category(), b.category()) || d3.ascending(a.title(), b.title())
-                    })
+                    });
                     $scope.chart = $scope.charts.filter(function (d) {
                         return d.title() == ($scope.ctype ? $scope.ctype : 'Scatter Plot');
                     })[0];
@@ -1277,7 +1291,7 @@ angular.module('raw.controllers', [])
                 cm.refresh();
                 cm.refresh();
             });
-        }
+        };
 
         $scope.delayParse = dataService.debounce($scope.parse, 500, false);
 
@@ -1297,7 +1311,7 @@ angular.module('raw.controllers', [])
             cm.addLineClass(error, 'wrap', 'line-error');
             cm.scrollIntoView(error);
             $scope.lastError = error;
-        })
+        });
 
         $('body').mousedown(function (e, ui) {
             if ($(e.target).hasClass("dimension-info-toggle")) return;
@@ -1305,20 +1319,20 @@ angular.module('raw.controllers', [])
                 angular.element(this).scope().open = false;
                 angular.element(this).scope().$apply();
             })
-        })
+        });
 
         $scope.codeMirrorOptions = {
             dragDrop: false,
             lineNumbers: true,
             lineWrapping: true
-        }
+        };
 
         $scope.selectChart = function (chart) {
             if (chart == $scope.chart) return;
             $scope.model.clear();
             $scope.chart = chart;
             $scope.model = $scope.chart.model();
-        }
+        };
 
         function refreshScroll() {
             $('[data-spy="scroll"]').each(function () {
@@ -1362,7 +1376,7 @@ angular.module('raw.controllers', [])
                 .css("top", "")
                 .css("width", "");
 
-        })
+        });
 
         $scope.sortCategory = function (chart) {
             // sort first by category, then by title
@@ -1373,3 +1387,4 @@ angular.module('raw.controllers', [])
 
 
     }]);
+;

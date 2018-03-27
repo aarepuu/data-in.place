@@ -19,6 +19,7 @@
     "lusca": "^1.5.1",
     "method-override": "^2.3.9",
     "morgan": "^1.8.2",
+    "ngrok": "^3.0.1",
     "nodemon": "^1.14.12",
     "pg": "^7.4.0",
     "request": "^2.83.0",

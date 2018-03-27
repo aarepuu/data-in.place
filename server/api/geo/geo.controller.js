@@ -40,7 +40,8 @@ exports.getArea = function (req, res, next) {
     var table_name = zoomLevel(zoom);
 
     //insert query boundary
-    //client.query('INSERT INTO stats.boundary(gjson) values($1)',[JSON.stringify(boundary.geometry)]);
+    if(process.env.NODE_ENV == "production")
+        db.query('INSERT INTO stats.boundary(gjson) values($1)',[JSON.stringify(boundary.geometry)]);
     const query = {
         text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
         values: [JSON.stringify(boundary.geometry)]
@@ -149,23 +150,23 @@ function queryParams(items) {
  */
 function zoomLevel(zoom) {
     var level = '';
+    console.log(zoom);
     switch (true) {
         case zoom >= 16:
             level = 'oa11';
             console.log('oa11');
             break;
-        case (zoom <= 16 && zoom >= 14):
+        case (zoom < 16 && zoom >= 14):
             level = 'lsoa11';
             console.log('lsoa11');
             break;
-        case (zoom <= 14 && zoom >= 12):
+        case (zoom < 14 && zoom >= 12):
             console.log('wd16');
             level = 'wd16';
             break;
-        case (zoom <= 12 && zoom >= 10):
+        case (zoom < 12 && zoom >= 10):
             console.log('lad16');
             level = 'lad16';
-            break;
             break;
         default:
             level = 'rgn16';
