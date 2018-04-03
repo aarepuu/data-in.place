@@ -191,7 +191,7 @@ exports.getObes = function (req, res, next) {
 
 exports.getPublicHealth = function (req, res, next) {
     var resbond = res;
-    request('http://fingertips.phe.org.uk/api/profiles', { json: true }, (err, res, body) => {
+    request('http://fingertips.phe.org.uk/api/profiles', { json: true }, (err, res,  body) => {
         if (err) {
             console.log(err);
             return resbond.status(500).json({success: false, data: err})
@@ -204,14 +204,14 @@ exports.getSchools = function (req, res, next) {
     //let boundary = JSON.parse(req.body.boundary);
     let items = req.body.codes;
     let areas = queryParams(items);
-    let header = 'Unique reference number;Establishment name;Town;Is closed;School type;Phase of education;Absence trend;Reading average score;Previous reading average score;Grammar average score;Maths average score;Previous maths average score;Reading progress score;Writing progress score;Maths progress score;Previous reading progress score;Previous writing progress score;Previous maths progress score;Postcode;Latitude;Longitude;Link\r\n';
+    let header = 'Unique reference number;Engaged;Establishment name;Town;Is closed;School type;Phase of education;Absence trend;Reading average score;Previous reading average score;Grammar average score;Maths average score;Previous maths average score;Reading progress score;Writing progress score;Maths progress score;Previous reading progress score;Previous writing progress score;Previous maths progress score;Postcode;Latitude;Longitude;Link\r\n';
     /*const query = {
         text: "SELECT establishment_name,type,status,statutory_highage,statutory_lowage,open_date,education_phase,gender,street,locality,address3,town,county,website,email,phone_std,phone_num,fax_std,fax_num,head_title,head_firstname,head_lastname,head_jobtitle,latitude,longitude FROM " + schema + ".ukschools_loc WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
         values: [JSON.stringify(boundary.geometry)],
         rowMode: 'array'
     };*/
     const query = {
-        text: 'SELECT urn, schname, town, iclose, nftype, phase, absence_trend, read_average, read_average_16, gps_average, mat_average, mat_average_16, readprog, writprog, matprog, readprog_16, writprog_16, matprog_16, postcode, latitude, longitude,link FROM ' + schema + '.ukschools_selection WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
+        text: 'SELECT urn, 0 as engaged, schname, town, iclose, nftype, phase, absence_trend, read_average, read_average_16, gps_average, mat_average, mat_average_16, readprog, writprog, matprog, readprog_16, writprog_16, matprog_16, postcode, latitude, longitude,link FROM ' + schema + '.ukschools_selection WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
         rowMode: 'array'
     };
 

@@ -33,6 +33,27 @@ angular.module('raw.controllers', [])
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
 
 
+        let schoolIcon = L.icon({
+            iconUrl: '../imgs/school-blue.png',
+
+            iconSize: [24, 24],
+            // size of the icon
+            iconAnchor: [12, 23],
+            // point of the icon which will correspond to marker's location
+            popupAnchor: [1, -21] // point from which the popup should open relative to the iconAnchor
+        });
+
+        let noschoolIcon = L.icon({
+            iconUrl: '../imgs/school-orange.png',
+
+            iconSize: [24, 24],
+            // size of the icon
+            iconAnchor: [12, 23],
+            // point of the icon which will correspond to marker's location
+            popupAnchor: [1, -21] // point from which the popup should open relative to the iconAnchor
+        });
+
+
         var points = [];
 
         $scope.removedAreaLayers = {};
@@ -260,20 +281,25 @@ angular.module('raw.controllers', [])
                         },
                         layerOptions: {
                             pointToLayer: function (feature, latlng) {
-                                return L.circleMarker(latlng, {
-                                    radius: getPointSize(feature.properties),
-                                    fillColor: getPointColour(feature.properties),
-                                    color: "#000",
-                                    weight: 1,
-                                    opacity: 1,
-                                    fillOpacity: 0.8
+                                //if ($scope.currentDataset.id == 15);
+                                /*return L.circleMarker(latlng, {
+                                 radius: getPointSize(feature.properties),
+                                 fillColor: getPointColour(feature.properties),
+                                 color: "#000",
+                                 weight: 1,
+                                 opacity: 1,
+                                 fillOpacity: 0.8
+                                 });*/
+                                console.log(parseInt(feature.properties.Engaged));
+                                return L.marker(latlng, {
+                                    icon: (parseInt(feature.properties.Engaged) ? schoolIcon : noschoolIcon)
                                 });
                             },
                             onEachFeature: function (feature, layer) {
                                 let popup_html = '<ul class="infowindow-list">';
                                 for (let key in feature.properties) {
                                     popup_html += '<li class="infowindow-listItem"><h5 class="infowindow-subtitle">' + key + '</h5> <h4 class="infowindow-title">'
-                                        + (validURL(feature.properties[key]) ? '<a href="'+feature.properties[key]+'" target="_blank">'+feature.properties[key]+'</a>': feature.properties[key]) + '</h4></li>';
+                                        + (validURL(feature.properties[key]) ? '<a href="' + feature.properties[key] + '" target="_blank">' + feature.properties[key] + '</a>' : feature.properties[key]) + '</h4></li>';
                                 }
                                 popup_html += '</ul>';
                                 layer.bindPopup(popup_html);
@@ -305,9 +331,9 @@ angular.module('raw.controllers', [])
         });
 
         function getPointColour(props) {
-            if($scope.currentDataset){
+            if ($scope.currentDataset) {
                 return "#ff7800";
-            } else{
+            } else {
                 return "#00ADEF";
             }
 
@@ -1288,7 +1314,6 @@ angular.module('raw.controllers', [])
             $scope.loading = false;
             var cm = $('.parsed .CodeMirror')[0].CodeMirror;
             $timeout(function () {
-                cm.refresh();
                 cm.refresh();
             });
         };

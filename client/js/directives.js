@@ -559,7 +559,7 @@ angular.module('raw.directives', [])
 
                     var table = d3.select(element[0])
                         .append('table')
-                        .attr("class", "table table-striped table-condensed")
+                        .attr("class", "dtable table-striped table-condensed")
 
                     if (!sortBy) sortBy = scope.metadata[0].key;
 
@@ -594,7 +594,9 @@ angular.module('raw.directives', [])
                         .on("click", function (d) {
                             //TODO - is it a good place for marker manipulation?
                             if (!d.Latitude) return;
-                            if (!scope.markers.length) {
+                            scope.center.lat = parseFloat(d.Latitude);
+                            scope.center.lng = parseFloat(d.Longitude);
+                            /*if (!scope.markers.length) {
                                 angular.extend(scope, {
                                     markers: {
                                         cc: {
@@ -617,7 +619,7 @@ angular.module('raw.directives', [])
                                 } else if (wave.playing == true) {
                                     wave.pause();
                                 }
-                            });
+                            });*/
                             //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
                             //scope.wavesurfer.playing = true;
 
