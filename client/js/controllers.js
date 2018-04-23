@@ -30,7 +30,7 @@ angular.module('raw.controllers', [])
         });
 
 
-        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude'];
+        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude', 'ONS Codes', 'Addresses'];
 
 
         let schoolIcon = L.icon({
@@ -184,6 +184,22 @@ angular.module('raw.controllers', [])
              },*/
             layers: {
                 baselayers: {
+                    //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
+                   /* mapbox_notext: {
+                        name: 'Mapbox Notext',
+                        url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
+                        type: 'xyz',
+                        layerOptions: {
+                            apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
+                            mapid: 'cj7or2fkzb8ay2rqfarpanw10',
+                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                            detectRetina: true,
+                            reuseTiles: false,
+                        },
+                        layerParams: {
+                            showOnSelector: true
+                        }
+                    },*/
                     mapbox_light: {
                         name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
@@ -215,24 +231,7 @@ angular.module('raw.controllers', [])
                         layerParams: {
                             minZoom: 6
                         }
-                    },
-                    //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                    /* mapbox_notext: {
-                     name: 'Mapbox Notext',
-                     url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
-                     type: 'xyz',
-                     layerOptions: {
-                     apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                     mapid: 'cj7or2fkzb8ay2rqfarpanw10',
-                     attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                     detectRetina: true,
-                     reuseTiles: false,
-                     },
-                     layerParams: {
-                     showOnSelector: true
-                     }
-                     }*/
-
+                    }
                 },
                 overlays: {
                     boundary: {
@@ -281,16 +280,17 @@ angular.module('raw.controllers', [])
                         },
                         layerOptions: {
                             pointToLayer: function (feature, latlng) {
-                                //if ($scope.currentDataset.id == 15);
-                                /*return L.circleMarker(latlng, {
-                                 radius: getPointSize(feature.properties),
-                                 fillColor: getPointColour(feature.properties),
-                                 color: "#000",
-                                 weight: 1,
-                                 opacity: 1,
-                                 fillOpacity: 0.8
-                                 });*/
-                                console.log(parseInt(feature.properties.Engaged));
+
+                                if (!$scope.currentDataset.id == 15)
+                                return L.circleMarker(latlng, {
+                                    radius: getPointSize(feature.properties),
+                                    fillColor: getPointColour(feature.properties),
+                                    color: "#000",
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                });
+                                //console.log(parseInt(feature.properties.Engaged));
                                 return L.marker(latlng, {
                                     icon: (parseInt(feature.properties.Engaged) ? schoolIcon : noschoolIcon)
                                 });
@@ -330,6 +330,17 @@ angular.module('raw.controllers', [])
             markers: {},
         });
 
+        function getColor(d) {
+            return d > 1000 ? '#800026' :
+                d > 500 ? '#BD0026' :
+                    d > 200 ? '#E31A1C' :
+                        d > 100 ? '#FC4E2A' :
+                            d > 50 ? '#FD8D3C' :
+                                d > 20 ? '#FEB24C' :
+                                    d > 10 ? '#FED976' :
+                                        '#FFEDA0';
+        }
+
         function getPointColour(props) {
             if ($scope.currentDataset) {
                 return "#ff7800";
@@ -345,6 +356,7 @@ angular.module('raw.controllers', [])
 
         function onEachFeature(feature, layer) {
             layer._leaflet_id = layer.feature.properties.code;
+            //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
             layer.on({
                 click: zoomToFeature,
                 mouseover: function () {
@@ -361,6 +373,10 @@ angular.module('raw.controllers', [])
         function zoomToFeature(e) {
             $scope.map.fitBounds(e.target.getBounds());
         }
+
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#myInput').trigger('focus')
+        })
 
         $scope.highlightFeature = function (id) {
             if (!id) return;
@@ -385,7 +401,10 @@ angular.module('raw.controllers', [])
             if (!id) return;
             let layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
-            layer.setStyle({fillColor: '#FD8D3C'})
+            //layer.setStyle({fillColor: '#FD8D3C'})
+            //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
+
+
 
         };
 
@@ -505,11 +524,11 @@ angular.module('raw.controllers', [])
                             $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
                             $scope.infoControl.addTo($scope.map)
                         }
-                        /*
-                         if (!$scope.legendControl) {
-                         $scope.legendControl = new L.Control.Legend();
-                         $scope.legendControl.addTo($scope.map);
-                         }*/
+
+                        if (!$scope.legendControl) {
+                            $scope.legendControl = new L.Control.Legend();
+                            $scope.legendControl.addTo($scope.map);
+                        }
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });

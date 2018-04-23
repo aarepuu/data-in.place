@@ -16,11 +16,11 @@
                     Longitude : <input type="number" step="any" ng-model="center.lng">
                     Zoom : <input type="number" step="any" ng-model="center.zoom">
                     </br>
-                    </br>
+                    </br>-->
                     <input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname">
                     <button class="btn btn-success">Save</button>
                     <button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode"
-                            bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>-->
+                            bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>
                     Look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
                     <button ng-model="postcode" class="btn btn-defaule" ng-click="searchPostcode(postcode)">Search
                     </button>
@@ -67,17 +67,18 @@
         <div class="container">
 
             <div class="row">
-                <div>
-                    <h3 id="your-data">Load your data <a class="powered-by" href="http://rawgraphs.io/" target="_blank">powered
-                        by <img alt="RawGraphs" src="imgs/rawgraphslogo.png"></a>
-                        <a data-toggle="tooltip" data-title="Learning" class="pull-right light"
-                           href="http://rawgraphs.io/learning/" target="_blank"><i class="fa fa-info"></i></a>
-                    </h3>
-                </div>
+
+                <!-- <div>
+                     <h3 id="your-data">Load your data <a class="powered-by" href="http://rawgraphs.io/" target="_blank">powered
+                         by <img alt="RawGraphs" src="imgs/rawgraphslogo.png"></a>
+                         <a data-toggle="tooltip" data-title="Learning" class="pull-right light"
+                            href="http://rawgraphs.io/learning/" target="_blank"><i class="fa fa-info"></i></a>
+                     </h3>
+                 </div>-->
 
                 <div class="col-lg-12">
-                    <h3><span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl}}</span>
-                        <span class="pull-left" ng-show="data.length">
+                    <h3>Load your data <span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl}}</span>
+                        <!--<span class="pull-left" ng-show="data.length">
                             <button
                                     class="btn btn-default"
                                     ng-model="aggregator"
@@ -85,7 +86,7 @@
                                     placeholder="Select an aggregator"
                                     bs-options="dimension.key for dimension in metadata" bs-select>
                             </button>
-                        </span>
+                        </span> -->
                         <span class="list-type pull-right" ng-show="data.length">
 								<i class="type fa fa-table breath-left"
                                    data-toggle="tooltip"
@@ -231,16 +232,57 @@
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
-                                <div class="layout yours">
+                                <div class="layout yours" data-toggle="modal"
+                                     data-target="#exampleModal">
                                     <div class="layout-custom">
                                         <i class="pull-right fa fa-plus"></i>
                                     </div>
 
                                     <p class="layout-inner">
-                                        <span class="layout-title">Custom</span>
+                                        <span class="layout-title">Add Data</span>
                                         </br>
-                                        <span class="text-muted layout-category">Add new dataset!</span>
+                                        <span class="text-muted layout-category">Request new dataset!</span>
+
                                     </p>
+                                </div>
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h3 class="modal-title" id="exampleModalLabel">Request Data Form</h3>
+
+                                            </div>
+                                            <div class="modal-body">
+                                                <form>
+                                                    <div class="form-group">
+                                                        <label for="issue" class="col-form-label">What issue you are
+                                                            exploring:</label>
+                                                        <input type="text" placeholder="e.g. housing, health, poverty" class="form-control" id="issue">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="issue" class="col-form-label">Who has the data:</label>
+                                                        <input type="text" placeholder="link to the department" class="form-control" id="source">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="message-text"
+                                                               class="col-form-label">Story:</label>
+                                                        <textarea class="form-control" placeholder="Please add additional info to find the data" id="message-text"></textarea>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                    Close
+                                                </button>
+                                                <button type="button" class="btn btn-success">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                             </div>
@@ -383,10 +425,14 @@
 
             <div>
 
-                <h3 id="layout">
-                    Visualise your data
-                </h3>
-
+                <div>
+                    <h3 id="layout">Visualise your data<a class="powered-by" href="http://rawgraphs.io/"
+                                                          target="_blank">powered
+                        by <img alt="RawGraphs" src="imgs/rawgraphslogo.png"></a>
+                        <a data-toggle="tooltip" data-title="Learning" class="pull-right light"
+                           href="http://rawgraphs.io/learning/" target="_blank"><i class="fa fa-info"></i></a>
+                    </h3>
+                </div>
 
                 <div data-ng-show="ctype !='Audio'" class="row">
 

@@ -559,7 +559,7 @@ angular.module('raw.directives', [])
 
                     var table = d3.select(element[0])
                         .append('table')
-                        .attr("class", "dtable table-striped table-condensed")
+                        .attr("class", "table table-striped table-condensed")
 
                     if (!sortBy) sortBy = scope.metadata[0].key;
 
