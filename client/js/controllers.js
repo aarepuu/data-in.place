@@ -281,7 +281,7 @@ angular.module('raw.controllers', [])
                         layerOptions: {
                             pointToLayer: function (feature, latlng) {
 
-                                if (!$scope.currentDataset.id == 15)
+                                if ($scope.currentDataset.id != 15)
                                 return L.circleMarker(latlng, {
                                     radius: getPointSize(feature.properties),
                                     fillColor: getPointColour(feature.properties),
@@ -356,6 +356,7 @@ angular.module('raw.controllers', [])
 
         function onEachFeature(feature, layer) {
             layer._leaflet_id = layer.feature.properties.code;
+            //TODO - set fill based on parameter
             //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
             layer.on({
                 click: zoomToFeature,
@@ -383,7 +384,7 @@ angular.module('raw.controllers', [])
             var layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
             layer.setStyle({fillColor: 'blue'});
-            //TODO - make it into a funtions or build when data is added
+            //TODO - make it into a function or build when data is added
             let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>';
             for (let key in layer.feature.properties) {
                 if (key !== 'name' && key !== 'code') {
@@ -401,7 +402,7 @@ angular.module('raw.controllers', [])
             if (!id) return;
             let layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
-            //layer.setStyle({fillColor: '#FD8D3C'})
+            layer.setStyle({fillColor: '#FD8D3C'})
             //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
 
 
@@ -979,7 +980,8 @@ angular.module('raw.controllers', [])
                 var item = {};
                 item[base] = key;
                 for (var i = 0; i < newCols.length; i++) {
-                    item[newCols[i]] = result[key][newCols[i]] || "";
+                    //TODO - better way to clean up field titles
+                    item[(newCols[i]).replace(/:/g, '-')] = result[key][newCols[i]] || "";
                 }
                 stacked.push(item);
             }

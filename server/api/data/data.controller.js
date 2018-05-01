@@ -175,7 +175,7 @@ exports.getObes = function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
-    var header = 'Area Code,Area Name,Year,Classification,Metric,Value\r\n';
+    var header = 'Area Code;Area Name;Year;Classification;Metric;Value\r\n';
     const query = {
         text: 'SELECT area_code, org_name, year, classification, metric, value from stats.obes where area_code IN (' + areas + ')',
         rowMode: 'array'

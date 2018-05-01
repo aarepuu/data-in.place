@@ -39,11 +39,11 @@
                     </label>
                     <div class="row">
                         <ul id="read-more-wrap">
-                            <!--<li class="col-lg-2 list-unstyled" ng-class="{ 'read-more-target': $index > 20}" ng-repeat="s in areas track by $index">-->
-                            <li class="col-lg-2 list-unstyled" ng-repeat="s in areas track by $index">
+                            <!--<li class="col-lg-2 list-unstyled limited-text" ng-class="{ 'read-more-target': $index > 20}" ng-repeat="s in areas track by $index">-->
+                            <li class="col-lg-2 list-unstyled limited-text" ng-repeat="s in areas track by $index">
                             <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
                                 <input type="checkbox" ng-model="s.isChecked" ng-change="addremoveArea(s)"/>
-                                <a href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
+                                <a title="{{s.name}}" href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
                                    target="_blank">
                                     {{s.name}}
                                 </a>
@@ -78,15 +78,6 @@
 
                 <div class="col-lg-12">
                     <h3>Load your data <span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl}}</span>
-                        <!--<span class="pull-left" ng-show="data.length">
-                            <button
-                                    class="btn btn-default"
-                                    ng-model="aggregator"
-                                    ng-change="aggregate()"
-                                    placeholder="Select an aggregator"
-                                    bs-options="dimension.key for dimension in metadata" bs-select>
-                            </button>
-                        </span> -->
                         <span class="list-type pull-right" ng-show="data.length">
 								<i class="type fa fa-table breath-left"
                                    data-toggle="tooltip"
@@ -99,6 +90,15 @@
 							</span>
                         <span class="clearfix"></span>
                     </h3>
+                    <span class="pull-left" ng-show="data.length">
+                            <button
+                                    class="btn btn-default"
+                                    ng-model="aggregator"
+                                    ng-change="aggregate()"
+                                    placeholder="Select an aggregator"
+                                    bs-options="dimension.key for dimension in metadata" bs-select>
+                            </button>
+                        </span>
                 </div>
 
             </div>
@@ -279,7 +279,7 @@
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">
                                                     Close
                                                 </button>
-                                                <button type="button" class="btn btn-success">Save changes</button>
+                                                <button type="button" class="btn btn-success">Send request</button>
                                             </div>
                                         </div>
                                     </div>
@@ -484,6 +484,7 @@
 
                                         <p class="layout-inner">
                                             <span class="layout-title">Custom</span>
+                                        </br>
                                             <span class="text-muted layout-category">Add your charts!</span>
                                         </p>
                                     </div>
