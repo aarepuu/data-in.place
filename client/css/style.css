@@ -164,3 +164,7 @@ ol, ul {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.modal-content{
+    background-color: #F5F5F5;
+}
