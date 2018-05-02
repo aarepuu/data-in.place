@@ -1,7 +1,9 @@
 ## About
 
-**DATA:IN PLACE** is geographic information system (GIS) for accessing and visualising open data. System leverages an open source web tool [RAWGraphs](http://rawgraphs.io/) by [DensityDesign Research Lab](http://www.densitydesign.org/) ([Politecnico di Milano](http://www.polimi.it/)) and [Calibro](http://calib.ro/) to create custom vector-based visualisations from open data.
-It has been developed in [Open Lab]() by [Aare Puussaar]().
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**DATA:IN PLACE** is geographic information system (GIS) for accessing and visualising open data. It has been developed in [Open Lab](https://openlab.ncl.ac.uk/) by [Aare Puussaar](https://github.com/aarepuu).
+System leverages an open source web tool [RAWGraphs](http://rawgraphs.io/) by [DensityDesign Research Lab](http://www.densitydesign.org/) ([Politecnico di Milano](http://www.polimi.it/)) and [Calibro](http://calib.ro/) to create custom vector-based visualisations from open data.
 
 
 System connects to real time open governmental datasources (e.g., Office of National Statistics, Home Office, NHS, Department of Education, Ministry of Housing, Communities and Local Government etc.) and provides a interface for making place based queries. Instead of writing complex queries or scrolling through endless lists of tables to get the relevant data you need, you can use the map to focus on a specific area (i.e. draw a boundary on a map). Also by zooming in and out the area, the system displays statistics on different UK administration level (i.e. output areas, wards, local authorities, counties).
@@ -13,7 +15,7 @@ This feature of the system gives the ability to overlay and intersect datasets (
 DATA:IN PLACE also enables you to request open datasets to be added to the platform and linked to the map based query system.
 
 - App page: [data-in.place](https://app.data-in.place)
-- Project official page: [rawgraphs.io](http://data-in.place)
+- Project official page: [data-in.place](http://data-in.place)
 - Documentation: [github.com/aarepuu/data-in.place/wiki](https://github.com/aarepuu/data-in.place/wiki)
 
 
@@ -203,4 +205,4 @@ RAW is provided under the [Apache License 2.0](https://github.com/densitydesign/
 
 ## Funding
 
-This research was funded through the [EPSRC](https://www.epsrc.ac.uk/) Centre for Doctoral Training in Digital Civics (EP/L016176/1).
+DATA:IN PLACE project is funded through the [EPSRC](https://www.epsrc.ac.uk/) Centre for Doctoral Training in Digital Civics (EP/L016176/1).
