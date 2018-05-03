@@ -621,7 +621,7 @@ angular.module('raw.directives', [])
                                 }
                             });
                             //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
-                            scope.wavesurfer.playing = true;
+                            //scope.wavesurfer.playing = true;
 
                         })
                         .on("mouseover", function (d) {
