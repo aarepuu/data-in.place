@@ -100,8 +100,6 @@ angular.module('raw.controllers', [])
         $scope.wavesurfers = [];
         $scope.$on('wavesurferInit', function (e, wavesurfer) {
             $scope.wavesurfers.push(wavesurfer);
-            console.log(wavesurfer);
-
         });
 
         //Leaflet controller
@@ -706,7 +704,6 @@ angular.module('raw.controllers', [])
 
         // load URL
         $scope.$watch('url', function (url) {
-            console.log(url);
 
             if (!url || !url.length) {
                 return;
