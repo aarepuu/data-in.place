@@ -553,7 +553,7 @@ angular.module('raw.directives', [])
                     d3.select(element[0]).selectAll("*").remove();
 
                     if (!scope.data || !scope.data.length) {
-                        d3.select(element[0]).append("span").text("Please, review your data.")
+                        d3.select(element[0]).append("span").text("Please review your data.")
                         return;
                     }
 
@@ -596,7 +596,7 @@ angular.module('raw.directives', [])
                             if (!d.Latitude) return;
                             scope.center.lat = parseFloat(d.Latitude);
                             scope.center.lng = parseFloat(d.Longitude);
-                            /*if (!scope.markers.length) {
+                            if (!scope.markers.length) {
                                 angular.extend(scope, {
                                     markers: {
                                         cc: {
@@ -619,9 +619,9 @@ angular.module('raw.directives', [])
                                 } else if (wave.playing == true) {
                                     wave.pause();
                                 }
-                            });*/
-                            //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
-                            //scope.wavesurfer.playing = true;
+                            });
+                            scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
+                            scope.wavesurfer.playing = true;
 
                         })
                         .on("mouseover", function (d) {

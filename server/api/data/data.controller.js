@@ -158,7 +158,7 @@ exports.getCc = function (req, res, next) {
     var zoom = req.body.zoom;
     var areas = queryParams(items);
     var area_level = zoomLevel(zoom);
-    var header = 'Session,Start,End,Area Code,Latitude,Longitude\r\n';
+    var header = 'Session;Start;End;Area Code;Latitude;Longitude\r\n';
     const query = {
         text: 'SELECT sessionid, starts, ends, ' + area_level + 'cd, lat, lng from stats.cc_t1simple WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
         rowMode: 'array'

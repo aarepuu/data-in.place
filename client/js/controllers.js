@@ -69,6 +69,40 @@ angular.module('raw.controllers', [])
         $scope.dataView = 'table';
         $scope.previousZoom = 14;
 
+        //wavesurfer options
+
+
+        $scope.options1 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s1'
+        };
+
+        $scope.options2 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s2'
+        };
+
+        $scope.wurl1 = './data/mwcad-t1s1.mp3';
+        $scope.wurl2 = './data/mwcad-t1s2.mp3';
+        //console.log($scope);
+        $scope.wavesurfers = [];
+        $scope.$on('wavesurferInit', function (e, wavesurfer) {
+            $scope.wavesurfers.push(wavesurfer);
+            //console.log(wavesurfer);
+
+        });
 
         //Leaflet controller
 
@@ -114,17 +148,17 @@ angular.module('raw.controllers', [])
                         title: 'Draw a boundary'
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: issueMarker}),
                         title: 'Place an Issue Marker',
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: dataMarker}),
                         title: 'Place a Data Marker'
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: sensorMarker}),
                         title: 'Place a Sensor Marker'
                     }
@@ -137,8 +171,8 @@ angular.module('raw.controllers', [])
             center: {
                 //lat: 55.0156,
                 //lng: -1.67643,
-                lat: 54.97328,
-                lng: -1.61396,
+                lat: 55.006280,
+                lng: -1.461147,
                 zoom: 14
             },
             controls: {
@@ -775,7 +809,6 @@ angular.module('raw.controllers', [])
             if (!dataset) return;
 
             reset();
-            $scope.text = "";
             //set current selected dataset
             $scope.currentDataset = dataset;
             $scope.ctype = dataset.ctype;
@@ -1327,6 +1360,7 @@ angular.module('raw.controllers', [])
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });
             } catch (e) {
+                console.log(e)
                 $scope.data = [];
                 $scope.metadata = [];
                 $scope.error = e.name == "ParseError" ? +e.message : false;
