@@ -100,7 +100,7 @@ angular.module('raw.controllers', [])
         $scope.wavesurfers = [];
         $scope.$on('wavesurferInit', function (e, wavesurfer) {
             $scope.wavesurfers.push(wavesurfer);
-            //console.log(wavesurfer);
+            console.log(wavesurfer);
 
         });
 
