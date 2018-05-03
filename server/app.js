@@ -7,7 +7,7 @@
 const express = require('express');
 const config = require('./config/environment');
 const http = require('http');
-const ngrok = require('ngrok');
+//const ngrok = require('ngrok');
 
 // Setup server
 const app = express();
