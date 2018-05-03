@@ -620,7 +620,7 @@ angular.module('raw.directives', [])
                                     wave.pause();
                                 }
                             });
-                            scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
+                            //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
                             scope.wavesurfer.playing = true;
 
                         })
