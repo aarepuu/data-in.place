@@ -613,8 +613,8 @@ angular.module('raw.directives', [])
                             }
 
                             scope.wavesurfers.forEach(function (wave) {
-                                console.log(wave)
-                                console.oo0g
+                                console.log(wave.container.id);
+                                console.log(d.Session);
                                 if (wave.container.id == d.Session) {
                                     wave.play(parseFloat(d.Start), parseFloat(d.End));
                                     wave.playing = true;
