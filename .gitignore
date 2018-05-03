@@ -29,7 +29,7 @@ jspm_packages
 /server/config/local.env.js
 /server/config/local.env
 ecosystem.json
-client/js/
+client/js/analytics.js
 
 
 # Generated libs
