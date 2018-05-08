@@ -96,7 +96,7 @@ angular.module('raw.controllers', [])
 
         $scope.wurl1 = './data/mwcad-t1s1.mp3';
         $scope.wurl2 = './data/mwcad-t1s2.mp3';
-        //console.log($scope);
+
         $scope.wavesurfers = [];
         $scope.$on('wavesurferInit', function (e, wavesurfer) {
             $scope.wavesurfers.push(wavesurfer);

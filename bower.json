@@ -45,7 +45,7 @@
     "underscore": "^1.8.3",
     "Leaflet.extra-markers": "^1.0.6",
     "leaflet.markercluster": "^1.3.0",
-    "wavesurfer-angular": "^1.0.1"
+    "wavesurfer-angular": "https://github.com/aarepuu/wavesurfer-angular.git#1.0.2-alpha"
   },
   "resolutions": {
     "angular": "1.6.2"
