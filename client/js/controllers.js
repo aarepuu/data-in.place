@@ -7,23 +7,6 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
 
-
-        /*$scope.samples = [
-         {title: 'Community Conversational', type: 'Community', url: '/api/data/cc', ctype: 'Audio'},
-         {title: 'Travel to Work', type: 'Census 2011', url: '/api/data/travel', ctype: 'Pie chart'},
-         {title: 'General Health', type: 'Census 2011', url: '/api/data/health', ctype: 'Pie chart'},
-         {title: 'Population', type: 'Census 2011', url: '/api/data/pop', ctype: 'Pie chart'},
-         {title: 'Crime', type: 'data.police.uk', url: '/api/data/crime', ctype: 'Pie chart'},
-         {title: 'Index of Multiple Deprivation', type: 'Mid 2015', url: '/api/data/imd', ctype: 'Pie chart'},
-         {title: 'Police Streets', type: 'January 2017', url: $scope.coords, ctype: 'Pie chart', api: true},
-         //{title: 'Energy Performance', type: 'DCLG', url: '/api/data/crime', ctype: 'Pie chart'},
-         //{title: 'Air Quality', type: 'UK-AIR', url: '/api/data/crime', ctype: 'Pie chart'},
-         //{title: 'Access to Car/Van', type: 'Census 2011', url: '/api/geo/crime', ctype: 'Pie chart'},
-         //{title: 'Greenspaces', type: 'OS', url: '/api/data/crime', ctype: 'Pie chart'}
-
-         ]*/
-
-
         //get the datasets
         $http.get("/api/data/sources").then(function (response) {
             $scope.datasets = response.data;
@@ -185,21 +168,21 @@ angular.module('raw.controllers', [])
             layers: {
                 baselayers: {
                     //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                   /* mapbox_notext: {
-                        name: 'Mapbox Notext',
-                        url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
-                        type: 'xyz',
-                        layerOptions: {
-                            apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                            mapid: 'cj7or2fkzb8ay2rqfarpanw10',
-                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                            detectRetina: true,
-                            reuseTiles: false,
-                        },
-                        layerParams: {
-                            showOnSelector: true
-                        }
-                    },*/
+                    /* mapbox_notext: {
+                     name: 'Mapbox Notext',
+                     url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
+                     type: 'xyz',
+                     layerOptions: {
+                     apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
+                     mapid: 'cj7or2fkzb8ay2rqfarpanw10',
+                     attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                     detectRetina: true,
+                     reuseTiles: false,
+                     },
+                     layerParams: {
+                     showOnSelector: true
+                     }
+                     },*/
                     mapbox_light: {
                         name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
@@ -282,14 +265,14 @@ angular.module('raw.controllers', [])
                             pointToLayer: function (feature, latlng) {
 
                                 if ($scope.currentDataset.id != 15)
-                                return L.circleMarker(latlng, {
-                                    radius: getPointSize(feature.properties),
-                                    fillColor: getPointColour(feature.properties),
-                                    color: "#000",
-                                    weight: 1,
-                                    opacity: 1,
-                                    fillOpacity: 0.8
-                                });
+                                    return L.circleMarker(latlng, {
+                                        radius: getPointSize(feature.properties),
+                                        fillColor: getPointColour(feature.properties),
+                                        color: "#000",
+                                        weight: 1,
+                                        opacity: 1,
+                                        fillOpacity: 0.8
+                                    });
                                 //console.log(parseInt(feature.properties.Engaged));
                                 return L.marker(latlng, {
                                     icon: (parseInt(feature.properties.Engaged) ? schoolIcon : noschoolIcon)
@@ -331,14 +314,16 @@ angular.module('raw.controllers', [])
         });
 
         function getColor(d) {
-            return d > 1000 ? '#800026' :
-                d > 500 ? '#BD0026' :
-                    d > 200 ? '#E31A1C' :
-                        d > 100 ? '#FC4E2A' :
-                            d > 50 ? '#FD8D3C' :
-                                d > 20 ? '#FEB24C' :
-                                    d > 10 ? '#FED976' :
-                                        '#FFEDA0';
+            return d < 2 ? '#800026' :
+                d < 3 ? '#BD0026' :
+                    d < 4 ? '#E31A1C' :
+                        d < 5 ? '#FC4E2A' :
+                            d < 6 ? '#FD8D3C' :
+                                d < 7 ? '#FEB24C' :
+                                    d < 8 ? '#FED976' :
+                                        d < 9 ? '#FED976' :
+                                            d < 10 ? '#FFEDA0' :
+                                                '#EFFFAB';
         }
 
         function getPointColour(props) {
@@ -402,9 +387,11 @@ angular.module('raw.controllers', [])
             if (!id) return;
             let layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
-            layer.setStyle({fillColor: '#FD8D3C'})
-            //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
-
+            if(layer.feature.properties[$scope.geoAggregator]){
+                layer.setStyle ({fillColor: getColor(layer.feature.properties[$scope.geoAggregator])});
+            } else {
+                layer.setStyle({fillColor: '#FD8D3C'})
+            }
 
 
         };
@@ -1098,6 +1085,7 @@ angular.module('raw.controllers', [])
             $scope.pcodeColumn = false;
             $scope.stackDimension = false;
             $scope.currentDataset = false;
+            $scope.geoAggregator = "";
             //$scope.$apply();
         }
 
@@ -1221,7 +1209,8 @@ angular.module('raw.controllers', [])
                         let rowCopy = Object.assign({}, row);
                         //TODO - hardcoded position, expect the area to be first?
                         delete rowCopy[Object.keys(row)[0]];
-                        $.extend(layer.feature.properties, rowCopy)
+                        $.extend(layer.feature.properties, rowCopy);
+                        layer.setStyle({fillColor: getColor(row.Decile)});
                     });
                 }
 

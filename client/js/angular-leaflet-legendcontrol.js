@@ -9,7 +9,7 @@
             title: 'Legend Control',
             content: '',
             labels: [],
-            grades: [0, 10, 20, 50, 100, 200, 500, 1000]
+            grades: [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
         },
         onAdd: function (map) {
             var container = L.DomUtil.create("div", "info legend");
@@ -44,13 +44,13 @@
 
         },
         setBuckets: function () {
-            
+
         },
         getBuckets: function () {
-            
+
         },
         onRemove: function (map) {
-            
+
         }
 
     });
@@ -61,14 +61,16 @@
 
     //TODO - http://pro.arcgis.com/en/pro-app/help/mapping/layer-properties/data-classification-methods.htm
     function getColor(d) {
-        return d > 1000 ? '#800026' :
-            d > 500 ? '#BD0026' :
-                d > 200 ? '#E31A1C' :
-                    d > 100 ? '#FC4E2A' :
-                        d > 50 ? '#FD8D3C' :
-                            d > 20 ? '#FEB24C' :
-                                d > 10 ? '#FED976' :
-                                    '#FFEDA0';
+        return d < 2 ? '#800026' :
+            d < 3 ? '#BD0026' :
+                d < 4 ? '#E31A1C' :
+                    d < 5 ? '#FC4E2A' :
+                        d < 6 ? '#FD8D3C' :
+                            d < 7 ? '#FEB24C' :
+                                d < 8 ? '#FED976' :
+                                    d < 9 ? '#FED976' :
+                                        d < 10 ? '#FFEDA0' :
+                                            '#EFFFAB';
     }
 
 })();
