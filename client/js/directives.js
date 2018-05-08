@@ -596,33 +596,6 @@ angular.module('raw.directives', [])
                             if (!d.Latitude) return;
                             scope.center.lat = parseFloat(d.Latitude);
                             scope.center.lng = parseFloat(d.Longitude);
-                            /*if (!scope.markers.length) {
-                                angular.extend(scope, {
-                                    markers: {
-                                        cc: {
-                                            lat: parseFloat(d.Latitude),
-                                            lng: parseFloat(d.Longitude),
-                                            message: "Current Conversation",
-                                            focus: true,
-                                        }
-                                    }
-                                });
-                            } else {
-                                scope.markers.cc.lat = parseFloat(d.Latitude);
-                                scope.markers.cc.lng = parseFloat(d.Longitude);
-                            }
-
-                            scope.wavesurfers.forEach(function (wave) {
-                                if (wave.container.id == d.Session) {
-                                    wave.play(parseFloat(d.Start), parseFloat(d.End));
-                                    wave.playing = true;
-                                } else if (wave.playing == true) {
-                                    wave.pause();
-                                }
-                            });*/
-                            //scope.wavesurfers.play(parseFloat(d.Start), parseFloat(d.End));
-                            //scope.wavesurfer.playing = true;
-
                         })
                         .on("mouseover", function (d) {
                             //var nodeSelection = d3.select(this);

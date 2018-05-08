@@ -8,7 +8,6 @@ angular.module('raw', [
     'raw.services',
     'raw.directives',
     'leaflet-directive',
-    'wavesurfer.angular',
     'raw.controllers',
     'mgcrea.ngStrap',
     'ui',
