@@ -9,16 +9,27 @@
             title: 'Legend Control',
             content: '',
             labels: [],
-            grades: [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
+            range: [0, 2, 3, 4, 5, 6, 7, 8, 9]
         },
         onAdd: function (map) {
             var container = L.DomUtil.create("div", "info legend");
             //container.innerHTML = this.options.content;
-            let grades = this.options.grades, labels = this.options.labels
-            for (var i = 0; i < grades.length; i++) {
+            let range = this.options.range, labels = this.options.labels;
+            /*let color = d3.scale.threshold()
+                .domain(range)
+                .range(d3.schemeReds[range.length]);
+            color.range().map(function(d) {
+                d = color.invertExtent(d);
+                console.log(color(d[0]));
                 container.innerHTML +=
-                    '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
-                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+                    '<i style="background:' + color(d[0]) + '"></i> ' +
+                    d[0] + (d[1] ? '&ndash;' + d[1] + '<br>' : '+');
+            });}*/
+            for (var i = 0; i < range.length; i++) {
+                container.innerHTML +=
+                   /* '<i style="background:' + getColor(range[i] + 1) + '"></i> ' +
+                    range[i] + (range[i + 1] ?  '<br>' : '');*/
+                '<i style="background:' + getColor(range[i] + 1) + '"></i> ' + (range[i] == 0 ? ' 10% most deprived' : range[i] == 9 ? ' 10% least deprived' : ' ') + '<br>';
             }
             //add instance to map
             map.legendControl = this;
@@ -72,5 +83,6 @@
                                         d < 10 ? '#FFEDA0' :
                                             '#EFFFAB';
     }
+
 
 })();

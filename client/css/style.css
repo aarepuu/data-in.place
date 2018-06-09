@@ -168,3 +168,11 @@ ol, ul {
 .modal-content{
     background-color: #F5F5F5;
 }
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.6;
+}

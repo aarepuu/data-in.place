@@ -360,9 +360,11 @@ angular.module('raw.controllers', [])
             $scope.map.fitBounds(e.target.getBounds());
         }
 
-        $('#myModal').on('shown.bs.modal', function () {
-            $('#myInput').trigger('focus')
+        $('body').on('click', '.btn.btn-success', function (e) {
+            $('#dataModal').modal('hide');
         })
+
+
 
         $scope.highlightFeature = function (id) {
             if (!id) return;
@@ -387,8 +389,10 @@ angular.module('raw.controllers', [])
             if (!id) return;
             let layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
-            if(layer.feature.properties[$scope.geoAggregator]){
-                layer.setStyle ({fillColor: getColor(layer.feature.properties[$scope.geoAggregator])});
+            //if(layer.feature.properties[$scope.geoAggregator]){
+                //layer.setStyle ({fillColor: getColor(layer.feature.properties[$scope.geoAggregator])});
+            if(layer.feature.properties.Decile){
+                layer.setStyle({fillColor: getColor(layer.feature.properties.Decile)});
             } else {
                 layer.setStyle({fillColor: '#FD8D3C'})
             }
@@ -512,11 +516,11 @@ angular.module('raw.controllers', [])
                             $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
                             $scope.infoControl.addTo($scope.map)
                         }
-
+                        /*
                         if (!$scope.legendControl) {
                             $scope.legendControl = new L.Control.Legend();
                             $scope.legendControl.addTo($scope.map);
-                        }
+                        }*/
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -1210,7 +1214,15 @@ angular.module('raw.controllers', [])
                         //TODO - hardcoded position, expect the area to be first?
                         delete rowCopy[Object.keys(row)[0]];
                         $.extend(layer.feature.properties, rowCopy);
-                        layer.setStyle({fillColor: getColor(row.Decile)});
+                        if(row.Decile){
+                            layer.setStyle({fillColor: getColor(row.Decile)});
+                            if (!$scope.legendControl) {
+                                $scope.legendControl = new L.Control.Legend();
+                                $scope.legendControl.addTo($scope.map);
+                            }
+
+                        }
+
                     });
                 }
 
