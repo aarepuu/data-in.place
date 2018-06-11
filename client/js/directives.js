@@ -233,7 +233,7 @@ angular.module('raw.directives', [])
 
                     {
                         type: 'Ordinal (categories)',
-                        value: d3.scale.ordinal().range(raw.divergingRange(1)),
+                        value : d3.scaleOrdinal().range(raw.divergingRange(1)),
                         reset: function (domain) {
                             this.value.range(raw.divergingRange(domain.length || 1));
                         },
@@ -265,7 +265,7 @@ angular.module('raw.directives', [])
                      },*/
                     {
                         type: 'Linear (numeric)',
-                        value: d3.scale.linear().range(["#f7fbff", "#08306b"]),
+                        value: d3.scaleLinear().range(["#f7fbff", "#08306b"]),
                         reset: function () {
                             this.value.range(["#f7fbff", "#08306b"]);
                         },

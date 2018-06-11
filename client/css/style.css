@@ -176,3 +176,12 @@ ol, ul {
     margin-right: 8px;
     opacity: 0.6;
 }
+/**
+Something wrong with the leaflet CSS
+ */
+.leaflet-marker-icon.leaflet-div-icon {
+    margin-left: -5px !important;
+    margin-top: -5px !important;
+    width: 10px !important;
+    height: 10px !important;
+}

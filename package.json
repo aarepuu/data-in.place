@@ -22,10 +22,12 @@
     "ngrok": "^3.0.1",
     "pg": "^7.4.0",
     "request": "^2.83.0",
-    "serve-favicon": "^2.4.3"
+    "serve-favicon": "^2.4.3",
+    "to": "^0.2.9",
+    "update": "^0.7.4"
   },
   "devDependencies": {
-    "nodemon": "^1.17.3"
+    "nodemon": "^1.17.5"
   },
   "engines": {
     "node": "^8.9.0",

@@ -758,7 +758,7 @@ angular.module('raw.controllers', [])
                     }
                 });
             $scope.oldData = data;
-            parseText(d3.tsv.format(aggregatedData));
+            parseText(d3.tsvFormat(aggregatedData));
 
 
         };
@@ -929,7 +929,7 @@ angular.module('raw.controllers', [])
 
 
             $scope.oldData = data;
-            parseText(d3.tsv.format(unstacked));
+            parseText(d3.tsvFormat(unstacked));
 
             $scope.unstacked = true;
 
@@ -978,7 +978,7 @@ angular.module('raw.controllers', [])
             }
 
             $scope.oldData = data;
-            parseText(d3.tsv.format(stacked));
+            parseText(d3.tsvFormat(stacked));
 
             $scope.restacked = true;
 
@@ -1062,7 +1062,7 @@ angular.module('raw.controllers', [])
 
         //data will be (unstacked) turn to original
         $scope.stack = function () {
-            parseText(d3.tsv.format($scope.oldData));
+            parseText(d3.tsvFormat($scope.oldData));
             $scope.unstacked = ($scope.unstacked) ? false : true;
             $scope.restacked = ($scope.restacked) ? false : true;
         };
@@ -1306,7 +1306,7 @@ angular.module('raw.controllers', [])
                 var parser = raw.parser();
 
                 //$scope.data = getPivotArray(parser(text),0,1,2);
-                //$scope.metadata = parser.metadata(d3.tsv.format($scope.data));
+                //$scope.metadata = parser.metadata(d3.tsvFormat($scope.data));
                 //TODO - already iterates data
                 $scope.data = parser(text);
 

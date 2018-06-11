@@ -29,6 +29,23 @@
         charts: d3.map()
     };
 
+    // Copies a variable number of methods from source to target.
+    var rebind = function (target, source) {
+        var i = 1, n = arguments.length, method;
+        while (++i < n) target[method = arguments[i]] = d3_rebind(target, source, source[method]);
+        return target;
+    };
+
+    // Method is assumed to be a standard D3 getter-setter:
+    // If passed with no arguments, gets the value.
+    // If passed with arguments, sets the value and returns the target.
+    function d3_rebind(target, source, method) {
+        return function () {
+            var value = method.apply(source, arguments);
+            return value === source ? target : value;
+        };
+    }
+
     // Parsing
 
     raw.parser = function (delimiter) {
@@ -412,6 +429,60 @@
 
     })
 
+    // Time series
+
+    raw.models.set('timeSeries', function(){
+
+        var stream = raw.model();
+
+        var group = stream.dimension('group')
+            .title('Group')
+            .required(1)
+
+        var date = stream.dimension('date')
+            .title('Date')
+            .types(Date)
+            .accessor(function(d) { return this.type() == "Date" ? Date.parse(d) : +d; })
+            .required(1)
+
+        var size = stream.dimension('size')
+            .title('Size')
+            .types(Number)
+
+        var color = stream.dimension('color')
+            .title('Color')
+
+
+        stream.map(function(data) {
+            if (!group()) return [];
+
+            // define a set of dates
+            var dates = d3.set(data.map(function(d) { return +date(d); })).values();
+
+            var results = d3.nest()
+                .key(function(d) { return d[group()] })
+                .key(function(d) { return d[date()] }).sortKeys(d3.ascending)
+                .rollup(function(v) {
+                    return {
+                        size: !size() ? v.length : d3.sum(v, function(e) { return size(e) }),
+                        date: date(v[0]),
+                        group: group(v[0]),
+                        color: color(v[0]) //for now, color of the first item. we could change it to a concat of unique values
+                    }
+                })
+                .entries(data);
+
+            // remap the array
+            results.forEach(function(d) {
+                d.values = d.values.map(function(item) { return item.value })
+            });
+
+            return results;
+        })
+
+        return stream;
+    })
+
     // Points
     raw.models.set('points', function () {
 
@@ -571,7 +642,7 @@
     raw.models.points = raw.models.get('points');
     raw.models.graph = raw.models.get('graph');
     raw.models.identity = raw.models.get('identity');
-
+    raw.models.timeSeries = raw.models.get('timeSeries');
 
     // Charts
 
@@ -679,7 +750,7 @@
             } else {
                 domain = array.map(f);
             }
-            dispatch.change(domain);
+            dispatch.call("change", this, domain);
             return option;
         }
 
@@ -687,7 +758,7 @@
             return type;
         }
 
-        d3.rebind(option, dispatch, "on");
+        rebind(option, dispatch, "on");
 
         return option;
     }
@@ -805,7 +876,7 @@
             dispatch.endDrawing();
         }
 
-        d3.rebind(chart, dispatch, "on");
+        rebind(chart, dispatch, "on");
 
         raw.charts.set(id, chart);
 
@@ -886,7 +957,7 @@
 
     raw.isPostCode = function (value) {
         var isPostCode = false;
-        if(value.trim().length > 8) return isPostCode;
+        if (value.trim().length > 8) return isPostCode;
         for (var format in raw.postcodeFormats) {
             if (value.trim().match(raw.postcodeFormats[format])) {
                 isPostCode = true;
@@ -932,7 +1003,7 @@
 
         if (value.trim().match(lat)) {
             isGeom = 'Latitude';
-        } else if (value.trim().match(lng)){
+        } else if (value.trim().match(lng)) {
             isGeom = 'Longitude';
         }
         return isGeom;
