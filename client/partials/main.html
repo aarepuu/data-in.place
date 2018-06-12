@@ -43,7 +43,8 @@
                             <li class="col-lg-2 list-unstyled limited-text" ng-repeat="s in areas track by $index">
                             <span ng-mouseover="highlightFeature(s.code)" ng-mouseleave="resetHighlight(s.code)">
                                 <input type="checkbox" ng-model="s.isChecked" ng-change="addremoveArea(s)"/>
-                                <a title="{{s.name}}" href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
+                                <a title="{{s.name}}"
+                                   href="http://statistics.data.gov.uk/id/statistical-geography/{{s.code}}"
                                    target="_blank">
                                     {{s.name}}
                                 </a>
@@ -121,6 +122,9 @@
                         <li role="presentation" ng-class="{active:!parsed && importMode=='url'}"><a href="#"
                                                                                                     ng-click="parsed=false;importMode='url'"><i
                                 class="fa fa-cloud breath-right"></i>From URL</a></li>
+                        <li role="presentation" ng-class="{active:!parsed && importMode=='challenge'}"><a href="#"
+                                                                                                          ng-click="parsed=false;importMode='challenge'"><i
+                                class="fa fa-edit breath-right"></i>Challenges</a></li>
                     </ul>
 
                 </div>
@@ -205,7 +209,6 @@
 
                         <div raw-table class="data-table" data-ng-show="dataView == 'table'"></div>
 
-
                     </div>
 
                     <div class="json-viewer margin-bottom" json-viewer json="json" ng-show="json"
@@ -239,14 +242,14 @@
                                     </div>
 
                                     <p class="layout-inner">
-                                        <span class="layout-title">Add Data</span>
+                                        <span class="layout-title">Add dataset</span>
                                         </br>
                                         <span class="text-muted layout-category">Request new dataset!</span>
 
                                     </p>
                                 </div>
                                 <div class="modal fade" id="dataModal" tabindex="-1" role="dialog"
-                                     aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                     aria-labelledby="dataModalLabel" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
@@ -262,16 +265,21 @@
                                                     <div class="form-group">
                                                         <label for="issue" class="col-form-label">What issue you are
                                                             exploring:</label>
-                                                        <input type="text" placeholder="e.g. housing, health, poverty" class="form-control" id="issue">
+                                                        <input type="text" placeholder="e.g. housing, health, poverty"
+                                                               class="form-control" id="issue">
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="issue" class="col-form-label">Who has the data:</label>
-                                                        <input type="text" placeholder="link to the department" class="form-control" id="source">
+                                                        <label for="issue" class="col-form-label">Who has the
+                                                            data:</label>
+                                                        <input type="text" placeholder="link to the department"
+                                                               class="form-control" id="source">
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="message-text"
                                                                class="col-form-label">Story:</label>
-                                                        <textarea class="form-control" placeholder="Please add additional info to find the data" id="message-text"></textarea>
+                                                        <textarea class="form-control"
+                                                                  placeholder="Please add additional info to find the data"
+                                                                  id="message-text"></textarea>
                                                     </div>
                                                 </form>
                                             </div>
@@ -283,6 +291,43 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Challenge -->
+                    <div ng-show="importMode=='challenge' && !parsed">
+                        <div class="row">
+                            <div class="col-lg-3" ng-repeat="s in challenges"
+                                 ng-click="selectDataset(s); $event.stopPropagation();">
+                                <div class="layout" ng-class="dataAvailable(s.levels)">
+                                    <div class="layout-inner">
+                                        <span data-toggle="tooltip" data-title="{{s.description}}"
+                                              class="pull-right light"><i class="fa fa-info"></i></span>
+                                        <span>{{s.title}}</span>
+                                        </br>
+                                        <a class="text-muted layout-category" href="{{s.publisher_link}}"
+                                           target="_blank">{{s.source}}</a>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                                <div class="layout yours" data-toggle="modal"
+                                     data-target="#issueModal">
+                                    <div class="layout-custom">
+                                        <i class="pull-right fa fa-plus"></i>
+                                    </div>
+
+                                    <p class="layout-inner">
+                                        <span class="layout-title">Add Challenge</span>
+                                        </br>
+                                        <span class="text-muted layout-category">Submit new challenge!</span>
+
+                                    </p>
                                 </div>
 
                             </div>
@@ -484,7 +529,7 @@
 
                                         <p class="layout-inner">
                                             <span class="layout-title">Custom</span>
-                                        </br>
+                                            </br>
                                             <span class="text-muted layout-category">Add your charts!</span>
                                         </p>
                                     </div>
@@ -708,4 +753,51 @@
 
         </div>
     </section>
+</div>
+
+<div class="modal fade" id="issueModal" tabindex="-1" role="dialog"
+     aria-labelledby="issueModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title" id="issueModalLabel">Adding a challenge</h3>
+
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="title-field" class="col-form-label">Give a title for the issue:</label>
+                        <input ng-model="issue.title" type="text" placeholder="title here" class="form-control" id="title-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="tag-field" class="col-form-label">Tag line:</label>
+                        <input ng-model="issue.tag" type="text" placeholder="tag line here" class="form-control" id="tag-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="message-field" class="col-form-label">Issue:</label>
+                        <textarea id="message-field" class="form-control" ng-model="issue.text" name="content" markdown-editor="{}" rows="10"></textarea>
+                    </div>
+                    <div ngf-drop ngf-select ng-model="issue.file" class="issue-drop-box margin-bottom"
+                         ngf-drag-over-class="dragover" ngf-multiple="false" ngf-allow-dir="false">
+                        <a>Drag a file here or click to select a file from your computer</a>
+                    </div>
+                    <div class="form-group">
+                        <label for="publish-issue" >
+                            <input ng-model="issue.publish" id="publish-issue" name="publish" type="checkbox"> Make it into challenge
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    Close
+                </button>
+                <button type="submit" ng-click="submitIssue(issue)" class="btn btn-success">Submit challange</button>
+            </div>
+        </div>
+    </div>
 </div>

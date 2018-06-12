@@ -185,3 +185,35 @@ Something wrong with the leaflet CSS
     width: 10px !important;
     height: 10px !important;
 }
+
+
+.issue-drop-box {
+    background: transparent;
+    border: 3px dashed #DDD;
+    text-align: center;
+    padding: 0px;
+
+    /* Internet Explorer 10 */
+    display:-ms-flexbox;
+    -ms-flex-pack:center;
+    -ms-flex-align:center;
+
+    /* Firefox */
+    display:-moz-box;
+    -moz-box-pack:center;
+    -moz-box-align:center;
+
+    /* Safari, Opera, and Chrome */
+    display:-webkit-box;
+    -webkit-box-pack:center;
+    -webkit-box-align:center;
+
+    /* W3C */
+    display:box;
+    box-pack:center;
+    box-align:center;
+
+    border-radius: 2px;
+
+    cursor: pointer;
+}

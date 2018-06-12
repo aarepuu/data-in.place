@@ -5,7 +5,7 @@
 
 angular.module('raw.controllers', [])
 
-    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', function ($scope, dataService, leafletData, $http, $timeout, $sce) {
+    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location) {
 
         //get the datasets
         $http.get("/api/data/sources").then(function (response) {
@@ -97,7 +97,7 @@ angular.module('raw.controllers', [])
                         title: 'Draw a boundary'
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: issueMarker}),
                         title: 'Place an Issue Marker',
                     },
@@ -365,7 +365,6 @@ angular.module('raw.controllers', [])
         })
 
 
-
         $scope.highlightFeature = function (id) {
             if (!id) return;
             var layer = $scope.areaLayer.getLayer(id);
@@ -390,8 +389,8 @@ angular.module('raw.controllers', [])
             let layer = $scope.areaLayer.getLayer(id);
             if (layer == undefined) return;
             //if(layer.feature.properties[$scope.geoAggregator]){
-                //layer.setStyle ({fillColor: getColor(layer.feature.properties[$scope.geoAggregator])});
-            if(layer.feature.properties.Decile){
+            //layer.setStyle ({fillColor: getColor(layer.feature.properties[$scope.geoAggregator])});
+            if (layer.feature.properties.Decile) {
                 layer.setStyle({fillColor: getColor(layer.feature.properties.Decile)});
             } else {
                 layer.setStyle({fillColor: '#FD8D3C'})
@@ -419,10 +418,8 @@ angular.module('raw.controllers', [])
                 map.on('draw:created', function (e) {
                     var type = e.layerType,
                         layer = e.layer;
+                    $scope.boundary = layer;
                     if (type == 'polygon') {
-                        $scope.boundary = layer;
-
-
                         //Police query format
                         //TODO - use areas for query not the boundary
                         //TODO - use the actual areas
@@ -437,22 +434,22 @@ angular.module('raw.controllers', [])
                             $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
                         }
                         $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
-
-                        $scope.boundaryLayer.addLayer($scope.boundary);
-                        $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
-                        getArea($scope.boundary.toGeoJSON());
                     } else {
                         $scope.markerLayer.addLayer(layer);
+                        //$('#issueModal').modal('show');
                         let id = layer._leaflet_id;
-                        layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
+                        //layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
                         layer.dragging.enable();
-                        layer.on('popupclose', function () {
-                            //layer._popup.setContent(layer._popup.getContent())
-                            if ($('#' + id).val())
-                                layer._popup.setContent($('#' + id).val())
-                        })
+                        /*layer.on('popupclose', function () {
+                         //layer._popup.setContent(layer._popup.getContent())
+                         if ($('#' + id).val())
+                         layer._popup.setContent($('#' + id).val())
+                         })*/
 
                     }
+                    $scope.boundaryLayer.addLayer($scope.boundary);
+                    $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
+                    getArea($scope.boundary.toGeoJSON());
 
                 });
                 /*map.on('zoomend',function (e) {
@@ -517,10 +514,10 @@ angular.module('raw.controllers', [])
                             $scope.infoControl.addTo($scope.map)
                         }
                         /*
-                        if (!$scope.legendControl) {
-                            $scope.legendControl = new L.Control.Legend();
-                            $scope.legendControl.addTo($scope.map);
-                        }*/
+                         if (!$scope.legendControl) {
+                         $scope.legendControl = new L.Control.Legend();
+                         $scope.legendControl.addTo($scope.map);
+                         }*/
                         //TODO - is this a good way?
                         $scope.layers.overlays.areas.layerParams.showOnSelector = true;
                     });
@@ -850,7 +847,6 @@ angular.module('raw.controllers', [])
                 let larray = $scope.currentDataset.levels.split(',');
                 if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
                     $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
-                    console.log("update");
                     $scope.selectDataset($scope.currentDataset);
                 }
             }
@@ -1214,7 +1210,7 @@ angular.module('raw.controllers', [])
                         //TODO - hardcoded position, expect the area to be first?
                         delete rowCopy[Object.keys(row)[0]];
                         $.extend(layer.feature.properties, rowCopy);
-                        if(row.Decile){
+                        if (row.Decile) {
                             layer.setStyle({fillColor: getColor(row.Decile)});
                             if (!$scope.legendControl) {
                                 $scope.legendControl = new L.Control.Legend();
@@ -1381,14 +1377,21 @@ angular.module('raw.controllers', [])
             $scope.model = $scope.chart.model();
         };
 
+        $scope.submitIssue = function (issue) {
+            console.log(issue);
+            $("#issueModal").modal('hide');
+        }
+
         function refreshScroll() {
             $('[data-spy="scroll"]').each(function () {
                 $(this).scrollspy('refresh');
             });
         }
 
+
         $(window).scroll(function () {
 
+            //console.log($location.url())
             // check for mobile
             if ($(window).width() < 760 || $('#mapping').height() < 300) return;
 
