@@ -7,11 +7,61 @@ angular.module('raw.controllers', [])
 
     .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location) {
 
+
+        $scope.boundaryTemplate = {
+            //"id":
+            "type": "Feature",
+            "geometry": {"type": "Polygon"}
+        }
+
+        $scope.urlparams = $location.search();
+        $scope.previousZoom = 14;
+        processUrl($scope.urlparams);
+
+        function processUrl(params) {
+            if (!Object.keys(params).length)
+                return;
+            // export the coordinates from the layer
+            const coordinates = [];
+            $scope.datasetId = parseInt(params.data);
+            $scope.previousZoom = parseInt(params.zoom);
+            params.poly.split(":").forEach(function (latlng) {
+                //Because geoJSON is lng, lat
+                const stringarr = latlng.split(",")
+                coordinates.push([parseFloat(stringarr[1]), parseFloat(stringarr[0])]);
+            });
+
+            $scope.boundaryTemplate['geometry']['coordinates'] = [coordinates];
+            //Creates a FeatureCollection
+            $scope.boundary = L.geoJSON($scope.boundaryTemplate);
+        }
+
+        function buildUrl() {
+            //http://localhost:3000/?data=1&zoom=15&poly=54.970057640429864,-1.6414019465446472:54.970807995914974,-1.6354675590991976:54.96673042726977,-1.6347990185022354:54.96420634978736,-1.6437119990587237:54.970057640429864,-1.6414019465446472
+            return $location.absUrl()+'?data='+$scope.datasetId+'&zoom='+$scope.center.zoom+'&poly='+$scope.coords
+
+
+        }
+
+
         //get the datasets
         $http.get("/api/data/sources").then(function (response) {
             $scope.datasets = response.data;
+            $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
         });
 
+
+        $scope.issueTemplate = {
+            text: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
+        }
+
+        $scope.issue = angular.copy($scope.issueTemplate);
+
+        $scope.challenges = [
+            {title: 'Where to play', tag: 'Good palaces for play areas'},
+            {title: 'Clean air', tag: 'Air quality issues in the neighbourhood'},
+
+        ];
 
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude', 'ONS Codes', 'Addresses'];
 
@@ -50,7 +100,7 @@ angular.module('raw.controllers', [])
 
 
         $scope.dataView = 'table';
-        $scope.previousZoom = 14;
+
 
 
         //Leaflet controller
@@ -120,9 +170,10 @@ angular.module('raw.controllers', [])
             center: {
                 //lat: 55.0156,
                 //lng: -1.67643,
+                //TODO - get person location or use the link or last location
                 lat: 54.97328,
                 lng: -1.61396,
-                zoom: 14
+                zoom: $scope.previousZoom
             },
             controls: {
                 fullscreen: {},
@@ -360,10 +411,6 @@ angular.module('raw.controllers', [])
             $scope.map.fitBounds(e.target.getBounds());
         }
 
-        $('body').on('click', '.btn.btn-success', function (e) {
-            $('#dataModal').modal('hide');
-        })
-
 
         $scope.highlightFeature = function (id) {
             if (!id) return;
@@ -406,14 +453,30 @@ angular.module('raw.controllers', [])
                 //TODO - not a good way
                 $scope.map = map;
                 $scope.boundaryLayer = layers.overlays.boundary;
+
                 $scope.areaLayer = layers.overlays.areas;
                 $scope.dataLayer = layers.overlays.data;
                 $scope.heatLayer = layers.overlays.heat;
                 $scope.markerLayer = layers.overlays.markers;
+
+                //TODO - look at the racing conditions with the datasets
+                if ($scope.boundary) {
+                    if ($scope.areaBbox == undefined) {
+                        $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
+                    } else {
+                        $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
+                    }
+                    $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+                    $scope.boundaryLayer.addLayer($scope.boundary);
+                    $scope.center.zoom = $scope.previousZoom;
+                    $scope.map.fitBounds($scope.boundary.getBounds());
+                    getArea($scope.boundary.toGeoJSON());
+                    $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
+                }
                 //Clear boundry on each draw
                 map.on('draw:drawstart ', function (e) {
-                    if (e.layerType === 'polygon')
-                        $scope.boundaryLayer.clearLayers();
+                    //if (e.layerType === 'polygon')
+                    $scope.boundaryLayer.clearLayers();
                 });
                 map.on('draw:created', function (e) {
                     var type = e.layerType,
@@ -485,46 +548,52 @@ angular.module('raw.controllers', [])
                     }
 
                 });
-                function getArea(json) {
-                    $scope.maploading = false;
-                    if (!json) return;
-                    setLevel($scope.center.zoom);
-                    $http.post('/api/geo/area', {
-                        zoom: $scope.center.zoom,
-                        boundary: JSON.stringify(json)
-                    }).then(function (response) {
-                        //console.log(response.data);
-                        //handle your response here
-                        $scope.maploading = false;
-                        $scope.areas = response.data.areas;
-                        $scope.areas.forEach(function (obj) {
-                            obj.isChecked = true;
-                        });
-                        //TODO - add properties to areas
-                        $scope.features = response.data.features;
-                        /*response.data.features.features.forEach(function (feature) {
-                         console.log(feature.code);
-                         });*/
-                        $scope.areaLayer.clearLayers();
-                        $scope.areaLayer.addData($scope.features);
-                        $scope.dataLayer.bringToFront();
-                        //TODO - add on event
-                        if (!$scope.infoControl) {
-                            $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
-                            $scope.infoControl.addTo($scope.map)
-                        }
-                        /*
-                         if (!$scope.legendControl) {
-                         $scope.legendControl = new L.Control.Legend();
-                         $scope.legendControl.addTo($scope.map);
-                         }*/
-                        //TODO - is this a good way?
-                        $scope.layers.overlays.areas.layerParams.showOnSelector = true;
-                    });
-                }
+
 
             });
         });
+
+        function getArea(json) {
+            $scope.maploading = false;
+            if (!json) return;
+            setLevel($scope.center.zoom);
+            if(json.features)
+                json = json.features[0];
+            $http.post('/api/geo/area', {
+                zoom: $scope.center.zoom,
+                boundary: JSON.stringify(json)
+            }).then(function (response) {
+                //console.log(response.data);
+                //handle your response here
+                $scope.maploading = false;
+                $scope.areas = response.data.areas;
+                $scope.areas.forEach(function (obj) {
+                    obj.isChecked = true;
+                });
+                //TODO - add properties to areas
+                $scope.features = response.data.features;
+                /*response.data.features.features.forEach(function (feature) {
+                 console.log(feature.code);
+                 });*/
+                $scope.areaLayer.clearLayers();
+                $scope.areaLayer.addData($scope.features);
+                $scope.dataLayer.bringToFront();
+                //TODO - doesn't really work how to center this
+                //$scope.map.fitBounds($scope.areaLayer.getBounds());
+                //TODO - add on event
+                if (!$scope.infoControl) {
+                    $scope.infoControl = new L.Control.Info({content: '<h4> Quick Stats </h4> Hover over area'});
+                    $scope.infoControl.addTo($scope.map)
+                }
+                /*
+                 if (!$scope.legendControl) {
+                 $scope.legendControl = new L.Control.Legend();
+                 $scope.legendControl.addTo($scope.map);
+                 }*/
+                //TODO - is this a good way?
+                $scope.layers.overlays.areas.layerParams.showOnSelector = true;
+            });
+        }
 
         //search postcode function
         $scope.searchPostcode = function (code) {
@@ -660,8 +729,6 @@ angular.module('raw.controllers', [])
 
         // load URL
         $scope.$watch('url', function (url) {
-            console.log(url);
-
             if (!url || !url.length) {
                 return;
             }
@@ -766,6 +833,9 @@ angular.module('raw.controllers', [])
             $scope.text = "";
             //set current selected dataset
             $scope.currentDataset = dataset;
+            //TODO - not a perfect place to do this
+            $scope.datasetId = $scope.currentDataset.id;
+
             $scope.ctype = dataset.ctype;
 
             var requestURL = dataset.api_link;
@@ -886,9 +956,20 @@ angular.module('raw.controllers', [])
             $scope.uploadFile($scope.files);
         });
 
+        //TODO - save to amazon s3
+        $scope.$watch('issuefiles', function () {
+            console.log($scope.issuefiles);
+        });
+
+        $scope.removeIssueFile = function (file) {
+            const rindex = $scope.issuefiles.indexOf(file);
+            $scope.issuefiles.splice(rindex, 1);
+        }
+
         $scope.log = '';
 
         $scope.files = [];
+        $scope.issuefiles = [];
 
 
         $scope.$watch('importMode', function () {
@@ -1379,7 +1460,21 @@ angular.module('raw.controllers', [])
 
         $scope.submitIssue = function (issue) {
             console.log(issue);
+            issue.dataurl = buildUrl();
+            $http.post('/api/data/issue', issue).then(function (response) {
+            });
+            //reset
+            $scope.issue = angular.copy($scope.issueTemplate);
             $("#issueModal").modal('hide');
+        }
+
+        $scope.submitDataRequest = function (datarequest) {
+            console.log(datarequest);
+            $http.post('/api/data/request', datarequest).then(function (response) {
+            });
+            //reset
+            $scope.datarequest = {};
+            $("#dataModal").modal('hide');
         }
 
         function refreshScroll() {
@@ -1390,8 +1485,6 @@ angular.module('raw.controllers', [])
 
 
         $(window).scroll(function () {
-
-            //console.log($location.url())
             // check for mobile
             if ($(window).width() < 760 || $('#mapping').height() < 300) return;
 
@@ -1436,5 +1529,14 @@ angular.module('raw.controllers', [])
         $(document).ready(refreshScroll);
 
 
-    }]);
+    }
+    ])
+
+    .controller('DataCtrl', ['$scope', function ($scope) {
+
+        $scope.inputData = "dataInPlace";
+    }
+    ])
+;
+
 ;

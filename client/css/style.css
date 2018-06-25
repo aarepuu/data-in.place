@@ -7,6 +7,11 @@ ol, ul {
 }
 
 /* Data-in.place styles*/
+
+.map-container {
+    min-height: 55px;
+}
+
 .powered-by {
     height: 50px;
     padding: 15px 15px;
@@ -54,7 +59,7 @@ ol, ul {
     opacity: .1;
 }
 
-.layout.disabled{
+.outer-layout.disabled{
     pointer-events: none;
     opacity: .4;
 }

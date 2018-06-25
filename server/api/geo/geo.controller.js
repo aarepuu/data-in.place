@@ -15,7 +15,7 @@ const GJV = require("geojson-validation");
 
 //GeoJson converter
 //TODO - use this for making features from Postgres
-const  GeoJSON = require('geojson');
+const GeoJSON = require('geojson');
 
 const schema = 'geom';
 
@@ -40,8 +40,8 @@ exports.getArea = function (req, res, next) {
     var table_name = zoomLevel(zoom);
 
     //insert query boundary
-    if(process.env.NODE_ENV == "production")
-        db.query('INSERT INTO stats.boundary(gjson) values($1)',[JSON.stringify(boundary.geometry)]);
+    if (process.env.NODE_ENV == "production")
+        db.query('INSERT INTO stats.boundary(gjson) values($1)', [JSON.stringify(boundary.geometry)]);
     const query = {
         text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
         values: [JSON.stringify(boundary.geometry)]
@@ -98,14 +98,14 @@ exports.validateGeoJson = function (req, res, next) {
 
 exports.parseGeoJson = function (req, res, next) {
     //console.log(req.body.rawdata);
-    var geoJson = GeoJSON.parse(req.body.rawdata,{Point: [req.body.lat, req.body.lng]})
+    var geoJson = GeoJSON.parse(req.body.rawdata, {Point: [req.body.lat, req.body.lng]})
     return res.json(geoJson);
 }
 
 exports.geoCode = function (req, res, next) {
     var pcodes = queryParams(req.body);
     const query = {
-        text: "SELECT * from geom.postcode_query WHERE pcd IN ("+pcodes+");",
+        text: "SELECT * from geom.postcode_query WHERE pcd IN (" + pcodes + ");",
     };
     db.query(query).then(result => {
         return res.json(result.rows);

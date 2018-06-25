@@ -11,6 +11,7 @@ angular.module('raw', [
     'hc.marked',
     'hljs',
     'angular-markdown-editor',
+    'ngTagsInput',
     'raw.filters',
     'raw.services',
     'raw.directives',

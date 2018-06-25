@@ -1,5 +1,5 @@
 <div class="wrapper">
-    <section class="" id="map-section">
+    <section class="" id="map-section" >
         <div class="container">
             <div class="row">
                 <div class="col-lg-2">
@@ -12,12 +12,12 @@
                              height="480" width="100%"></leaflet>
                     </br>
                     </br>
-                    <!--Latitude : <input type="number" step="any" ng-model="center.lat">
+                    Latitude : <input type="number" step="any" ng-model="center.lat">
                     Longitude : <input type="number" step="any" ng-model="center.lng">
                     Zoom : <input type="number" step="any" ng-model="center.zoom">
                     </br>
                     </br>
-                    <input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname">
+                    <!--<input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname">
                     <button class="btn btn-success">Save</button>
                     <button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode"
                             bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>-->
@@ -78,7 +78,7 @@
                  </div>-->
 
                 <div class="col-lg-12">
-                    <h3>Load your data <span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl}}</span>
+                    <h3>Load your data <span ng-show="parsed && text.length" class="small text-mono">{{fileName | decodeUrl }} {{currentDataset.title}}</span>
                         <span class="list-type pull-right" ng-show="data.length">
 								<i class="type fa fa-table breath-left"
                                    data-toggle="tooltip"
@@ -122,7 +122,7 @@
                         <li role="presentation" ng-class="{active:!parsed && importMode=='url'}"><a href="#"
                                                                                                     ng-click="parsed=false;importMode='url'"><i
                                 class="fa fa-cloud breath-right"></i>From URL</a></li>
-                        <li role="presentation" ng-class="{active:!parsed && importMode=='challenge'}"><a href="#"
+                       <li id="challenges" role="presentation" ng-class="{active:!parsed && importMode=='challenge'}"><a href="#"
                                                                                                           ng-click="parsed=false;importMode='challenge'"><i
                                 class="fa fa-edit breath-right"></i>Challenges</a></li>
                     </ul>
@@ -220,9 +220,9 @@
                     <!-- Dataset -->
                     <div ng-show="importMode=='dataset' && !parsed">
                         <div class="row">
-                            <div class="col-lg-3" ng-repeat="s in datasets"
+                            <div class="outer-layout col-lg-3" ng-class="dataAvailable(s.levels)" ng-repeat="s in datasets"
                                  ng-click="selectDataset(s); $event.stopPropagation();">
-                                <div class="layout" ng-class="dataAvailable(s.levels)">
+                                <div class="layout">
                                     <div class="layout-inner">
                                         <span data-toggle="tooltip" data-title="{{s.description}}"
                                               class="pull-right light"><i class="fa fa-info"></i></span>
@@ -258,7 +258,6 @@
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                                 <h3 class="modal-title" id="dataModalLabel">Request Data Form</h3>
-
                                             </div>
                                             <div class="modal-body">
                                                 <form>
@@ -266,28 +265,29 @@
                                                         <label for="issue" class="col-form-label">What issue you are
                                                             exploring:</label>
                                                         <input type="text" placeholder="e.g. housing, health, poverty"
-                                                               class="form-control" id="issue">
+                                                               class="form-control" ng-model="datarequest.title"  id="issue" required>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="issue" class="col-form-label">Who has the
+                                                        <label for="source" class="col-form-label">Who has the
                                                             data:</label>
-                                                        <input type="text" placeholder="link to the department"
-                                                               class="form-control" id="source">
+                                                        <input type="text" placeholder="link to the department or actual dataset"
+                                                               ng-model="datarequest.source" class="form-control" id="source" required>
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="message-text"
                                                                class="col-form-label">Story:</label>
                                                         <textarea class="form-control"
                                                                   placeholder="Please add additional info to find the data"
-                                                                  id="message-text"></textarea>
+                                                                  ng-model="datarequest.description" id="message-text" rows="10" required></textarea>
                                                     </div>
                                                 </form>
+                                                <div class="form-group light" id="subLabel">Also check out <i class="fa fa-edit breath-right"></i>Challenges section</div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">
                                                     Close
                                                 </button>
-                                                <button type="submit" class="btn btn-success">Submit request</button>
+                                                <button type="submit" class="btn btn-success" ng-click="submitDataRequest(datarequest)">Submit request</button>
                                             </div>
                                         </div>
                                     </div>
@@ -302,15 +302,15 @@
                     <div ng-show="importMode=='challenge' && !parsed">
                         <div class="row">
                             <div class="col-lg-3" ng-repeat="s in challenges"
-                                 ng-click="selectDataset(s); $event.stopPropagation();">
-                                <div class="layout" ng-class="dataAvailable(s.levels)">
+                                 ng-click="selectChallenge(s); $event.stopPropagation();">
+                                <div class="layout">
                                     <div class="layout-inner">
                                         <span data-toggle="tooltip" data-title="{{s.description}}"
                                               class="pull-right light"><i class="fa fa-info"></i></span>
                                         <span>{{s.title}}</span>
                                         </br>
-                                        <a class="text-muted layout-category" href="{{s.publisher_link}}"
-                                           target="_blank">{{s.source}}</a>
+                                        <a class="text-muted layout-category" href="{{s.mooqita}}"
+                                           target="_blank">{{s.tag}}</a>
 
                                     </div>
                                 </div>
@@ -774,20 +774,35 @@
                         <input ng-model="issue.title" type="text" placeholder="title here" class="form-control" id="title-field">
                     </div>
                     <div class="form-group">
-                        <label for="tag-field" class="col-form-label">Tag line:</label>
-                        <input ng-model="issue.tag" type="text" placeholder="tag line here" class="form-control" id="tag-field">
+                        <label for="tag-field" class="col-form-label">Tags:</label>
+                        <tags-input class="bootstrap"
+                                    ng-model="issue.tags"
+                                    placeholder="Add a tag"
+                                    replace-spaces-with-dashes="false"
+                                    id="tag-field">
+                        </tags-input>
+                    </div>
+                    <div class="form-group">
+                        <label for="line-field" class="col-form-label">Summary:</label>
+                        <input ng-model="issue.line" type="text" placeholder="summarise what do you want to investigate" class="form-control" id="line-field">
                     </div>
                     <div class="form-group">
                         <label for="message-field" class="col-form-label">Issue:</label>
-                        <textarea id="message-field" class="form-control" ng-model="issue.text" name="content" markdown-editor="{}" rows="10"></textarea>
+                        <textarea id="message-field" placeholder="describe the issue,what data is needed,how would the end result look like" class="form-control" ng-model="issue.text" name="content" markdown-editor="{'iconlibrary': 'fa', addExtraButtons: true, resize: 'vertical'}" rows="10"></textarea>
                     </div>
-                    <div ngf-drop ngf-select ng-model="issue.file" class="issue-drop-box margin-bottom"
-                         ngf-drag-over-class="dragover" ngf-multiple="false" ngf-allow-dir="false">
+                    <div ng-show="issuefiles.length">
+                        <div ng-repeat="ifile in issuefiles">
+                            <span class="small text-mono">{{ifile.name}}<a class="remove-button" ng-click="removeIssueFile(ifile)">×</a></span>
+                        </div>
+                    </div>
+
+                    <div ngf-drop ngf-select ng-model="issuefiles" class="issue-drop-box margin-bottom"
+                         ngf-drag-over-class="dragover" ngf-multiple="true" ngf-keep="'distinct'" ngf-allow-dir="false">
                         <a>Drag a file here or click to select a file from your computer</a>
                     </div>
                     <div class="form-group">
                         <label for="publish-issue" >
-                            <input ng-model="issue.publish" id="publish-issue" name="publish" type="checkbox"> Make it into challenge
+                            <input ng-model="issue.publish" id="publish-issue" name="publish" type="checkbox"> Make it into a challenge
                         </label>
                     </div>
                 </form>
@@ -796,7 +811,7 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">
                     Close
                 </button>
-                <button type="submit" ng-click="submitIssue(issue)" class="btn btn-success">Submit challange</button>
+                <button type="submit" ng-click="submitIssue(issue)" class="btn btn-success">Submit challenge</button>
             </div>
         </div>
     </div>

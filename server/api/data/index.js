@@ -18,6 +18,8 @@ router.post('/cc', controller.getCc);
 router.post('/obes', controller.getObes);
 router.post('/pubhealth',controller.getPublicHealth);
 router.post('/schools',controller.getSchools);
+router.post('/request',controller.submitDataRequest);
+router.post('/issue',controller.submitIssue);
 
 
 module.exports = router;
