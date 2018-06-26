@@ -52,7 +52,8 @@ angular.module('raw.controllers', [])
 
 
         $scope.issueTemplate = {
-            text: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
+            tags: [{text:"data science"}],
+            content: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
         }
 
         $scope.issue = angular.copy($scope.issueTemplate);

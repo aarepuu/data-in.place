@@ -787,8 +787,8 @@
                         <input ng-model="issue.line" type="text" placeholder="summarise what do you want to investigate" class="form-control" id="line-field">
                     </div>
                     <div class="form-group">
-                        <label for="message-field" class="col-form-label">Issue:</label>
-                        <textarea id="message-field" placeholder="describe the issue,what data is needed,how would the end result look like" class="form-control" ng-model="issue.text" name="content" markdown-editor="{'iconlibrary': 'fa', addExtraButtons: true, resize: 'vertical'}" rows="10"></textarea>
+                        <label for="content-field" class="col-form-label">Issue:</label>
+                        <textarea id="content-field" placeholder="describe the issue,what data is needed,how would the end result look like" class="form-control" ng-model="issue.content" name="content" markdown-editor="{'iconlibrary': 'fa', addExtraButtons: true, resize: 'vertical'}" rows="10"></textarea>
                     </div>
                     <div ng-show="issuefiles.length">
                         <div ng-repeat="ifile in issuefiles">
