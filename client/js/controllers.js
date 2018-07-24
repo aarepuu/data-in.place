@@ -36,7 +36,7 @@ angular.module('raw.controllers', [])
             $scope.boundary = L.geoJSON($scope.boundaryTemplate);
         }
 
-        function buildUrl() {
+         $scope.buildUrl = function() {
             //http://localhost:3000/?data=1&zoom=15&poly=54.970057640429864,-1.6414019465446472:54.970807995914974,-1.6354675590991976:54.96673042726977,-1.6347990185022354:54.96420634978736,-1.6437119990587237:54.970057640429864,-1.6414019465446472
             return $location.absUrl()+'?data='+$scope.datasetId+'&zoom='+$scope.center.zoom+'&poly='+$scope.coords
 
@@ -498,6 +498,7 @@ angular.module('raw.controllers', [])
                             $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
                         }
                         $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+                        console.log($scope.areaBbox);
                     } else {
                         $scope.markerLayer.addLayer(layer);
                         //$('#issueModal').modal('show');
@@ -638,7 +639,7 @@ angular.module('raw.controllers', [])
         $scope.antani = function (d) {
             $scope.loading = true;
             var json = dataService.flatJSON(d);
-            parseText(d3.tsv.format(json))
+            parseText(d3.tsvFormat(json))
         };
 
         // select Array in JSON

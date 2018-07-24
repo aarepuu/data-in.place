@@ -14,6 +14,8 @@ const request = require('request');
 
 const schema = 'stats';
 
+var authToken, userId;
+
 //TODO - integrate this
 function respondWithResult(res, statusCode) {
     statusCode = statusCode || 200;
@@ -23,6 +25,32 @@ function respondWithResult(res, statusCode) {
         }
     };
 }
+
+//auth with Mooqita
+//dummy values
+ function mooqitaAuth() {
+     request.post('http://localhost:4000/api/login', {form:{email:'hello@data-in.place',password:'hellohello'},json: true}, (err, res, body) => {
+        if (err) {
+            console.log(err);
+        } else {
+            authToken = body.data.authToken;
+            userId = body.data.userId;
+        }
+     });
+}
+
+function postChallenge(challenge) {
+    challenge.origin = 'data-in.place'
+    request.post({url:'http://localhost:4000/api/challenges', form:challenge, json: true, headers: {'X-Auth-Token': authToken, 'X-User-Id':userId}, method: 'POST'}, (err, res, body) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(body)
+        }
+    });
+
+}
+
 
 
 exports.submitDataRequest = function (req, res, next) {
@@ -40,9 +68,10 @@ exports.submitDataRequest = function (req, res, next) {
 
 exports.submitIssue = function (req, res, next) {
     const query = {
-        text: 'INSERT INTO stats.issues(title, line, text, tags, publish, dataurl) VALUES($1,$2,$3,$4::json[],$5,$6) RETURNING id',
-        values: [req.body.title, req.body.line, req.body.text, req.body.tags, req.body.publish,req.body.dataurl],
+        text: 'INSERT INTO stats.issues(title, line, content, tags, publish, link) VALUES($1,$2,$3,$4::json[],$5,$6) RETURNING id',
+        values: [req.body.title, req.body.line, req.body.text, req.body.tags, req.body.publish,req.body.link],
     }
+    postChallenge(req.body);
     db.query(query)
         .then(result => {
             console.log(result.rows[0])
@@ -53,6 +82,7 @@ exports.submitIssue = function (req, res, next) {
 }
 
 exports.getDatasets = function (req, res, next) {
+    mooqitaAuth();
     const query = {
         text: "SELECT * from stats.datasets where active = true;",
     };
