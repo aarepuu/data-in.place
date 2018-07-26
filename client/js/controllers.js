@@ -36,9 +36,9 @@ angular.module('raw.controllers', [])
             $scope.boundary = L.geoJSON($scope.boundaryTemplate);
         }
 
-         $scope.buildUrl = function() {
+        $scope.buildUrl = function () {
             //http://localhost:3000/?data=1&zoom=15&poly=54.970057640429864,-1.6414019465446472:54.970807995914974,-1.6354675590991976:54.96673042726977,-1.6347990185022354:54.96420634978736,-1.6437119990587237:54.970057640429864,-1.6414019465446472
-            return $location.absUrl()+'?data='+$scope.datasetId+'&zoom='+$scope.center.zoom+'&poly='+$scope.coords
+            return $location.absUrl() + '?data=' + $scope.datasetId + '&zoom=' + $scope.center.zoom + '&poly=' + $scope.coords
 
 
         }
@@ -52,7 +52,7 @@ angular.module('raw.controllers', [])
 
 
         $scope.issueTemplate = {
-            tags: [{text:"data science"}],
+            tags: [{text: "data science"}],
             content: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
         }
 
@@ -101,7 +101,6 @@ angular.module('raw.controllers', [])
 
 
         $scope.dataView = 'table';
-
 
 
         //Leaflet controller
@@ -153,12 +152,12 @@ angular.module('raw.controllers', [])
                         title: 'Place an Issue Marker',
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: dataMarker}),
                         title: 'Place a Data Marker'
                     },
                     {
-                        enabled: false,
+                        enabled: true,
                         handler: new L.Draw.Marker(map, {icon: sensorMarker}),
                         title: 'Place a Sensor Marker'
                     }
@@ -169,11 +168,11 @@ angular.module('raw.controllers', [])
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
-                //lat: 55.0156,
-                //lng: -1.67643,
+                lat: 55.00435220211422,
+                lng: -1.4657035097479822,
                 //TODO - get person location or use the link or last location
-                lat: 54.97328,
-                lng: -1.61396,
+                //lat: 54.97328,
+                //lng: -1.61396,
                 zoom: $scope.previousZoom
             },
             controls: {
@@ -503,13 +502,13 @@ angular.module('raw.controllers', [])
                         $scope.markerLayer.addLayer(layer);
                         //$('#issueModal').modal('show');
                         let id = layer._leaflet_id;
-                        //layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
-                        layer.dragging.enable();
-                        /*layer.on('popupclose', function () {
-                         //layer._popup.setContent(layer._popup.getContent())
-                         if ($('#' + id).val())
-                         layer._popup.setContent($('#' + id).val())
-                         })*/
+                        layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
+                        //layer.dragging.enable();
+                        layer.on('popupclose', function () {
+                            //layer._popup.setContent(layer._popup.getContent())
+                            if ($('#' + id).val())
+                                layer._popup.setContent($('#' + id).val())
+                        })
 
                     }
                     $scope.boundaryLayer.addLayer($scope.boundary);
@@ -559,7 +558,7 @@ angular.module('raw.controllers', [])
             $scope.maploading = false;
             if (!json) return;
             setLevel($scope.center.zoom);
-            if(json.features)
+            if (json.features)
                 json = json.features[0];
             $http.post('/api/geo/area', {
                 zoom: $scope.center.zoom,
@@ -917,6 +916,8 @@ angular.module('raw.controllers', [])
             //workaround with url datasets
             if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 let larray = $scope.currentDataset.levels.split(',');
+
+                console.log(larray);
                 if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
                     $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
                     $scope.selectDataset($scope.currentDataset);
@@ -960,7 +961,7 @@ angular.module('raw.controllers', [])
 
         //TODO - save to amazon s3
         $scope.$watch('issuefiles', function () {
-            console.log($scope.issuefiles);
+            //console.log($scope.issuefiles);
         });
 
         $scope.removeIssueFile = function (file) {

@@ -8,6 +8,9 @@ ol, ul {
 
 /* Data-in.place styles*/
 
+#map-section {
+    padding: 80px 0px;
+}
 .map-container {
     min-height: 55px;
 }
