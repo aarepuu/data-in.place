@@ -8,8 +8,9 @@
 
 const _ = require('lodash');
 //var Data =  require('./data.model');
-const db = require('../../db')
+const db = require('../../db');
 
+const uuidv1 = require('uuid/v1');
 const request = require('request');
 
 const schema = 'stats';
@@ -66,23 +67,24 @@ exports.submitDataRequest = function (req, res, next) {
 
 }
 
-exports.submitIssue = function (req, res, next) {
+exports.submitChallenge = function (req, res, next) {
+    const challengeId = uuidv1();
     const query = {
-        text: 'INSERT INTO stats.issues(title, line, content, tags, publish, link) VALUES($1,$2,$3,$4::json[],$5,$6) RETURNING id',
-        values: [req.body.title, req.body.line, req.body.text, req.body.tags, req.body.publish,req.body.link],
-    }
-    postChallenge(req.body);
+        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope($7,4326),$8) RETURNING id',
+        values: [challengeId, req.body.title, req.body.line, req.body.text, req.body.tags, true, req.body.bbox, req.body.dataurl+'&cid='+challengeId],
+    };
+    //postChallenge(req.body);
     db.query(query)
         .then(result => {
-            console.log(result.rows[0])
-            return res.json(result.rows[0]);
+            //console.log(result.rows[0])
+            return res.json({'cid':challengeId});
         })
         .catch(e => console.error(e.stack))
 
 }
 
 exports.getDatasets = function (req, res, next) {
-    mooqitaAuth();
+    //mooqitaAuth();
     const query = {
         text: "SELECT * from stats.datasets where active = true;",
     };
@@ -92,7 +94,20 @@ exports.getDatasets = function (req, res, next) {
         console.error(e.stack);
         return res.status(500).json({success: false, data: e})
     });
-}
+};
+
+exports.getChallenges = function (req, res, next) {
+    const query = {
+        text: "SELECT * from stats.challenges;",
+    };
+    db.query(query).then(result => {
+        return res.json(result.rows);
+    }).catch(e => {
+        console.error(e.stack);
+        return res.status(500).json({success: false, data: e})
+    });
+};
+
 exports.getHealth = function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;

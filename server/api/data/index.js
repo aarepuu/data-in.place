@@ -7,6 +7,7 @@ var controller = require('./data.controller.js');
 var router = express.Router();
 
 router.get('/sources',controller.getDatasets);
+router.get('/challenges',controller.getChallenges);
 router.post('/health', controller.getHealth);
 router.post('/travel', controller.getTravel);
 router.post('/imd', controller.getImd);
@@ -19,7 +20,7 @@ router.post('/obes', controller.getObes);
 router.post('/pubhealth',controller.getPublicHealth);
 router.post('/schools',controller.getSchools);
 router.post('/request',controller.submitDataRequest);
-router.post('/issue',controller.submitIssue);
+router.post('/challenge',controller.submitChallenge);
 
 
 module.exports = router;

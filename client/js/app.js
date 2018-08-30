@@ -16,6 +16,7 @@ angular.module('raw', [
     'raw.services',
     'raw.directives',
     'leaflet-directive',
+    'wavesurfer.angular',
     'raw.controllers'
 ])
 
@@ -33,7 +34,6 @@ angular.module('raw', [
                 }
             }
         });
-
         // highlight config
         hljsServiceProvider.setOptions({
             // replace tab with 4 spaces

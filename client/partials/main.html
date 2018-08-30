@@ -12,16 +12,16 @@
                              height="480" width="100%"></leaflet>
                     </br>
                     </br>
-                    Latitude : <input type="number" step="any" ng-model="center.lat">
+                    <!--Latitude : <input type="number" step="any" ng-model="center.lat">
                     Longitude : <input type="number" step="any" ng-model="center.lng">
                     Zoom : <input type="number" step="any" ng-model="center.zoom">
                     </br>
                     </br>
-                    <!--<input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname">
+                    <input class="col-lg-2" placeholder="Boundary name" type="text" ng-model="boundaryname">
                     <button class="btn btn-success">Save</button>
                     <button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode"
                             bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>-->
-                    Look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
+                    look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
                     <button ng-model="postcode" class="btn btn-defaule" ng-click="searchPostcode(postcode)">Search
                     </button>
                     </br>
@@ -118,7 +118,7 @@
                                 class="fa fa-clipboard breath-right"></i>Paste</a></li>
                         <li role="presentation" ng-class="{active:!parsed && importMode=='file'}"><a href="#"
                                                                                                      ng-click="parsed=false;importMode='file'"><i
-                                class="fa fa-file-text breath-right"></i>Upload a file</a></li>
+                                class="fas fa-file-upload breath-right"></i>Upload a file</a></li>
                         <li role="presentation" ng-class="{active:!parsed && importMode=='url'}"><a href="#"
                                                                                                     ng-click="parsed=false;importMode='url'"><i
                                 class="fa fa-cloud breath-right"></i>From URL</a></li>
@@ -220,9 +220,10 @@
 
                     <!-- Dataset -->
                     <div ng-show="importMode=='dataset' && !parsed">
+                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched" ng-model="datasetSearch" placeholder="Search for a dataset" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a dataset'">
                         <div class="row">
                             <div class="outer-layout col-lg-3" ng-class="dataAvailable(s.levels)"
-                                 ng-repeat="s in datasets"
+                                 ng-repeat="s in datasets | filter:datasetSearch"
                                  ng-click="selectDataset(s); $event.stopPropagation();">
                                 <div class="layout">
                                     <div class="layout-inner">
@@ -310,17 +311,18 @@
 
                     <!-- Challenge -->
                     <div ng-show="importMode=='challenge' && !parsed">
+                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched" ng-model="challengeSearch" placeholder="Search for a challenge" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a challenge'">
                         <div class="row">
-                            <div class="col-lg-3" ng-repeat="s in challenges"
-                                 ng-click="selectChallenge(s); $event.stopPropagation();">
+                            <div class="col-lg-3" ng-repeat="c in challenges | filter:challengeSearch"
+                                 ng-click="selectChallenge(c); $event.stopPropagation();">
                                 <div class="layout">
                                     <div class="layout-inner">
-                                        <span data-toggle="tooltip" data-title="{{s.description}}"
+                                        <span data-toggle="tooltip" data-title="{{c.description}}"
                                               class="pull-right light"><i class="fa fa-info"></i></span>
-                                        <span>{{s.title}}</span>
+                                        <span>{{c.title}}</span>
                                         </br>
-                                        <a class="text-muted layout-category" href="{{s.mooqita}}"
-                                           target="_blank">{{s.tag}}</a>
+                                        <a class="text-muted layout-category" href="{{c.mooqita}}"
+                                           target="_blank">{{c.line}}</a>
 
                                     </div>
                                 </div>
@@ -553,6 +555,12 @@
                     </div>
 
                 </div>
+
+                <div data-ng-show="ctype =='Audio'" class="row">
+                    <wavesurfer-angular url="wurl1" options="options1"></wavesurfer-angular>
+                    <wavesurfer-angular url="wurl2" options="options2"></wavesurfer-angular>
+                </div>
+
             </div>
 
         </div>
@@ -780,7 +788,7 @@
             <div class="modal-body">
                 <form>
                     <div class="form-group">
-                        <label for="title-field" class="col-form-label">Give a title for the issue:</label>
+                        <label for="title-field" class="col-form-label">Give a title for the challenge:</label>
                         <input ng-model="issue.title" type="text" placeholder="title here" class="form-control" id="title-field">
                     </div>
                     <div class="form-group">
@@ -810,18 +818,18 @@
                          ngf-drag-over-class="dragover" ngf-multiple="true" ngf-keep="'distinct'" ngf-allow-dir="false">
                         <a>Drag a file here or click to select a file from your computer</a>
                     </div>
-                    <div class="form-group">
+                    <!--<div class="form-group">
                         <label for="publish-issue" >
                             <input ng-model="issue.publish" id="publish-issue" name="publish" type="checkbox"> Make it into a challenge
                         </label>
-                    </div>
+                    </div>-->
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">
                     Close
                 </button>
-                <button type="submit" ng-click="submitIssue(issue)" class="btn btn-success">Submit challenge</button>
+                <button type="submit" ng-click="submitChallenge(issue)" class="btn btn-success">Submit challenge</button>
             </div>
         </div>
     </div>

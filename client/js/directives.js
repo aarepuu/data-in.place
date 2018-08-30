@@ -233,7 +233,7 @@ angular.module('raw.directives', [])
 
                     {
                         type: 'Ordinal (categories)',
-                        value : d3.scaleOrdinal().range(raw.divergingRange(1)),
+                        value: d3.scaleOrdinal().range(raw.divergingRange(1)),
                         reset: function (domain) {
                             this.value.range(raw.divergingRange(domain.length || 1));
                         },
@@ -596,6 +596,33 @@ angular.module('raw.directives', [])
                             if (!d.Latitude) return;
                             scope.center.lat = parseFloat(d.Latitude);
                             scope.center.lng = parseFloat(d.Longitude);
+                            if (!scope.markers.length) {
+                                angular.extend(scope, {
+                                    markers: {
+                                        cc: {
+                                            lat: parseFloat(d.Latitude),
+                                            lng: parseFloat(d.Longitude),
+                                            message: "Current Conversation",
+                                            focus: true,
+                                        }
+                                    }
+                                });
+                            } else {
+                                scope.markers.cc.lat = parseFloat(d.Latitude);
+                                scope.markers.cc.lng = parseFloat(d.Longitude);
+                            }
+
+                            console.log(scope.wavesurfers);
+                            scope.wavesurfers.forEach(function (wave) {
+                                console.log(wave.container.id);
+                                console.log(d.Session);
+                                if (wave.container.id == d.Session) {
+                                    wave.play(parseFloat(d.Start), parseFloat(d.End));
+                                    wave.playing = true;
+                                } else if (wave.playing == true) {
+                                    wave.pause();
+                                }
+                            });
                         })
                         .on("mouseover", function (d) {
                             //var nodeSelection = d3.select(this);
@@ -836,5 +863,16 @@ angular.module('raw.directives', [])
                     event.preventDefault();
                 }
             });
+        };
+    })
+
+    .directive('focus', function () {
+        return {
+            restrict: 'A',
+            templateUrl: 'templates/focus.html',
+            link: function postLink(scope, element, attrs) {
+                //console.log(attrs);
+
+            }
         };
     });

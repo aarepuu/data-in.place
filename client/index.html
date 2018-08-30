@@ -7,7 +7,7 @@
     <meta name="Keywords"
           content="data-in-place, open data, gis, visualization,data,design,spreadsheet,interface,vector graphics,SVG,PNG,JSON">
     <meta name="Description"
-          content="Data:In Place, missing link between Open Data and Communities, by Open Lab and Aare Puussaar">
+          content="Data:In Place, missing link between Open Data and Communities, by Open Lab">
     <meta name="author" content="Open Lab">
 
     <!-- Social Networks meta tags -->
@@ -20,7 +20,6 @@
     <meta property="og:type" content="article">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@aarewoodisland">
 
     <script>
         document.write('<base href="' + document.location + '" />');
@@ -39,18 +38,32 @@
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css"/>
     <link rel="stylesheet" href="bower_components/leaflet-draw/dist/leaflet.draw.css"/>
     <link rel="stylesheet" href="bower_components/leaflet.fullscreen/Control.FullScreen.css"/>
+    <link rel="stylesheet" src="bower_components/leaflet-loader/leaflet-loader.css"/>
     <link rel="stylesheet" href="bower_components/Leaflet.extra-markers/dist/css/leaflet.extra-markers.min.css"/>
     <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.css"/>
     <link rel="stylesheet" href="bower_components/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
     <link rel="stylesheet" type="text/css" href="bower_components/angular-bootstrap-colorpicker/css/colorpicker.css">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="bower_components/codemirror/lib/codemirror.css">
+
+
+    <!-- Wavesurfer -->
+    <link rel="stylesheet" type="text/css"
+          href="bower_components/wavesurfer-angular/dist/css/wavesurfer.angular.min.css">
 
     <link rel="stylesheet" href="css/raw.css"/>
     <link rel="stylesheet" href="css/style.css"/>
-    <link rel="icon" href="favicon.ico?v=2" type="image/x-icon">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="apple-touch-icon" sizes="144x144" href="imgs/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="imgs/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="imgs/favicon/favicon-16x16.png">
+    <link rel="manifest" href="imgs/favicon/site.webmanifest">
+    <link rel="mask-icon" href="imgs/favicon/safari-pinned-tab.svg" color="#2DD8B1">
+    <link rel="shortcut icon" href="imgs/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="imgs/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
 
 </head>
 
@@ -58,29 +71,31 @@
 
 <header class="navbar navbar-fixed-top" role="navigation" id="raw-nav" role="banner">
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#raw-navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/#">
-                Data:In Place
-            </a>
+        <div class="row">
+            <div class="col-sm-4 navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#raw-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Data:In <i class="fas fa-map-marker-alt brand-green"></i> Place</a>
+            </div>
+            <div class="prompt col-sm-5">
+                <div focus ></div>
+            </div>
+            <nav class="col-sm-3 collapse navbar-collapse" role="navigation" id="raw-navbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
+                    <li><a href="https://github.com/aarepuu/data-in.place" style="font-size:23px"><i
+                            class="fab fa-github"></i></a></li>
+                </ul>
+            </nav>
+
+            <!--<span class="pull-left">The missing link between spreadsheets and vector graphics</span class="pull-left">-->
         </div>
-
-        <nav class="collapse navbar-collapse" role="navigation" id="raw-navbar">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="/#">About</a></li>
-                <li><a href="/#">Contact</a></li>
-                <li><a href="https://github.com/aarepuu/data-in.place" style="font-size:23px"><i
-                        class="fa fa-github"></i></a></li>
-            </ul>
-        </nav>
-
-        <!--<span class="pull-left">The missing link between spreadsheets and vector graphics</span class="pull-left">-->
-
     </div>
 </header>
 
@@ -90,23 +105,26 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-6">
-                <p><strong>Data:In Place</strong> is an open source project developed in <a
-                        href="https://openlab.ncl.ac.uk/">Open Lab</a></p>
-                <p>by <a href="https://digitalcivics.io/people/aare-puussaar/">Aare Puussaar</a> which leverages
-                    <strong><a href="http://rawgraphs.io">RAW</a></strong> (&copy; 2013-2017 <a
-                            href="https://raw.github.com/densitydesign/raw/master/LICENSE">Apache License 2.0</a>)</p>
-                <p>&copy; 2018 (<a href="https://github.com/aarepuu/data-in.place/blob/master/LICENSE">MIT Licence</a>)
+                <p><strong>Data:In Place</strong> &copy; 2018 (<a href="https://github.com/aarepuu/data-in.place/blob/master/LICENSE">MIT Licence</a>) is an open source project</p>
+                <p> developed in <a href="https://openlab.ncl.ac.uk/">Open Lab</a> which leverages
+                </p><p><strong><a href="http://rawgraphs.io">RAW</a></strong> (&copy; 2013-2017 <a
+                    href="https://raw.github.com/densitydesign/raw/master/LICENSE">Apache License 2.0</a>)</p>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+                <p><a href="https://data-in.place/about"><i class="fas fa-users breath-right"></i>about</a></p>
+                <p><a href="https://data-in.place/cookies"><i class="fas fa-cookie breath-right"></i>cookies</a></p>
+                <p><a href="https://data-in.place/terms"><i class="fas fa-asterisk breath-right"></i>terms</a></p>
+                <p><a href="https://data-in.place/privacy"><i class="fas fa-user-secret breath-right"></i>privacy</a></p>
                 </p>
             </div>
             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
-                <p><a href="mailto:a.puussaar2@ncl.ac.uk"><i class="fa fa-envelope breath-right"></i>a.puussaar2@ncl.ac.uk</a>
+                <p><a href="mailto:hello@data-in.place"><i class="fa fa-envelope breath-right"></i>hello@data-in.place</a>
                 </p>
-                <p><a href="https://twitter.com/aarewoodisland"><i class="fa fa-twitter breath-right"></i>aarewoodisland</a>
                 </p>
             </div>
             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
                 <p><a href="https://github.com/aarepuu/data-in.place"><i
-                        class="fa fa-github breath-right"></i>GitHub</a></p>
+                        class="fab fa-github breath-right"></i>GitHub</a></p>
             </div>
         </div>
     </div>
@@ -132,6 +150,7 @@
 <script type="text/javascript" src="bower_components/leaflet.fullscreen/Control.FullScreen.js"></script>
 <script type="text/javascript" src="js/angular-leaflet-infocontrol.js"></script>
 <script type="text/javascript" src="js/angular-leaflet-legendcontrol.js"></script>
+<script type="text/javascript" src="bower_components/leaflet-loader/leaflet-loader.js"></script>
 <script type="text/javascript" src="bower_components/leaflet-draw/dist/leaflet.draw.js"></script>
 <script type="text/javascript"
         src="bower_components/Leaflet.extra-markers/dist/js/leaflet.extra-markers.min.js"></script>
@@ -145,6 +164,9 @@
 <script type="text/javascript" src="bower_components/FileSaver/index.js"></script>
 <!-- zeroclipboard -->
 <script type="text/javascript" src="bower_components/zeroclipboard/dist/ZeroClipboard.min.js"></script>
+<!-- wavesurfer -->
+<script type="text/javascript" src="bower_components/wavesurfer.js/dist/wavesurfer.min.js"></script>
+<script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
 <!-- raw -->
 <script type="text/javascript" src="lib/raw.js"></script>
 
@@ -196,15 +218,18 @@
 <!-- tagsinput -->
 <script type="text/javascript" src="bower_components/ng-tags-input/ng-tags-input.js"></script>
 
-
 <!-- leaflet-heat -->
 <script type="text/javascript" src="lib/leaflet-heat.js"></script>
+
+<!-- socket.io -->
+<script src="/socket.io/socket.io.js"></script>
 
 <script src="js/services.js"></script>
 <script src="js/controllers.js"></script>
 <script src="js/filters.js"></script>
 <script src="js/directives.js"></script>
 <script src="js/angular-leaflet-directive.js"></script>
+<script src="bower_components/wavesurfer-angular/dist/js/wavesurfer-angular.js"></script>
 <script src="js/app.js"></script>
 
 <!-- google analytics-->

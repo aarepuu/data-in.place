@@ -1,19 +1,107 @@
-/**
-reset
- */
+/* Data-in.place main styles */
+
+/** Reset */
 
 ol, ul {
     list-style: none;
 }
 
-/* Data-in.place styles*/
 
+/** Map styles **/
 #map-section {
     padding: 80px 0px;
 }
 .map-container {
     min-height: 55px;
 }
+
+
+/** Leaflet loader **/
+.leaflet-control-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -40px;
+    margin-left: -50px;
+    height: 80px;
+    width: 100px;
+    border-radius: 10px;
+    background: url('../imgs/leaflet-loader.gif') center center no-repeat rgba(255,255,255,0.8);
+}
+
+.info {
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.6;
+}
+
+/**
+Something wrong with the leaflet CSS
+ */
+.leaflet-marker-icon.leaflet-div-icon {
+    margin-left: -5px !important;
+    margin-top: -5px !important;
+    width: 10px !important;
+    height: 10px !important;
+}
+
+.infowindow-list {
+    position: relative;
+    max-height: 200px;
+    padding-top: 12px;
+    padding-bottom: 18px;
+    overflow: scroll;
+}
+
+.infowindow-list .infowindow-listItem {
+    margin-right: 20px;
+}
+
+.infowindow-listItem:first-child {
+    margin-top: 0;
+}
+
+.infowindow-subtitle {
+    color: #636D72;
+}
+
+.infowindow-subtitle {
+    margin-bottom: 2px;
+    font-size: 10px;
+    font-weight: 300;
+    line-height: 14px;
+    text-transform: uppercase;
+}
+
+.infowindow-title {
+    color: #2E3C43;
+}
+
+.infowindow-title {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+/** End Map Styles **/
+
+
+/** RAWGraphs logo **/
 
 .powered-by {
     height: 50px;
@@ -25,6 +113,11 @@ ol, ul {
 .powered-by > img {
     max-height: 20px;
 }
+
+/** End RAWGraphs logo **/
+
+
+/** UI **/
 
 .layout.yours .layout-custom {
     background-color: transparent;
@@ -66,69 +159,10 @@ ol, ul {
     opacity: .4;
 }
 
-/**
-    Map Stuff
- */
-.info {
-    padding: 6px 8px;
-    background: white;
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-}
+/** End UI **/
 
-.legend {
-    line-height: 18px;
-    color: #555;
-}
 
-.legend i {
-    width: 18px;
-    height: 18px;
-    float: left;
-    margin-right: 8px;
-    opacity: 0.7;
-}
-
-.infowindow-list {
-    position: relative;
-    max-height: 200px;
-    padding-top: 12px;
-    padding-bottom: 18px;
-    overflow: scroll;
-}
-
-.infowindow-list .infowindow-listItem {
-    margin-right: 20px;
-}
-
-.infowindow-listItem:first-child {
-    margin-top: 0;
-}
-
-.infowindow-subtitle {
-    color: #636D72;
-}
-
-.infowindow-subtitle {
-    margin-bottom: 2px;
-    font-size: 10px;
-    font-weight: 300;
-    line-height: 14px;
-    text-transform: uppercase;
-}
-
-.infowindow-title {
-    color: #2E3C43;
-}
-
-.infowindow-title {
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 16px;
-}
-
-/** Areas list */
+/** Areas list **/
 .read-more-state {
     display: none;
 }
@@ -172,28 +206,13 @@ ol, ul {
     text-overflow: ellipsis;
 }
 
+/** End Areas list **/
+
+
+/** Modal **/
 .modal-content {
     background-color: #F5F5F5;
 }
-
-.legend i {
-    width: 18px;
-    height: 18px;
-    float: left;
-    margin-right: 8px;
-    opacity: 0.6;
-}
-
-/**
-Something wrong with the leaflet CSS
- */
-.leaflet-marker-icon.leaflet-div-icon {
-    margin-left: -5px !important;
-    margin-top: -5px !important;
-    width: 10px !important;
-    height: 10px !important;
-}
-
 .issue-drop-box {
     background: transparent;
     border: 3px dashed #DDD;
@@ -240,3 +259,39 @@ Something wrong with the leaflet CSS
     max-width: 100%;
     width: 260px
 }
+
+/** End Modal **/
+
+
+/** Focus **/
+
+.prompt input {
+    width: 13.8em;
+    border-bottom-width: 2px;
+    transition: border-color .2s ease;
+}
+
+.prompt input {
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 15px;
+    display: block;
+    background: 0;
+    border: 0;
+    border-bottom: 3px solid #fff;
+    font-size: 1.4em;
+    font-weight: 500;
+    outline: 0;
+    text-align: center;
+}
+
+/**  End Focus **/
+
+
+/* Navigation */
+
+.brand-green {
+    color: #2DD8B1;
+}
+
+/* End Navigation */

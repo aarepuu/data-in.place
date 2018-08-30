@@ -5,7 +5,7 @@
 
 angular.module('raw.controllers', [])
 
-    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location) {
+    .controller('RawCtrl', ['$scope', 'dataService', 'socket', 'leafletData', '$http', '$timeout', '$sce', '$location', function ($scope, dataService, socket, leafletData, $http, $timeout, $sce, $location) {
 
 
         $scope.boundaryTemplate = {
@@ -19,28 +19,55 @@ angular.module('raw.controllers', [])
         processUrl($scope.urlparams);
 
         function processUrl(params) {
-            if (!Object.keys(params).length)
-                return;
-            // export the coordinates from the layer
-            const coordinates = [];
-            $scope.datasetId = parseInt(params.data);
-            $scope.previousZoom = parseInt(params.zoom);
-            params.poly.split(":").forEach(function (latlng) {
-                //Because geoJSON is lng, lat
-                const stringarr = latlng.split(",")
-                coordinates.push([parseFloat(stringarr[1]), parseFloat(stringarr[0])]);
-            });
-
-            $scope.boundaryTemplate['geometry']['coordinates'] = [coordinates];
-            //Creates a FeatureCollection
-            $scope.boundary = L.geoJSON($scope.boundaryTemplate);
+            if (Object.keys(params).length) {
+                console.log(params);
+                // export the coordinates from the layer
+                const coordinates = [];
+                $scope.datasetId = parseInt(params.data);
+                $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
+                $scope.previousZoom = parseInt(params.zoom);
+                if (params.poly == undefined) return;
+                params.poly.split(":").forEach(function (latlng) {
+                    //Because geoJSON is lng, lat
+                    const stringarr = latlng.split(",");
+                    coordinates.push([parseFloat(stringarr[1]), parseFloat(stringarr[0])]);
+                });
+                let boundaryTemplate = angular.copy($scope.boundaryTemplate);
+                boundaryTemplate['geometry']['coordinates'] = [coordinates];
+                //Creates a FeatureCollection
+                $scope.boundary = L.geoJSON(boundaryTemplate);
+            }
+            else {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(moveToPosition);
+                    //TODO - finding your location loading
+                } else {
+                    //controlLoader.hide();
+                    //"Geolocation is not supported by this browser.";
+                }
+            }
         }
 
-        $scope.buildUrl = function () {
+        function moveToPosition(positions) {
+            $scope.center.lat = positions.coords.latitude;
+            $scope.center.lng = positions.coords.longitude;
+        }
+
+        function buildUrl() {
             //http://localhost:3000/?data=1&zoom=15&poly=54.970057640429864,-1.6414019465446472:54.970807995914974,-1.6354675590991976:54.96673042726977,-1.6347990185022354:54.96420634978736,-1.6437119990587237:54.970057640429864,-1.6414019465446472
-            return $location.absUrl() + '?data=' + $scope.datasetId + '&zoom=' + $scope.center.zoom + '&poly=' + $scope.coords
+            return $location.absUrl().split("?")[0] + '?data=' + $scope.datasetId + '&zoom=' + $scope.center.zoom + '&poly=' + $scope.coords
 
 
+        }
+
+        function getJsonFromUrl(dataurl) {
+            var query = dataurl.split("?")[1];
+            var result = {};
+            query.split("&").forEach(function(part) {
+                var item = part.split("=");
+                result[item[0]] = decodeURIComponent(item[1]);
+            });
+            return result;
         }
 
 
@@ -50,6 +77,10 @@ angular.module('raw.controllers', [])
             $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
         });
 
+        //get the challenges
+        $http.get("/api/data/challenges").then(function (response) {
+            $scope.challenges = response.data;
+        });
 
         $scope.issueTemplate = {
             tags: [{text: "data science"}],
@@ -58,11 +89,7 @@ angular.module('raw.controllers', [])
 
         $scope.issue = angular.copy($scope.issueTemplate);
 
-        $scope.challenges = [
-            {title: 'Where to play', tag: 'Good palaces for play areas'},
-            {title: 'Clean air', tag: 'Air quality issues in the neighbourhood'},
-
-        ];
+        $scope.challenges = [];
 
         $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude', 'ONS Codes', 'Addresses'];
 
@@ -101,6 +128,39 @@ angular.module('raw.controllers', [])
 
 
         $scope.dataView = 'table';
+
+        //wavesurfer options
+
+
+        $scope.options1 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s1'
+        };
+
+        $scope.options2 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s2'
+        };
+
+        $scope.wurl1 = './data/mwcad-t1s1.mp3';
+        $scope.wurl2 = './data/mwcad-t1s2.mp3';
+
+        $scope.wavesurfers = [];
+        $scope.$on('wavesurferInit', function (e, wavesurfer) {
+            $scope.wavesurfers.push(wavesurfer);
+        });
 
 
         //Leaflet controller
@@ -164,7 +224,7 @@ angular.module('raw.controllers', [])
                 ];
             }
         });
-
+        let drawnItems = new L.FeatureGroup();
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
@@ -179,6 +239,9 @@ angular.module('raw.controllers', [])
                 fullscreen: {},
                 scale: true,
                 draw: {
+                    edit: {
+                        featureGroup: drawnItems
+                    }
                     /*draw: {
                      polyline: false/*{
                      shapeOptions: {
@@ -219,7 +282,7 @@ angular.module('raw.controllers', [])
             layers: {
                 baselayers: {
                     //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                    /* mapbox_notext: {
+                    mapbox_notext: {
                      name: 'Mapbox Notext',
                      url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
                      type: 'xyz',
@@ -233,7 +296,7 @@ angular.module('raw.controllers', [])
                      layerParams: {
                      showOnSelector: true
                      }
-                     },*/
+                     },
                     mapbox_light: {
                         name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
@@ -295,7 +358,7 @@ angular.module('raw.controllers', [])
                         layerOptions: {
                             style: {
                                 color: 'white',
-                                fillColor: '#FD8D3C',
+                                fillColor: '#2DD8B1',
                                 weight: 2.0,
                                 dashArray: '3',
                                 opacity: 0.6,
@@ -440,18 +503,19 @@ angular.module('raw.controllers', [])
             if (layer.feature.properties.Decile) {
                 layer.setStyle({fillColor: getColor(layer.feature.properties.Decile)});
             } else {
-                layer.setStyle({fillColor: '#FD8D3C'})
+                layer.setStyle({fillColor: '#2DD8B1'})
             }
 
 
         };
 
-
+        var controlLoader;
         leafletData.getMap().then(function (map) {
             leafletData.getLayers().then(function (layers) {
                 //var drawnItems = layers.overlays.draw;
                 //TODO - not a good way
                 $scope.map = map;
+                controlLoader = L.control.loader().addTo($scope.map);
                 $scope.boundaryLayer = layers.overlays.boundary;
 
                 $scope.areaLayer = layers.overlays.areas;
@@ -461,6 +525,56 @@ angular.module('raw.controllers', [])
 
                 //TODO - look at the racing conditions with the datasets
                 if ($scope.boundary) {
+                    processBoundary(true)
+                }
+                //Clear boundry on each draw
+                map.on('draw:drawstart', function (e) {
+                    if (e.layerType === 'polygon')
+                        $scope.boundaryLayer.clearLayers();
+                });
+                map.on('draw:created', function (e) {
+                    var type = e.layerType,
+                        layer = e.layer;
+                    drawnItems.addLayer(layer);
+                    if (type == 'polygon') {
+                        $scope.boundary = layer;
+                        processBoundary(false);
+                    } else {
+                        $scope.markerLayer.addLayer(layer);
+                        //$('#issueModal').modal('show');
+                        let id = layer._leaflet_id;
+                        layer.bindPopup('<input id="marker-' + id + '"type="text" placeholder="Insert Comment">').openPopup();
+                        //layer.dragging.enable();
+                        //Emit to socket
+                        socket.emit('send:marker', {
+                            id: id,
+                            loc: layer.getLatLng()
+
+                        });
+                        layer.on('popupclose', function () {
+                            //layer._popup.setContent(layer._popup.getContent())
+                            if ($('#marker-' + id).val()) {
+                                socket.emit('send:issue', {
+                                    markerId: id,
+                                    text: $('#marker-' + id).val()
+                                });
+                                layer._popup.setContent($('#marker-' + id).val())
+                            }
+
+                        })
+
+                    }
+
+                });
+                map.on('draw:edited', function (e) {
+                    //Police query format
+                    //TODO - use areas for query not the boundary
+                    //TODO - use the actual areas
+                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
+                    for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                        $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+                    }
+                    $scope.coords = $scope.coords.join(':');
                     if ($scope.areaBbox == undefined) {
                         $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
                     } else {
@@ -468,53 +582,17 @@ angular.module('raw.controllers', [])
                     }
                     $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
                     $scope.boundaryLayer.addLayer($scope.boundary);
-                    $scope.center.zoom = $scope.previousZoom;
-                    $scope.map.fitBounds($scope.boundary.getBounds());
-                    getArea($scope.boundary.toGeoJSON());
                     $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
-                }
-                //Clear boundry on each draw
-                map.on('draw:drawstart ', function (e) {
-                    //if (e.layerType === 'polygon')
-                    $scope.boundaryLayer.clearLayers();
+                    getArea($scope.boundary.toGeoJSON());
+
                 });
-                map.on('draw:created', function (e) {
-                    var type = e.layerType,
-                        layer = e.layer;
-                    $scope.boundary = layer;
-                    if (type == 'polygon') {
-                        //Police query format
-                        //TODO - use areas for query not the boundary
-                        //TODO - use the actual areas
-                        $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
-                        for (var i = 0, l = $scope.coords.length; i < l; i++) {
-                            $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
-                        }
-                        $scope.coords = $scope.coords.join(':');
-                        if ($scope.areaBbox == undefined) {
-                            $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
-                        } else {
-                            $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
-                        }
-                        $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
-                        console.log($scope.areaBbox);
-                    } else {
-                        $scope.markerLayer.addLayer(layer);
-                        //$('#issueModal').modal('show');
-                        let id = layer._leaflet_id;
-                        layer.bindPopup('<input id="' + id + '"type="text" placeholder="Insert Comment">').openPopup();
-                        //layer.dragging.enable();
-                        layer.on('popupclose', function () {
-                            //layer._popup.setContent(layer._popup.getContent())
-                            if ($('#' + id).val())
-                                layer._popup.setContent($('#' + id).val())
-                        })
 
-                    }
-                    $scope.boundaryLayer.addLayer($scope.boundary);
-                    $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
-                    getArea($scope.boundary.toGeoJSON());
-
+                map.on('draw:deleted', function (e) {
+                   console.log(e.layers);
+                   console.log(drawnItems);
+                });
+                map.on('draw:editstart', function () {
+                    console.log("editstart");
                 });
                 /*map.on('zoomend',function (e) {
                  if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
@@ -553,6 +631,38 @@ angular.module('raw.controllers', [])
 
             });
         });
+
+        function processBoundary(fitbounds) {
+            let boundaryJson = $scope.boundary.toGeoJSON();
+            if (boundaryJson.type == "FeatureCollection") {
+                $scope.coords = $scope.boundary.toGeoJSON().features[0].geometry.coordinates[0];
+            } else {
+                $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
+            }
+
+            //Police query format
+            //TODO - use areas for query not the boundary
+            //TODO - use the actual areas
+            for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+            }
+            $scope.coords = $scope.coords.join(':');
+
+            if ($scope.areaBbox == undefined) {
+                $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
+            } else {
+                $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
+            }
+
+            $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+            $scope.boundaryLayer.clearLayers();
+            $scope.boundaryLayer.addLayer($scope.boundary);
+            $scope.center.zoom = $scope.previousZoom;
+            if (fitbounds)
+                $scope.map.fitBounds($scope.boundary.getBounds());
+            $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
+            getArea($scope.boundary.toGeoJSON());
+        }
 
         function getArea(json) {
             $scope.maploading = false;
@@ -827,9 +937,19 @@ angular.module('raw.controllers', [])
 
 
         };
+
+        $scope.selectChallenge = function (challenge) {
+            $scope.$parent.focus = challenge.line;
+            let params = getJsonFromUrl(challenge.dataurl);
+            drawnItems.addLayer($scope.boundary);
+            processUrl(params);
+            processBoundary(true);
+            //$scope.importMode = 'dataset';
+            //console.log($scope.currentDataset);
+            $scope.selectDataset($scope.currentDataset);
+        };
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
-
             reset();
             $scope.text = "";
             //set current selected dataset
@@ -913,11 +1033,12 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
+            //console.log('challenge accepted');
+            //console.log($scope.importMode);
             //workaround with url datasets
             if ($scope.importMode == 'dataset' && $scope.currentDataset) {
                 let larray = $scope.currentDataset.levels.split(',');
 
-                console.log(larray);
                 if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
                     $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
                     $scope.selectDataset($scope.currentDataset);
@@ -1461,19 +1582,24 @@ angular.module('raw.controllers', [])
             $scope.model = $scope.chart.model();
         };
 
-        $scope.submitIssue = function (issue) {
-            console.log(issue);
+        $scope.submitChallenge = function (issue) {
             issue.dataurl = buildUrl();
-            $http.post('/api/data/issue', issue).then(function (response) {
+            issue.bbox = $scope.areaBbox;
+            $http.post('/api/data/challenge', issue).then(function (response) {
+                issue.dataurl = issue.dataurl + '&cid=' + response.data.cid;
+                $scope.challenges.push(issue);
+                //reset
+                $scope.issue = angular.copy($scope.issueTemplate);
+                $("#issueModal").modal('hide');
             });
-            //reset
-            $scope.issue = angular.copy($scope.issueTemplate);
-            $("#issueModal").modal('hide');
+
+
         }
 
         $scope.submitDataRequest = function (datarequest) {
             console.log(datarequest);
             $http.post('/api/data/request', datarequest).then(function (response) {
+
             });
             //reset
             $scope.datarequest = {};
@@ -1529,6 +1655,114 @@ angular.module('raw.controllers', [])
             return [chart.category(), chart.title()];
         };
 
+
+        // Socket listeners
+        // ================
+
+        socket.on('init', function (data) {
+            $scope.name = data.name;
+            $scope.users = data.users;
+        });
+
+        socket.on('send:message', function (message) {
+            $scope.messages.push(message);
+        });
+
+        socket.on('send:marker', function (marker) {
+            let layer = new L.marker(marker.loc, {icon: issueMarker});
+            layer._leaflet_id = marker.id;
+            $scope.markerLayer.addLayer(layer);
+        });
+
+        socket.on('send:issue', function (issue) {
+            let id = issue.markerId.toString();
+            let layer = $scope.markerLayer.getLayer(id);
+            layer.bindPopup(issue.text)
+        });
+
+        socket.on('change:name', function (data) {
+            changeName(data.oldName, data.newName);
+        });
+
+        socket.on('user:join', function (data) {
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + data.name + ' has joined.'
+            });
+            $scope.users.push(data.name);
+        });
+
+        // add a message to the conversation when a user disconnects or leaves the room
+        socket.on('user:left', function (data) {
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + data.name + ' has left.'
+            });
+            let i, user;
+            for (i = 0; i < $scope.users.length; i++) {
+                user = $scope.users[i];
+                if (user === data.name) {
+                    $scope.users.splice(i, 1);
+                    break;
+                }
+            }
+        });
+
+        // Private helpers
+        // ===============
+
+        var changeName = function (oldName, newName) {
+            // rename user in list of users
+            var i;
+            for (i = 0; i < $scope.users.length; i++) {
+                if ($scope.users[i] === oldName) {
+                    $scope.users[i] = newName;
+                }
+            }
+
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + oldName + ' is now known as ' + newName + '.'
+            });
+        };
+
+        // Methods published to the scope
+        // ==============================
+
+        $scope.changeName = function () {
+            socket.emit('change:name', {
+                name: $scope.newName
+            }, function (result) {
+                if (!result) {
+                    alert('There was an error changing your name');
+                } else {
+
+                    changeName($scope.name, $scope.newName);
+
+                    $scope.name = $scope.newName;
+                    $scope.newName = '';
+                }
+            });
+        };
+
+        $scope.messages = [];
+
+        $scope.sendMessage = function () {
+            socket.emit('send:message', {
+                message: $scope.message
+            });
+
+            // add the message to our model locally
+            $scope.messages.push({
+                user: $scope.name,
+                text: $scope.message
+            });
+
+            // clear message box
+            $scope.message = '';
+        };
+
+
         $(document).ready(refreshScroll);
 
 
@@ -1539,7 +1773,6 @@ angular.module('raw.controllers', [])
 
         $scope.inputData = "dataInPlace";
     }
-    ])
-;
+    ]);
 
-;
+
