@@ -20,7 +20,6 @@ angular.module('raw.controllers', [])
 
         function processUrl(params) {
             if (Object.keys(params).length) {
-                console.log(params);
                 // export the coordinates from the layer
                 const coordinates = [];
                 $scope.datasetId = parseInt(params.data);
@@ -91,7 +90,7 @@ angular.module('raw.controllers', [])
 
         $scope.challenges = [];
 
-        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude', 'ONS Codes', 'Addresses'];
+        $scope.geoTypes = ['Postal Codes', 'Longitude and Latitude', /*'ONS Codes', 'Addresses'*/];
 
 
         let schoolIcon = L.icon({
@@ -205,7 +204,7 @@ angular.module('raw.controllers', [])
                             }
                         }),
                         title: 'Draw a boundary'
-                    },
+                    }/*,
                     {
                         enabled: true,
                         handler: new L.Draw.Marker(map, {icon: issueMarker}),
@@ -220,7 +219,7 @@ angular.module('raw.controllers', [])
                         enabled: true,
                         handler: new L.Draw.Marker(map, {icon: sensorMarker}),
                         title: 'Place a Sensor Marker'
-                    }
+                    }*/
                 ];
             }
         });
@@ -358,7 +357,7 @@ angular.module('raw.controllers', [])
                         layerOptions: {
                             style: {
                                 color: 'white',
-                                fillColor: '#2DD8B1',
+                                fillColor: '#FD8D3C',
                                 weight: 2.0,
                                 dashArray: '3',
                                 opacity: 0.6,
@@ -503,7 +502,7 @@ angular.module('raw.controllers', [])
             if (layer.feature.properties.Decile) {
                 layer.setStyle({fillColor: getColor(layer.feature.properties.Decile)});
             } else {
-                layer.setStyle({fillColor: '#2DD8B1'})
+                layer.setStyle({fillColor: '#FD8D3C'})
             }
 
 
@@ -588,8 +587,8 @@ angular.module('raw.controllers', [])
                 });
 
                 map.on('draw:deleted', function (e) {
-                   console.log(e.layers);
-                   console.log(drawnItems);
+                   resetMap();
+                   reset();
                 });
                 map.on('draw:editstart', function () {
                     console.log("editstart");
@@ -1291,7 +1290,20 @@ angular.module('raw.controllers', [])
             $scope.stackDimension = false;
             $scope.currentDataset = false;
             $scope.geoAggregator = "";
+
             //$scope.$apply();
+        }
+
+        function resetMap() {
+            $scope.areas = false;
+            $scope.boundaryLayer.clearLayers();
+            $scope.layers.overlays.boundary.layerParams.showOnSelector = false;
+            $scope.areaLayer.clearLayers();
+            $scope.layers.overlays.areas.layerParams.showOnSelector = false;
+            $scope.dataLayer.clearLayers();
+            $scope.layers.overlays.data.layerParams.showOnSelector = false;
+            //$scope.heatLayer.clearLayers();
+            $scope.markerLayer.clearLayers();
         }
 
         function jsonTree(json) {

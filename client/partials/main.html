@@ -21,7 +21,7 @@
                     <button class="btn btn-success">Save</button>
                     <button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode"
                             bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>-->
-                    look for a postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
+                    look for a UK postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
                     <button ng-model="postcode" class="btn btn-defaule" ng-click="searchPostcode(postcode)">Search
                     </button>
                     </br>
@@ -91,7 +91,7 @@
 							</span>
                         <span class="clearfix"></span>
                     </h3>
-                    <span class="pull-left" ng-show="data.length">
+                    <!--<span class="pull-left" ng-show="data.length">
                             <button
                                     class="btn btn-default"
                                     ng-model="aggregator"
@@ -99,7 +99,7 @@
                                     placeholder="Select an aggregator"
                                     bs-options="dimension.key for dimension in metadata" bs-select>
                             </button>
-                        </span>
+                        </span>-->
                 </div>
 
             </div>
