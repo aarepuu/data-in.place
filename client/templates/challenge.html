@@ -1,0 +1,18 @@
+<h3>Challenge Info
+    <a ng-click="isCollapsed = !isCollapsed" class="list-type pull-right" data-toggle="collapse" data-target="#challengeDisplay" aria-expanded="false"
+       aria-expanded="true" aria-controls="challengeDisplay">
+        <i data-toggle="tooltip" data-title="Toggle Info" ng-class="{'fas fa-plus-square': isCollapsed, 'fas fa-minus-square': !isCollapsed}"></i>
+    </a>
+</h3>
+
+
+<div id="challengeDisplay" class="panel-collapse collapse in">
+    <h2 class="text-uppercase text-center">{{currentChallenge.title}}</h2>
+    <h4 class="text-muted text-center">{{currentChallenge.line}}</h4>
+    <p markdown-to-html="currentChallenge.content"></p>
+    <br>
+    <label for="chaltags" class="col-form-label">Tags:</label>
+    <span id="chaltags" ng-repeat="tag in currentChallenge.tags" class="label label-primary">{{tag.text}}</span>
+    <div id="datalink" class="hidden"> {{currentChallenge.dataurl}}</div>
+
+</div>
