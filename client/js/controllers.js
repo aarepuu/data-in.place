@@ -23,7 +23,8 @@ angular.module('raw.controllers', [])
                 // export the coordinates from the layer
                 const coordinates = [];
                 $scope.datasetId = parseInt(params.data);
-                $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
+                if ($scope.datasets)
+                    $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
                 $scope.previousZoom = parseInt(params.zoom);
                 if (params.poly == undefined) return;
                 params.poly.split(":").forEach(function (latlng) {
@@ -62,7 +63,7 @@ angular.module('raw.controllers', [])
         function getJsonFromUrl(dataurl) {
             var query = dataurl.split("?")[1];
             var result = {};
-            query.split("&").forEach(function(part) {
+            query.split("&").forEach(function (part) {
                 var item = part.split("=");
                 result[item[0]] = decodeURIComponent(item[1]);
             });
@@ -205,21 +206,21 @@ angular.module('raw.controllers', [])
                         }),
                         title: 'Draw a boundary'
                     }/*,
-                    {
-                        enabled: true,
-                        handler: new L.Draw.Marker(map, {icon: issueMarker}),
-                        title: 'Place an Issue Marker',
-                    },
-                    {
-                        enabled: true,
-                        handler: new L.Draw.Marker(map, {icon: dataMarker}),
-                        title: 'Place a Data Marker'
-                    },
-                    {
-                        enabled: true,
-                        handler: new L.Draw.Marker(map, {icon: sensorMarker}),
-                        title: 'Place a Sensor Marker'
-                    }*/
+                     {
+                     enabled: true,
+                     handler: new L.Draw.Marker(map, {icon: issueMarker}),
+                     title: 'Place an Issue Marker',
+                     },
+                     {
+                     enabled: true,
+                     handler: new L.Draw.Marker(map, {icon: dataMarker}),
+                     title: 'Place a Data Marker'
+                     },
+                     {
+                     enabled: true,
+                     handler: new L.Draw.Marker(map, {icon: sensorMarker}),
+                     title: 'Place a Sensor Marker'
+                     }*/
                 ];
             }
         });
@@ -282,20 +283,20 @@ angular.module('raw.controllers', [])
                 baselayers: {
                     //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
                     mapbox_notext: {
-                     name: 'Mapbox Notext',
-                     url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
-                     type: 'xyz',
-                     layerOptions: {
-                     apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
-                     mapid: 'cj7or2fkzb8ay2rqfarpanw10',
-                     attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                     detectRetina: true,
-                     reuseTiles: false,
-                     },
-                     layerParams: {
-                     showOnSelector: true
-                     }
-                     },
+                        name: 'Mapbox Notext',
+                        url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
+                        type: 'xyz',
+                        layerOptions: {
+                            apikey: 'pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg',
+                            mapid: 'cj7or2fkzb8ay2rqfarpanw10',
+                            attribution: '&copy; <a href="https://www.mapbox.com/about/maps/">MapBox </a> &copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                            detectRetina: true,
+                            reuseTiles: false,
+                        },
+                        layerParams: {
+                            showOnSelector: true
+                        }
+                    },
                     mapbox_light: {
                         name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
@@ -587,8 +588,8 @@ angular.module('raw.controllers', [])
                 });
 
                 map.on('draw:deleted', function (e) {
-                   resetMap();
-                   reset();
+                    resetMap();
+                    reset();
                 });
                 map.on('draw:editstart', function () {
                     console.log("editstart");
@@ -1597,6 +1598,7 @@ angular.module('raw.controllers', [])
         $scope.submitChallenge = function (issue) {
             issue.dataurl = buildUrl();
             issue.bbox = $scope.areaBbox;
+            console.log(issue.bbox);
             $http.post('/api/data/challenge', issue).then(function (response) {
                 issue.dataurl = issue.dataurl + '&cid=' + response.data.cid;
                 $scope.challenges.push(issue);

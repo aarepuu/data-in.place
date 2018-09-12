@@ -69,10 +69,16 @@ exports.submitDataRequest = function (req, res, next) {
 
 exports.submitChallenge = function (req, res, next) {
     const challengeId = uuidv1();
+
+
+    const bbox = req.body.bbox.split(',');
+
     const query = {
-        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope($7,4326),$8) RETURNING id',
-        values: [challengeId, req.body.title, req.body.line, req.body.text, req.body.tags, true, req.body.bbox, req.body.dataurl+'&cid='+challengeId],
+        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope('+ bbox[0]+'::double precision,'+ bbox[1]+'::double precision,'+ bbox[2]+'::double precision,'+ bbox[3]+'::double precision,4326),$7) RETURNING id',
+        //text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(string_to_array($7,\',\')::double precision[],4326),$8) RETURNING id',
+        values: [challengeId, req.body.title, req.body.line, req.body.text, req.body.tags, true, req.body.dataurl+'&cid='+challengeId],
     };
+    //console.log(query.text)
     //postChallenge(req.body);
     db.query(query)
         .then(result => {
