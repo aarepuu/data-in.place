@@ -11,12 +11,12 @@ angular.module('raw', [
     'hc.marked',
     'hljs',
     'angular-markdown-editor',
+    'ng-showdown',
     'ngTagsInput',
     'raw.filters',
     'raw.services',
     'raw.directives',
     'leaflet-directive',
-    'wavesurfer.angular',
     'raw.controllers'
 ])
 

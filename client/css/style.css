@@ -6,15 +6,14 @@ ol, ul {
     list-style: none;
 }
 
-
 /** Map styles **/
 #map-section {
     padding: 80px 0px;
 }
+
 .map-container {
     min-height: 55px;
 }
-
 
 /** Leaflet loader **/
 .leaflet-control-loader {
@@ -26,7 +25,7 @@ ol, ul {
     height: 80px;
     width: 100px;
     border-radius: 10px;
-    background: url('../imgs/leaflet-loader.gif') center center no-repeat rgba(255,255,255,0.8);
+    background: url('../imgs/leaflet-loader.gif') center center no-repeat rgba(255, 255, 255, 0.8);
 }
 
 .info {
@@ -100,7 +99,6 @@ Something wrong with the leaflet CSS
 
 /** End Map Styles **/
 
-
 /** RAWGraphs logo **/
 
 .powered-by {
@@ -115,7 +113,6 @@ Something wrong with the leaflet CSS
 }
 
 /** End RAWGraphs logo **/
-
 
 /** UI **/
 
@@ -160,7 +157,6 @@ Something wrong with the leaflet CSS
 }
 
 /** End UI **/
-
 
 /** Areas list **/
 .read-more-state {
@@ -208,11 +204,11 @@ Something wrong with the leaflet CSS
 
 /** End Areas list **/
 
-
 /** Modal **/
 .modal-content {
     background-color: #F5F5F5;
 }
+
 .issue-drop-box {
     background: transparent;
     border: 3px dashed #DDD;
@@ -262,7 +258,6 @@ Something wrong with the leaflet CSS
 
 /** End Modal **/
 
-
 /** Focus **/
 
 .prompt input {
@@ -287,7 +282,6 @@ Something wrong with the leaflet CSS
 
 /**  End Focus **/
 
-
 /* Navigation */
 
 .brand-green {
@@ -295,3 +289,35 @@ Something wrong with the leaflet CSS
 }
 
 /* End Navigation */
+
+/* ChallengeDisplay */
+
+#challengeDisplay {
+    height: 275px;
+    width: 100%;
+    max-width: 100%;
+    overflow: scroll;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border-radius: 2px;
+    font-family: Cousine, Menlo, Monaco, Courier, monospace;
+
+    padding: 20px;
+
+    -webkit-box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+    -moz-box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+    box-shadow: 0px 1px 1px rgba(0,0,0,.1);
+}
+
+
+.challengebox {
+    margin-top: 60px;
+}
+
+.label {
+    margin-left: 6px;
+}
+
+.challengeDisplay:in ~ .
+
+/* End ChallengeDisplay */

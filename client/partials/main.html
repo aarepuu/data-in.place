@@ -220,7 +220,9 @@
 
                     <!-- Dataset -->
                     <div ng-show="importMode=='dataset' && !parsed">
-                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched" ng-model="datasetSearch" placeholder="Search for a dataset" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a dataset'">
+                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched"
+                               ng-model="datasetSearch" placeholder="Search for a dataset"
+                               onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a dataset'">
                         <div class="row">
                             <div class="outer-layout col-lg-3" ng-class="dataAvailable(s.levels)"
                                  ng-repeat="s in datasets | filter:datasetSearch"
@@ -311,18 +313,19 @@
 
                     <!-- Challenge -->
                     <div ng-show="importMode=='challenge' && !parsed">
-                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched" ng-model="challengeSearch" placeholder="Search for a challenge" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a challenge'">
+                        <input class="form-control margin-bottom ng-pristine ng-empty ng-touched"
+                               ng-model="challengeSearch" placeholder="Search for a challenge"
+                               onfocus="this.placeholder = ''" onblur="this.placeholder = 'Search for a challenge'">
                         <div class="row">
                             <div class="col-lg-3" ng-repeat="c in challenges | filter:challengeSearch"
                                  ng-click="selectChallenge(c); $event.stopPropagation();">
                                 <div class="layout">
                                     <div class="layout-inner">
-                                        <span data-toggle="tooltip" data-title="{{c.description}}"
+                                        <span data-toggle="tooltip" data-title="{{c.line}}"
                                               class="pull-right light"><i class="fa fa-info"></i></span>
                                         <span>{{c.title}}</span>
                                         </br>
-                                        <a class="text-muted layout-category" href="{{c.mooqita}}"
-                                           target="_blank">{{c.line}}</a>
+                                        <span ng-repeat="tag in c.tags" class="label label-primary">{{tag.text}}</span>
 
                                     </div>
                                 </div>
@@ -449,8 +452,11 @@
 
 
                     </div>
-
-
+                    <br>
+                    <div ng-show="currentChallenge">
+                            <div challenge-info class="challengebox" data-ng-show="currentChallenge"></div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -556,10 +562,6 @@
 
                 </div>
 
-                <div data-ng-show="ctype =='Audio'" class="row">
-                    <wavesurfer-angular url="wurl1" options="options1"></wavesurfer-angular>
-                    <wavesurfer-angular url="wurl2" options="options2"></wavesurfer-angular>
-                </div>bug
             </div>
 
         </div>
@@ -788,7 +790,8 @@
                 <form>
                     <div class="form-group">
                         <label for="title-field" class="col-form-label">Give a title for the challenge:</label>
-                        <input ng-model="issue.title" type="text" placeholder="title here" class="form-control" id="title-field">
+                        <input ng-model="issue.title" type="text" placeholder="title here" class="form-control"
+                               id="title-field">
                     </div>
                     <div class="form-group">
                         <label for="tag-field" class="col-form-label">Tags:</label>
@@ -801,15 +804,21 @@
                     </div>
                     <div class="form-group">
                         <label for="line-field" class="col-form-label">Summary:</label>
-                        <input ng-model="issue.line" type="text" placeholder="summarise what do you want to investigate" class="form-control" id="line-field">
+                        <input ng-model="issue.line" type="text" placeholder="summarise what do you want to investigate"
+                               class="form-control" id="line-field">
                     </div>
                     <div class="form-group">
                         <label for="content-field" class="col-form-label">Issue:</label>
-                        <textarea id="content-field" placeholder="describe the issue,what data is needed,how would the end result look like" class="form-control" ng-model="issue.content" name="content" markdown-editor="{'iconlibrary': 'fa', addExtraButtons: true, resize: 'vertical'}" rows="10"></textarea>
+                        <textarea id="content-field"
+                                  placeholder="describe the issue,what data is needed,how would the end result look like"
+                                  class="form-control" ng-model="issue.content" name="content"
+                                  markdown-editor="{'iconlibrary': 'fa', addExtraButtons: true, resize: 'vertical'}"
+                                  rows="10"></textarea>
                     </div>
                     <div ng-show="issuefiles.length">
                         <div ng-repeat="ifile in issuefiles">
-                            <span class="small text-mono">{{ifile.name}}<a class="remove-button" ng-click="removeIssueFile(ifile)">×</a></span>
+                            <span class="small text-mono">{{ifile.name}}<a class="remove-button"
+                                                                           ng-click="removeIssueFile(ifile)">×</a></span>
                         </div>
                     </div>
 
@@ -828,7 +837,8 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">
                     Close
                 </button>
-                <button type="submit" ng-click="submitChallenge(issue)" class="btn btn-success">Submit challenge</button>
+                <button type="submit" ng-click="submitChallenge(issue)" class="btn btn-success">Submit challenge
+                </button>
             </div>
         </div>
     </div>

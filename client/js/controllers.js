@@ -23,6 +23,7 @@ angular.module('raw.controllers', [])
                 // export the coordinates from the layer
                 const coordinates = [];
                 $scope.datasetId = parseInt(params.data);
+                $scope.challengeId = params.cid;
                 if ($scope.datasets)
                     $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
                 $scope.previousZoom = parseInt(params.zoom);
@@ -74,12 +75,19 @@ angular.module('raw.controllers', [])
         //get the datasets
         $http.get("/api/data/sources").then(function (response) {
             $scope.datasets = response.data;
+            if ($scope.datasetId)
             $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
         });
 
         //get the challenges
         $http.get("/api/data/challenges").then(function (response) {
             $scope.challenges = response.data;
+            if($scope.challengeId) {
+                $scope.currentChallenge = $scope.challenges.find(o => o.cid === $scope.challengeId);
+                $scope.$parent.focus = $scope.currentChallenge.line;
+            }
+
+
         });
 
         $scope.issueTemplate = {
@@ -128,40 +136,6 @@ angular.module('raw.controllers', [])
 
 
         $scope.dataView = 'table';
-
-        //wavesurfer options
-
-
-        $scope.options1 = {
-            waveColor: '#c5c1be',
-            progressColor: '#2A9FD6',
-            normalize: true,
-            hideScrollbar: true,
-            skipLength: 15,
-            height: 53,
-            cursorColor: '#2A9FD6',
-            id: 'mwcad-t1s1'
-        };
-
-        $scope.options2 = {
-            waveColor: '#c5c1be',
-            progressColor: '#2A9FD6',
-            normalize: true,
-            hideScrollbar: true,
-            skipLength: 15,
-            height: 53,
-            cursorColor: '#2A9FD6',
-            id: 'mwcad-t1s2'
-        };
-
-        $scope.wurl1 = './data/mwcad-t1s1.mp3';
-        $scope.wurl2 = './data/mwcad-t1s2.mp3';
-
-        $scope.wavesurfers = [];
-        $scope.$on('wavesurferInit', function (e, wavesurfer) {
-            $scope.wavesurfers.push(wavesurfer);
-        });
-
 
         //Leaflet controller
 
@@ -939,6 +913,7 @@ angular.module('raw.controllers', [])
         };
 
         $scope.selectChallenge = function (challenge) {
+            $scope.currentChallenge = challenge;
             $scope.$parent.focus = challenge.line;
             let params = getJsonFromUrl(challenge.dataurl);
             drawnItems.addLayer($scope.boundary);
@@ -946,7 +921,7 @@ angular.module('raw.controllers', [])
             processBoundary(true);
             //$scope.importMode = 'dataset';
             //console.log($scope.currentDataset);
-            $scope.selectDataset($scope.currentDataset);
+            //$scope.selectDataset($scope.currentDataset);
         };
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
@@ -1033,10 +1008,8 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
-            //console.log('challenge accepted');
-            //console.log($scope.importMode);
             //workaround with url datasets
-            if ($scope.importMode == 'dataset' && $scope.currentDataset) {
+            if (($scope.importMode == 'dataset' || $scope.importMode == 'challenge') && $scope.currentDataset) {
                 let larray = $scope.currentDataset.levels.split(',');
 
                 if (!larray.includes('latlon') && !larray.includes('bbox') || $scope.areaBbox != $scope.oldareaBbox) {
@@ -1096,7 +1069,8 @@ angular.module('raw.controllers', [])
         $scope.issuefiles = [];
 
 
-        $scope.$watch('importMode', function () {
+        $scope.$watch('importMode', function (oldval,newval) {
+            if (newval == oldval) return;
             // reset
             reset();
         });
@@ -1290,6 +1264,7 @@ angular.module('raw.controllers', [])
             $scope.pcodeColumn = false;
             $scope.stackDimension = false;
             $scope.currentDataset = false;
+            //$scope.currentChallenge = false;
             $scope.geoAggregator = "";
 
             //$scope.$apply();
@@ -1522,8 +1497,8 @@ angular.module('raw.controllers', [])
                 //$scope.data = getPivotArray(parser(text),0,1,2);
                 //$scope.metadata = parser.metadata(d3.tsvFormat($scope.data));
                 //TODO - already iterates data
-                $scope.data = parser(text);
-
+                var data = parser(text);
+                $scope.data = data;
                 $scope.metadata = parser.metadata(text);
                 //TODO - parse for geodata
                 $scope.error = false;
@@ -1542,6 +1517,7 @@ angular.module('raw.controllers', [])
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });
             } catch (e) {
+                console.log(e);
                 $scope.data = [];
                 $scope.metadata = [];
                 $scope.error = e.name == "ParseError" ? +e.message : false;
@@ -1598,7 +1574,7 @@ angular.module('raw.controllers', [])
         $scope.submitChallenge = function (issue) {
             issue.dataurl = buildUrl();
             issue.bbox = $scope.areaBbox;
-            console.log(issue.bbox);
+            console.log(issue);
             $http.post('/api/data/challenge', issue).then(function (response) {
                 issue.dataurl = issue.dataurl + '&cid=' + response.data.cid;
                 $scope.challenges.push(issue);
@@ -1611,7 +1587,6 @@ angular.module('raw.controllers', [])
         }
 
         $scope.submitDataRequest = function (datarequest) {
-            console.log(datarequest);
             $http.post('/api/data/request', datarequest).then(function (response) {
 
             });
