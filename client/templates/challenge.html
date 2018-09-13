@@ -7,11 +7,12 @@
 
 
 <div id="challengeDisplay" class="panel-collapse collapse in">
+    <a class="pull-right" id="dataurl-copy-button" copy-button="" data-clipboard-text="{{currentChallenge.dataurl}}"><i data-toggle="tooltip" data-title="Copy Challenge Link" class="fa fa-clipboard"></i></a>
     <h2 class="text-uppercase text-center">{{currentChallenge.title}}</h2>
     <h4 class="text-muted text-center">{{currentChallenge.line}}</h4>
+    <p ng-show="!currentChallenge.content" class="text-muted">There is no content for this challenge</p>
     <p markdown-to-html="currentChallenge.content"></p>
     <br>
-    <label for="chaltags" class="col-form-label">Tags:</label>
+    <label ng-show="currentChallenge.tags" for="chaltags" class="col-form-label">Tags:</label>
     <span id="chaltags" ng-repeat="tag in currentChallenge.tags" class="label label-primary">{{tag.text}}</span>
-    <a class="pull-right zeroclipboard-is-hover" id="dataurl-copy-button" copy-button="" data-clipboard-text="{{currentChallenge.dataurl}}"><i data-toggle="tooltip" data-title="Copy Challenge Link" class="fa fa-clipboard"></i></a>
 </div>

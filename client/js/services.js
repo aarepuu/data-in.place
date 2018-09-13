@@ -150,9 +150,9 @@ angular.module('raw.services', [])
 			  }
 
 	  	}
-	}])
+	}]);
 
-    .factory('socket', function ($rootScope) {
+  /*  .factory('socket', function ($rootScope) {
         var socket = io.connect();
         return {
             on: function (eventName, callback) {
@@ -174,6 +174,6 @@ angular.module('raw.services', [])
                 })
             }
         };
-    });
+    });*/
 
 

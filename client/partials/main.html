@@ -265,7 +265,7 @@
                                                 <h3 class="modal-title" id="dataModalLabel">Request Data Form</h3>
                                             </div>
                                             <div class="modal-body">
-                                                <form>
+                                                <form name="datarequest" novalidate>
                                                     <div class="form-group">
                                                         <label for="issue" class="col-form-label">What issue you are
                                                             exploring:</label>
@@ -298,8 +298,8 @@
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">
                                                     Close
                                                 </button>
-                                                <button type="submit" class="btn btn-success"
-                                                        ng-click="submitDataRequest(datarequest)">Submit request
+                                                <button type="submit" ng-disabled="datarequest.title.$invalid" class="submit btn btn-success"
+                                                        ng-click="submitDataRequest(datarequest)" >Submit request
                                                 </button>
                                             </div>
                                         </div>
