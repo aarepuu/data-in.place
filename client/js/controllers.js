@@ -1645,6 +1645,9 @@ angular.module('raw.controllers', [])
         };
 
 
+
+        /* Sockets */
+
         // Socket listeners
         // ================
 
@@ -1751,6 +1754,8 @@ angular.module('raw.controllers', [])
             $scope.message = '';
         };
 
+
+        /* End Sockets */
 
         $(document).ready(refreshScroll);
 

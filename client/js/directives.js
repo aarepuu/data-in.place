@@ -639,27 +639,7 @@ angular.module('raw.directives', [])
             restrict: 'A',
             link: function postLink(scope, element, attrs) {
 
-                var client = new ZeroClipboard(element);
-
-                client.on("ready", function (readyEvent) {
-                    client.on('aftercopy', function (event) {
-                        element.trigger("mouseout");
-                        setTimeout(function () {
-                            element.tooltip({title: 'Copied'});
-                            element.tooltip('show');
-                        }, 150);
-                    });
-                });
-
-                element.on('mouseover', function (client, args) {
-                    element.tooltip('destroy');
-                    element.tooltip({title: 'Copy to clipboard'});
-                    element.tooltip('show');
-                });
-
-                element.on('mouseout', function (client, args) {
-                    element.tooltip('destroy');
-                });
+                let clipboard = new ClipboardJS(element[0]);
             }
         };
     })
@@ -678,6 +658,9 @@ angular.module('raw.directives', [])
                         .node().parentNode.innerHTML;
 
                     element.find('textarea').val(svgCode)
+                    //TODO - hacky way of adding clipboard copy
+                    //let cp = new ClipboardJS("#copy-source");
+                    //console.log(cp);
                 })
 
                 /*function asHTML(){
@@ -850,7 +833,7 @@ angular.module('raw.directives', [])
             link: function postLink(scope, element, attrs) {
 
                 function update(){
-                    console.log(scope.currentChallenge);
+                    //console.log(scope.currentChallenge);
 
                 }
 

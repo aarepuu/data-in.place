@@ -13,6 +13,5 @@
     <br>
     <label for="chaltags" class="col-form-label">Tags:</label>
     <span id="chaltags" ng-repeat="tag in currentChallenge.tags" class="label label-primary">{{tag.text}}</span>
-    <div id="datalink" class="hidden"> {{currentChallenge.dataurl}}</div>
-
+    <a class="pull-right zeroclipboard-is-hover" id="dataurl-copy-button" copy-button="" data-clipboard-text="{{currentChallenge.dataurl}}"><i data-toggle="tooltip" data-title="Copy Challenge Link" class="fa fa-clipboard"></i></a>
 </div>
