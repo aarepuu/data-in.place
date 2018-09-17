@@ -38,12 +38,13 @@ exports.getArea = function (req, res, next) {
     var boundary = JSON.parse(req.body.boundary);
     var zoom = parseInt(req.body.zoom);
     var table_name = zoomLevel(zoom);
+    const bbox = req.body.bbox.split(',');
 
     //insert query boundary
     if (process.env.NODE_ENV == "production")
         db.query('INSERT INTO stats.boundary(gjson) values($1)', [JSON.stringify(boundary.geometry)]);
     const query = {
-        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326))",
+        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326)) AND geom && ST_MakeEnvelope("+ bbox[0]+"::double precision,"+ bbox[1]+"::double precision,"+ bbox[2]+"::double precision,"+ bbox[3]+"::double precision,4326)",
         values: [JSON.stringify(boundary.geometry)]
     };
 

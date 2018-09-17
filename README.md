@@ -14,7 +14,7 @@ This feature of the system gives the ability to overlay and intersect datasets (
 
 DATA:IN PLACE also enables you to request open datasets to be added to the platform and linked to the map based query system.
 
-- App page: [data-in.place](https://app.data-in.place)
+- App page: [app.data-in.place](https://app.data-in.place)
 - Project official page: [data-in.place](http://data-in.place)
 - Documentation: [github.com/aarepuu/data-in.place/wiki](https://github.com/aarepuu/data-in.place/wiki)
 

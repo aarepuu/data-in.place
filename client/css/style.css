@@ -318,6 +318,12 @@ Something wrong with the leaflet CSS
     margin-left: 6px;
 }
 
-.challengeDisplay:in ~ .
+input[type="text"].ng-invalid.ng-touched,textarea.ng-invalid.ng-touched {
+    border: 1px solid #FA7070;
+}
+
+.has-error{
+    color: #FA7070;
+}
 
 /* End ChallengeDisplay */

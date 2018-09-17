@@ -55,6 +55,8 @@ function postChallenge(challenge) {
 
 
 exports.submitDataRequest = function (req, res, next) {
+
+    console.log(req.b)
     const query = {
         text: 'INSERT INTO stats.datarequests(title, source, description) VALUES($1,$2,$3) RETURNING id',
         values: [req.body.title, req.body.source, req.body.description],

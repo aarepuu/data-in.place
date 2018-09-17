@@ -5,7 +5,7 @@
 
 angular.module('raw.controllers', [])
 
-    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location) {
+    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location','$cookies', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location,$cookies) {
 
 
         $scope.boundaryTemplate = {
@@ -73,7 +73,7 @@ angular.module('raw.controllers', [])
 
 
         //get the datasets
-        $http.get("/api/data/sources").then(function (response) {
+        $http.get("/api/data/sources").then(function (response,req) {
             $scope.datasets = response.data;
             if ($scope.datasetId)
             $scope.currentDataset = $scope.datasets.find(o => o.id === $scope.datasetId);
@@ -92,7 +92,7 @@ angular.module('raw.controllers', [])
 
         $scope.issueTemplate = {
             //tags: [{text: "data science"}],
-            content: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
+            //content: "## **Describe the issue.**\n\n## **What data and other resources (technology, people, skills) are needed?**\n\n## **How do you turn the data into something useful (visualise it)?**\n\n"
         }
 
         $scope.issue = angular.copy($scope.issueTemplate);
@@ -202,11 +202,8 @@ angular.module('raw.controllers', [])
         $scope.maploading = false;
         angular.extend($scope, {
             center: {
-                lat: 55.00435220211422,
-                lng: -1.4657035097479822,
-                //TODO - get person location or use the link or last location
-                //lat: 54.97328,
-                //lng: -1.61396,
+                lat: 54.97328,
+                lng: -1.61396,
                 zoom: $scope.previousZoom
             },
             controls: {
@@ -256,7 +253,7 @@ angular.module('raw.controllers', [])
             layers: {
                 baselayers: {
                     //https://api.mapbox.com/styles/v1/aarepuu/cj7or2fkzb8ay2rqfarpanw10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYWFyZXB1dSIsImEiOiJwRDc4UmE0In0.nZEyHmTgCobiCqZ42mqMSg
-                    mapbox_notext: {
+                    /*mapbox_notext: {
                         name: 'Mapbox Notext',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
                         type: 'xyz',
@@ -270,7 +267,7 @@ angular.module('raw.controllers', [])
                         layerParams: {
                             showOnSelector: true
                         }
-                    },
+                    },*/
                     mapbox_light: {
                         name: 'Mapbox Light',
                         url: 'https://api.mapbox.com/styles/v1/aarepuu/{mapid}/tiles/256/{z}/{x}/{y}?access_token={apikey}',
@@ -575,6 +572,9 @@ angular.module('raw.controllers', [])
                  });*/
                 map.on('moveend', function () {
                     $scope.mapBbox = map.getBounds().toBBoxString();
+                    if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
+                            getArea($scope.boundary.toGeoJSON());
+                    }
                 });
 
 
@@ -591,7 +591,9 @@ angular.module('raw.controllers', [])
 
 
                 //TODO - make it separate
-                $scope.$watch('center.zoom', function () {
+                $scope.$watch('center.zoom', function (newval,oldval){
+                    console.log(newval)
+                    console.log(oldval)
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         if (Math.abs($scope.previousZoom - $scope.center.zoom) > 1 && !($scope.center.zoom > 16)) {
                             getArea($scope.boundary.toGeoJSON());
@@ -631,7 +633,7 @@ angular.module('raw.controllers', [])
             $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
             $scope.boundaryLayer.clearLayers();
             $scope.boundaryLayer.addLayer($scope.boundary);
-            $scope.center.zoom = $scope.previousZoom;
+            //$scope.center.zoom = $scope.previousZoom;
             if (fitbounds)
                 $scope.map.fitBounds($scope.boundary.getBounds());
             $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
@@ -639,14 +641,15 @@ angular.module('raw.controllers', [])
         }
 
         function getArea(json) {
-            $scope.maploading = false;
+            $scope.maploading = true;
             if (!json) return;
             setLevel($scope.center.zoom);
             if (json.features)
                 json = json.features[0];
             $http.post('/api/geo/area', {
                 zoom: $scope.center.zoom,
-                boundary: JSON.stringify(json)
+                boundary: JSON.stringify(json),
+                bbox: $scope.mapBbox,
             }).then(function (response) {
                 //console.log(response.data);
                 //handle your response here
@@ -925,6 +928,10 @@ angular.module('raw.controllers', [])
         };
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
+            if(($scope.areaBbox == $scope.oldareaBbox) && ($scope.currentDataset == dataset)) {
+                $scope.parsed = true;
+                return;
+            }
             reset();
             $scope.text = "";
             //set current selected dataset
@@ -937,7 +944,6 @@ angular.module('raw.controllers', [])
             var requestURL = dataset.api_link;
             //TODO - rework this
             if (dataset.ext) {
-                console.log(dataset.geom);
                 switch (dataset.geom) {
                     case "ons":
                         //All areas in a comma separated string
@@ -1034,6 +1040,8 @@ angular.module('raw.controllers', [])
         $scope.data = [];
         $scope.metadata = [];
         $scope.error = false;
+        $scope.master = {};
+        $scope.formsubmitted = false;
         //$scope.loading = true;
 
         $scope.importMode = 'dataset';
@@ -1517,7 +1525,6 @@ angular.module('raw.controllers', [])
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });
             } catch (e) {
-                console.log(e);
                 $scope.data = [];
                 $scope.metadata = [];
                 $scope.error = e.name == "ParseError" ? +e.message : false;
@@ -1571,28 +1578,47 @@ angular.module('raw.controllers', [])
             $scope.model = $scope.chart.model();
         };
 
-        $scope.submitChallenge = function (issue) {
+        $scope.submitChallenge = function (issue,issueForm) {
             issue.dataurl = buildUrl();
             issue.bbox = $scope.areaBbox;
-            console.log(issue);
             $http.post('/api/data/challenge', issue).then(function (response) {
                 issue.dataurl = issue.dataurl + '&cid=' + response.data.cid;
                 $scope.challenges.push(issue);
                 //reset
-                $scope.issue = angular.copy($scope.issueTemplate);
+                $scope.resetissueForm(issueForm);
                 $("#issueModal").modal('hide');
             });
 
 
+        };
+
+        $scope.resetissueForm = function (issueForm) {
+            if (issueForm) {
+                issueForm.$setPristine();
+                issueForm.$setUntouched();
+            }
+            $scope.issue = angular.copy($scope.issueTemplate);
         }
 
-        $scope.submitDataRequest = function (datarequest) {
+        $scope.submitDataRequest = function (datarequest,dataForm) {
             $http.post('/api/data/request', datarequest).then(function (response) {
 
             });
             //reset
-            $scope.datarequest = {};
+            $scope.resetdataForm(dataForm);
             $("#dataModal").modal('hide');
+        }
+
+        $scope.resetdataForm = function (dataForm) {
+            if (dataForm) {
+                dataForm.$setPristine();
+                dataForm.$setUntouched();
+            }
+            $scope.datarequest = angular.copy($scope.master);
+        }
+
+        $scope.focusInput  = function () {
+            $('input.ng-invalid')[0].focus();
         }
 
         function refreshScroll() {

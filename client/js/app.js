@@ -13,6 +13,7 @@ angular.module('raw', [
     'angular-markdown-editor',
     'ng-showdown',
     'ngTagsInput',
+    'ngCookies',
     'raw.filters',
     'raw.services',
     'raw.directives',
