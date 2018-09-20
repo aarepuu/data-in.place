@@ -26,6 +26,7 @@ ol, ul {
     width: 100px;
     border-radius: 10px;
     background: url('../imgs/leaflet-loader.gif') center center no-repeat rgba(255, 255, 255, 0.8);
+    z-index: 99999999;
 }
 
 .info {

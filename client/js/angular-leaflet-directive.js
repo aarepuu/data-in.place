@@ -2264,7 +2264,6 @@ angular.module('leaflet-directive').factory('leafletMapDefaults', ["$q", "leafle
     getMapCreationDefaults: function(scopeId) {
       var mapId = obtainEffectiveMapId(defaults, scopeId);
       var d = defaults[mapId];
-
       var mapDefaults = {
         maxZoom: d.maxZoom,
         keyboard: d.keyboard,

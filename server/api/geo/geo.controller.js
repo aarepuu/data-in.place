@@ -35,16 +35,24 @@ exports.getArea = function (req, res, next) {
         "type": "FeatureCollection",
         "features": []
     };
-    var boundary = JSON.parse(req.body.boundary);
-    var zoom = parseInt(req.body.zoom);
-    var table_name = zoomLevel(zoom);
+    let boundary = JSON.parse(req.body.boundary);
+    let zoom = parseInt(req.body.zoom);
+    let table_name = zoomLevel(zoom);
     const bbox = req.body.bbox.split(',');
-
+    let lat = req.cookies.lat;
+    let lng = req.cookies.lng;
     //insert query boundary
-    if (process.env.NODE_ENV == "production")
-        db.query('INSERT INTO stats.boundary(gjson) values($1)', [JSON.stringify(boundary.geometry)]);
+    if (process.env.NODE_ENV == "production") {
+        if (lat) {
+            db.query("INSERT INTO stats.boundary(gjson,loc) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326))").then(res => {
+            }).catch(e => console.error(e.stack));
+        } else {
+            db.query("INSERT INTO stats.boundary(gjson) values('" + JSON.stringify(boundary.geometry) + "')").then(res => {
+            }).catch(e => console.error(e.stack));
+        }
+    }
     const query = {
-        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326)) AND geom && ST_MakeEnvelope("+ bbox[0]+"::double precision,"+ bbox[1]+"::double precision,"+ bbox[2]+"::double precision,"+ bbox[3]+"::double precision,4326)",
+        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326)) AND geom && ST_MakeEnvelope(" + bbox[0] + "::double precision," + bbox[1] + "::double precision," + bbox[2] + "::double precision," + bbox[3] + "::double precision,4326)",
         values: [JSON.stringify(boundary.geometry)]
     };
 
@@ -68,7 +76,7 @@ exports.getArea = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 exports.getLoc = function (req, res, next) {
     const query = {
@@ -169,8 +177,12 @@ function zoomLevel(zoom) {
             console.log('lad16');
             level = 'lad16';
             break;
-        default:
+        case (zoom < 10 && zoom >= 8):
+            console.log('rgn16');
             level = 'rgn16';
+            break;
+        default:
+            level = 'ctry16';
     }
     return level;
 }
