@@ -12,6 +12,8 @@ const http = require('http');
 
 // Setup server
 const app = express();
+
+
 const server = http.createServer(app);
 
 require('./config/express')(app);
@@ -29,7 +31,7 @@ const io = require('socket.io').listen(server);
 
 // Start server
 function startServer() {
-    app.angularFullstack = server.listen(config.port, config.ip, function() {
+    app.angularFullstack = server.listen(config.port, config.ip, function () {
         console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
     });
 }

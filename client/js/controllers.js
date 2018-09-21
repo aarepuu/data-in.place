@@ -514,6 +514,7 @@ angular.module('raw.controllers', [])
 
         var controlLoader;
         leafletData.getMap().then(function (map) {
+            $('#footer').removeClass('navbar-fixed-bottom');
             leafletData.getLayers().then(function (layers) {
                 //var drawnItems = layers.overlays.draw;
                 //TODO - not a good way
@@ -535,10 +536,12 @@ angular.module('raw.controllers', [])
                 }
                 //Clear boundry on each draw
                 map.on('draw:drawstart', function (e) {
-                    if (e.layerType === 'polygon')
-                        $scope.boundaryLayer.clearLayers();
+                    //if (e.layerType === 'polygon')
+                    //  $scope.boundaryLayer.clearLayers();
                 });
                 map.on('draw:created', function (e) {
+                    if (e.layerType === 'polygon')
+                        $scope.boundaryLayer.clearLayers();
                     var type = e.layerType,
                         layer = e.layer;
                     drawnItems.addLayer(layer);
@@ -684,8 +687,12 @@ angular.module('raw.controllers', [])
                 boundary: JSON.stringify(json),
                 bbox: $scope.mapBbox,
             }).then(function (response) {
-                //handle your response here
                 controlLoader.hide();
+                if(is.not.undefined($scope.areas)){
+                    if(objectString($scope.areas,'code') === objectString(response.data.areas,'code'))
+                        return;
+                }
+
                 $scope.areas = response.data.areas;
                 $scope.areas.forEach(function (obj) {
                     obj.isChecked = true;
@@ -1367,6 +1374,15 @@ angular.module('raw.controllers', [])
             //console.log(child,parent[child])
         }
 
+        //function to return a string of delimiter values from a object position
+        function objectString(objectarr, key){
+            let dataArray = [];
+            objectarr.forEach(function (object) {
+                dataArray.push(object[key]);
+            });
+            return dataArray.toString();
+        }
+
 
         // very improbable function to determine if pivot table or not.
         // pivotable index
@@ -1434,6 +1450,10 @@ angular.module('raw.controllers', [])
         //function for adding data to geometry
         //TODO - test with unstacking!!
         function datatoGeom() {
+            if($scope.legendControl){
+                $scope.legendControl.remove();
+                $scope.legendControl = false;
+            }
             //TODO - Nomisweb specific??
             if ($scope.currentDataset.geom == "ons") {
                 //clear previous data from layers
@@ -1442,6 +1462,8 @@ angular.module('raw.controllers', [])
                     temp.code = layer.feature.properties.code;
                     temp.name = layer.feature.properties.name;
                     layer.feature.properties = angular.copy(temp);
+                    //TODO - need to make style changin into a function
+                    layer.setStyle({fillColor: '#FD8D3C'})
                 });
                 if ($scope.currentDataset.ext) {
                     $scope.data.forEach(function (row) {
@@ -1454,6 +1476,9 @@ angular.module('raw.controllers', [])
                 } else {
                     $scope.data.forEach(function (row) {
                         let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);
+                        //TODO - change querys for local db
+                        if(is.undefined(layer))
+                            return;
                         let rowCopy = Object.assign({}, row);
                         //TODO - hardcoded position, expect the area to be first?
                         delete rowCopy[Object.keys(row)[0]];
@@ -1572,6 +1597,7 @@ angular.module('raw.controllers', [])
                     $scope.model = $scope.chart ? $scope.chart.model() : null;
                 });
             } catch (e) {
+                console.log(e)
                 $scope.data = [];
                 $scope.metadata = [];
                 $scope.error = e.name == "ParseError" ? +e.message : false;

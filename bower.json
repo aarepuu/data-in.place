@@ -34,7 +34,7 @@
     "jquery-ui": "1.12.1",
     "angular-sanitize": "1.6.2",
     "angular-bootstrap-colorpicker": "latest",
-    "bootstrap-colorpicker": "latest",
+    "bootstrap-colorpicker": "2.5.3",
     "FileSaver": "https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js",
     "d3-plugins": "*",
     "angular-ui": "0.4.0",

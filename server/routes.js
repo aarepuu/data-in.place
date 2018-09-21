@@ -15,15 +15,6 @@ module.exports = function routes(app) {
     //app.use('/api/data', require('./api/data'));
 
 
-    app.get('/getcookie', function(req, res) {
-        var username = req.cookies['username'];
-        if (username) {
-            return res.send(username);
-        }
-
-        return res.send('No cookie found');
-    });
-
 
     // All undefined asset or api routes should return a 404
     //TODO - clean this up
