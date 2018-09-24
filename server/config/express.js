@@ -10,7 +10,6 @@ const express = require('express'),
     lusca = require('lusca');
 
 const favicon = require('serve-favicon');
-const morgan = require('morgan');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
@@ -38,7 +37,6 @@ module.exports = function (app) {
 
     app.set('appPath', path.join(config.root, 'client'));
     app.use(express.static(app.get('appPath')));
-    app.use(morgan('dev'));
 
     app.set('views', config.root + '/server/views');
     app.engine('html', require('ejs').renderFile);
