@@ -29,20 +29,29 @@ function respondWithResult(res, statusCode) {
 
 //auth with Mooqita
 //dummy values
- function mooqitaAuth() {
-     request.post('http://localhost:4000/api/login', {form:{email:'hello@data-in.place',password:'hellohello'},json: true}, (err, res, body) => {
+function mooqitaAuth() {
+    request.post('http://localhost:4000/api/login', {
+        form: {email: 'hello@data-in.place', password: 'hellohello'},
+        json: true
+    }, (err, res, body) => {
         if (err) {
             console.log(err);
         } else {
             authToken = body.data.authToken;
             userId = body.data.userId;
         }
-     });
+    });
 }
 
 function postChallenge(challenge) {
     challenge.origin = 'data-in.place'
-    request.post({url:'http://localhost:4000/api/challenges', form:challenge, json: true, headers: {'X-Auth-Token': authToken, 'X-User-Id':userId}, method: 'POST'}, (err, res, body) => {
+    request.post({
+        url: 'http://localhost:4000/api/challenges',
+        form: challenge,
+        json: true,
+        headers: {'X-Auth-Token': authToken, 'X-User-Id': userId},
+        method: 'POST'
+    }, (err, res, body) => {
         if (err) {
             console.log(err);
         } else {
@@ -53,13 +62,22 @@ function postChallenge(challenge) {
 }
 
 
-
 exports.submitDataRequest = function (req, res, next) {
+    let lat = req.cookies.lat;
+    let lng = req.cookies.lng;
+    let boundary = JSON.parse(req.body.boundary);
 
-    console.log(req.b)
-    const query = {
-        text: 'INSERT INTO stats.datarequests(title, source, description) VALUES($1,$2,$3) RETURNING id',
-        values: [req.body.title, req.body.source, req.body.description],
+    let query;
+    if (lat) {
+        query = {
+            text: 'INSERT INTO stats.datarequests(title, source, description, loc, boundary, sessionid) VALUES($1,$2,$3,ST_SetSRID(ST_Point($4,$5),4326),$6,$7) RETURNING id',
+            values: [req.body.title, req.body.source, req.body.description, lng, lat, JSON.stringify(boundary.geometry), req.sessionID],
+        }
+    } else {
+        query = {
+            text: 'INSERT INTO stats.datarequests(title, source, description,boundary, sessionid) VALUES($1,$2,$3,$4,$5) RETURNING id',
+            values: [req.body.title, req.body.source, req.body.description, JSON.stringify(boundary.geometry), req.sessionID],
+        }
     }
     db.query(query)
         .then(result => {
@@ -76,16 +94,16 @@ exports.submitChallenge = function (req, res, next) {
     const bbox = req.body.bbox.split(',');
 
     const query = {
-        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope('+ bbox[0]+'::double precision,'+ bbox[1]+'::double precision,'+ bbox[2]+'::double precision,'+ bbox[3]+'::double precision,4326),$7) RETURNING id',
+        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(' + bbox[0] + '::double precision,' + bbox[1] + '::double precision,' + bbox[2] + '::double precision,' + bbox[3] + '::double precision,4326),$7) RETURNING id',
         //text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(string_to_array($7,\',\')::double precision[],4326),$8) RETURNING id',
-        values: [challengeId, req.body.title, req.body.line, req.body.content, req.body.tags, true, req.body.dataurl+'&cid='+challengeId],
+        values: [challengeId, req.body.title, req.body.line, req.body.content, req.body.tags, true, req.body.dataurl + '&cid=' + challengeId],
     };
     //console.log(query.text)
     //postChallenge(req.body);
     db.query(query)
         .then(result => {
             //console.log(result.rows[0])
-            return res.json({'cid':challengeId});
+            return res.json({'cid': challengeId});
         })
         .catch(e => console.error(e.stack))
 

@@ -41,13 +41,14 @@ exports.getArea = function (req, res, next) {
     const bbox = req.body.bbox.split(',');
     let lat = req.cookies.lat;
     let lng = req.cookies.lng;
+
     //insert query boundary
     if (process.env.NODE_ENV == "production") {
         if (lat) {
-            db.query("INSERT INTO stats.boundary(gjson,loc) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326))").then(res => {
+            db.query("INSERT INTO stats.boundary(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'"+req.sessionID+"')").then(res => {
             }).catch(e => console.error(e.stack));
         } else {
-            db.query("INSERT INTO stats.boundary(gjson) values('" + JSON.stringify(boundary.geometry) + "')").then(res => {
+            db.query("INSERT INTO stats.boundary(gjson,sessionid) values('" + JSON.stringify(boundary.geometry) + "','"+req.sessionID+"')").then(res => {
             }).catch(e => console.error(e.stack));
         }
     }
@@ -106,7 +107,6 @@ exports.validateGeoJson = function (req, res, next) {
 };
 
 exports.parseGeoJson = function (req, res, next) {
-    //console.log(req.body.rawdata);
     var geoJson = GeoJSON.parse(req.body.rawdata, {Point: [req.body.lat, req.body.lng]})
     return res.json(geoJson);
 }

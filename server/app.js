@@ -9,7 +9,6 @@ const config = require('./config/environment');
 const express = require('express');
 const http = require('http');
 
-
 // Setup server
 const app = express();
 

@@ -1674,6 +1674,7 @@ angular.module('raw.controllers', [])
         }
 
         $scope.submitDataRequest = function (datarequest, dataForm) {
+            datarequest.boundary = JSON.stringify($scope.boundary.toGeoJSON());
             $http.post('/api/data/request', datarequest).then(function (response) {
 
             });
