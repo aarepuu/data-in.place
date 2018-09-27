@@ -206,6 +206,9 @@ Something wrong with the leaflet CSS
 /** End Areas list **/
 
 /** Modal **/
+.modal{
+    z-index: 105000;
+}
 .modal-content {
     background-color: #F5F5F5;
 }
