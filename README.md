@@ -1,3 +1,5 @@
+![header](imgs/cover-for-socials.jpg)
+
 ## About
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,7 +11,7 @@ System leverages an open source web tool [RAWGraphs](http://rawgraphs.io/) by [D
 System connects to real time open governmental datasources (e.g., Office of National Statistics, Home Office, NHS, Department of Education, Ministry of Housing, Communities and Local Government etc.) and provides a interface for making place based queries. Instead of writing complex queries or scrolling through endless lists of tables to get the relevant data you need, you can use the map to focus on a specific area (i.e. draw a boundary on a map). Also by zooming in and out the area, the system displays statistics on different UK administration level (i.e. output areas, wards, local authorities, counties).
 DATA:IN PLACE aims to make open data accessible and usable for non-professionals.
 
-It also enables you to add your own datasets from different sources - pasting as text, from a file or from an url. System automatically then finds any geographical information (e.g. longitude and latitude, postcodes, ONS codes) from your data and outputs it onto the map. 
+It also enables you to add your own datasets from different sources - pasting as text, from a file or from an url. System automatically then finds any geographical information (e.g. longitude and latitude, postcodes, ONS codes) from your data and outputs it onto the map.
 This feature of the system gives the ability to overlay and intersect datasets (e.g. geographic surveys, local consultation data) collected by the community or other groups with the open datasets.
 
 DATA:IN PLACE also enables you to request open datasets to be added to the platform and linked to the map based query system.
