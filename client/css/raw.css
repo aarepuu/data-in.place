@@ -88,7 +88,7 @@ h4 {
 /* Header and footer */
 
 .wrap {
-  min-height: 100%;
+  min-height: 100vh;
   height: auto !important;
   height: 100%;
   /* Negative indent footer by it's height */
@@ -157,8 +157,9 @@ section.dark {
   color: #888;
   text-align: center;
   opacity: .97;
-  z-index: 10000;
+  z-index: 104000;
   border-radius: 0px;
+  /*border-top: 10px solid #2DD8B1;*/
   padding: 5px 0px;
   margin-bottom: 20px;
   background-color: #fff;
@@ -166,7 +167,7 @@ section.dark {
 
 .navbar-brand {
   color: #444;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 900;
   text-transform: uppercase;
   font-family: 'Lato', Arial, Helvetica, sans-serif;
@@ -259,7 +260,7 @@ section.dark {
 
 .alert-warning {
   color: #fff;
-  background-color: #FA7070
+  background-color: #FA7070;
 }
 
 .alert-loading {
@@ -605,7 +606,7 @@ textarea:focus {
   font-weight: 400;
   color: #999;
   margin: 0px;
-  display: block;
+  display: inline-block;
 }
 
 .layout.selected .layout-category {
@@ -1105,9 +1106,12 @@ textarea.source-area {
 /* Table */
 
 .data-table {
+  table-layout:fixed;
   font-size: 11px;
   font-weight: 400;
   height: 275px;
+  width: 100%;
+  max-width: 100%;
   overflow: scroll;
   margin-bottom: 10px;
   background-color: #fff;
@@ -1144,16 +1148,24 @@ textarea.source-area {
   cursor: pointer;
 }
 
-.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
+.dtable > thead > tr > th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #ddd;
+}
+
+
+.dtable>thead>tr>th, .dtable>tbody>tr>th, .dtable>tfoot>tr>th, .table>thead>tr>td, .dtable>tbody>tr>td, .dtable>tfoot>tr>td {
   border-top: none;
   border-right: 1px solid #eee;
+  min-width: 100px;
 }
 
 .data-table table {
   margin-bottom: 0px;
+  min-width: 100%;
 }
 
-.table>thead>tr>th {
+.dtable>thead>tr>th {
 
 }
 
@@ -1256,4 +1268,13 @@ pre.CodeMirror-placeholder {
 /* Large devices (large desktops, 1200px and up) */
 @media (min-width: @screen-lg-min) {
 
+}
+
+/* Overide ng-show hack */
+.ng-hide:not(.ng-hide-animate) {
+  /* These are just alternative ways of hiding an element */
+  display: block!important;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
 }

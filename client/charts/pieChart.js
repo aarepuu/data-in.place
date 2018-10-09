@@ -1,4 +1,4 @@
-!function () {
+! function() {
 
     var model = raw.model();
 
@@ -12,6 +12,7 @@
     // Each value represent a slice of the pie.
     var dimensions = model.dimension()
         .title('Arcs')
+        .types(Number)
         .required(true)
         .multiple(true);
 
@@ -19,7 +20,7 @@
     // For each record in the dataset a pie chart abstraction is created.
     // Records are grouped according the 'group' variable.
 
-    model.map(function (data) {
+    model.map(function(data) {
 
         // Check if dimensions are set.
         // In theory should be not necessary, to be fixed.
@@ -27,14 +28,15 @@
 
             var index = 0;
             var nest = d3.nest()
-            // If groups are not defined, assign a number to each record.
-                .key(function (d) {
+                // If groups are not defined, assign a number to each record.
+                .key(function(d) {
                     return group() ? group(d) : ++index;
                 })
-                .rollup(function (d) {
-                    return dimensions().map(function (dimension) {
+                .rollup(function(d) {
+                    return dimensions().map(function(dimension) {
                         return {
-                            key: dimension, size: d3.sum(d, function (a) {
+                            key: dimension,
+                            size: d3.sum(d, function(a) {
                                 return +a[dimension];
                             })
                         }
@@ -66,7 +68,7 @@
 
     var padding = chart.number()
         .title('Padding')
-        .defaultValue(30)
+        .defaultValue(10)
 
     var donut = chart.checkbox()
         .title('Donut chart')
@@ -100,85 +102,77 @@
 
     // Drawing function.
 
-    chart.draw(function (selection, data) {
+    chart.draw(function(selection, data) {
 
         var radius = +width() / +columns() / 2 - +padding() / 2;
 
         // Define color scale domain
         // Get the list of all possible values from first element
         // Use it to define the colors domain
-        var allColors = data[0].values.map(function (item) {
+        var allColors = data[0].value.map(function(item) {
             return item.key
         });
         colors.domain(allColors);
 
         var h = Math.ceil(data.length / +columns()) * (radius * 2 + padding());
 
-
         selection
             .attr("width", +width())
             .attr("height", h)
 
-        var area = d3.scale.linear()
-            .domain([0, d3.max(data, function (layer) {
-                return d3.sum(layer.values, function (d) {
+        var area = d3.scaleLinear()
+            .domain([0, d3.max(data, function(layer) {
+                return d3.sum(layer.value, function(d) {
                     return d.size;
                 });
             })])
             .range([0, radius * radius * Math.PI])
 
         // Sort pie slices according to the 'sortArcsBy' function
-        var pie = d3.layout.pie()
+        var pie = d3.pie()
             .sort(sortArcsByComparator)
-            .value(function (d) {
+            .value(function(d) {
                 return d.size;
             });
+
         // Sort data according to the 'sortChartsBy' function
         data.sort(sortChartsByComparator);
 
-        data.forEach(function (l, li) {
+        data.forEach(function(l, li) {
 
-            var total = d3.sum(l.values, function (d) {
+            /*var outerRadius = Math.sqrt(area(d3.sum(l.value, function(d) {
                 return d.size;
-            });
+            })) / Math.PI);*/
 
-            /*
-            var outerRadius = Math.sqrt(area(d3.sum(l.values, function (d) {
-                    return d.size;
-                })) / Math.PI);
-            */
             var outerRadius = Math.sqrt(radius * radius);
 
-
-            var arc = d3.svg.arc()
+            var arc = d3.arc()
                 .outerRadius(outerRadius)
                 .innerRadius(donut() && thickness() < outerRadius ? outerRadius - +thickness() : 0)
 
             var g = selection
                 .append("g")
-                .attr("transform", function () {
+                .attr("transform", function() {
                     return "translate(" + (li % +columns() * (+radius * 2 + +padding()) + +radius + padding() / 2) + "," + (Math.floor(li / +columns()) * (radius * 2 + +padding()) + radius + padding() / 2) + ")";
                 })
 
             var p = g.selectAll(".arc")
-                .data(pie(l.values))
+                .data(pie(l.value))
                 .enter().append("g")
                 .attr("class", "arc");
 
             p.append("path")
                 .attr("d", arc)
-                .style("fill", function (d) {
+                .style("fill", function(d) {
                     return colors()(d.data.key);
-                })
-                .style("stroke", "white")
-                .style("stroke-width", 2);
+                });
 
             if (showValues() == true) {
 
                 var labels = g.selectAll(".numbers")
-                    .data(pie(l.values))
+                    .data(pie(l.value))
                     .enter().append("text")
-                    .attr("transform", function (d) {
+                    .attr("transform", function(d) {
                         return "translate(" + arc.centroid(d) + ")";
                     })
                     .attr("dy", ".35em")
@@ -186,9 +180,8 @@
                     .style("font-size", "10px")
                     .style("font-family", "Arial, Helvetica")
                     .style("fill", "#424242")
-                    //percentage
-                    .text(function (d) {
-                        return d.data.key.toString() + ':' + d.data.size.toLocaleString();
+                    .text(function(d) {
+                        return d.data.size.toLocaleString()
                     });
             }
 
@@ -226,10 +219,10 @@
 
         function sortChartsByComparator(a, b) {
             if (sortChartsBy() == 'size') {
-                return d3.descending(d3.sum(a.values, function (d) {
+                return d3.descending(d3.sum(a.value, function(d) {
                         return d.size;
                     }),
-                    d3.sum(b.values, function (d) {
+                    d3.sum(b.value, function(d) {
                         return d.size;
                     }));
             }
@@ -244,6 +237,7 @@
 
 
     })
+
 
 
 }()

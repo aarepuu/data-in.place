@@ -1,0 +1,18 @@
+<h3>Challenge Info
+    <a ng-click="isCollapsed = !isCollapsed" class="list-type pull-right" data-toggle="collapse" data-target="#challengeDisplay" aria-expanded="false"
+       aria-expanded="true" aria-controls="challengeDisplay">
+        <i data-toggle="tooltip" data-title="Toggle Info" ng-class="{'fas fa-plus-square': isCollapsed, 'fas fa-minus-square': !isCollapsed}"></i>
+    </a>
+</h3>
+
+
+<div id="challengeDisplay" class="panel-collapse collapse in">
+    <a class="pull-right" id="dataurl-copy-button" copy-button="" data-clipboard-text="{{currentChallenge.dataurl}}"><i data-toggle="tooltip" data-title="Copy Challenge Link" class="fa fa-clipboard"></i></a>
+    <h2 class="text-uppercase text-center">{{currentChallenge.title}}</h2>
+    <h4 class="text-muted text-center">{{currentChallenge.line}}</h4>
+    <p ng-show="!currentChallenge.content" class="text-muted">There is no content for this challenge</p>
+    <p markdown-to-html="currentChallenge.content"></p>
+    <br>
+    <label ng-show="currentChallenge.tags" for="chaltags" class="col-form-label">Tags:</label>
+    <span id="chaltags" ng-repeat="tag in currentChallenge.tags" class="label label-primary">{{tag.text}}</span>
+</div>

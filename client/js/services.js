@@ -45,13 +45,11 @@ angular.module('raw.services', [])
 				},
 
 				loadURL : function(url) {
-
-
+						console.log("URL")
 
 				},
 
 				loadExcel : function(file){
-
 					var deferred = $q.defer();
 
 					var reader = new FileReader();
@@ -113,14 +111,14 @@ angular.module('raw.services', [])
 					return deferred.promise;
 				},
 
-		    loadSample : function(sample, lsoas){
+		    loadDataset : function(dataset, items){
 		      var deferred = $q.defer();
-		      $http.post(sample,lsoas)
+		      $http.post(dataset.api_link,items)
 			      .then(function(response){
 			          deferred.resolve(response.data);
 			      },
 			      function(){
-			          deferred.reject("An error occured while getting sample (" + sample.title + ")");
+			          deferred.reject("An error occured while getting dataset (" + dataset.title + ")");
 			      });
 
 		      return deferred.promise;
@@ -153,3 +151,29 @@ angular.module('raw.services', [])
 
 	  	}
 	}]);
+
+  /*  .factory('socket', function ($rootScope) {
+        var socket = io.connect();
+        return {
+            on: function (eventName, callback) {
+                socket.on(eventName, function () {
+                    var args = arguments;
+                    $rootScope.$apply(function () {
+                        callback.apply(socket, args);
+                    });
+                });
+            },
+            emit: function (eventName, data, callback) {
+                socket.emit(eventName, data, function () {
+                    var args = arguments;
+                    $rootScope.$apply(function () {
+                        if (callback) {
+                            callback.apply(socket, args);
+                        }
+                    });
+                })
+            }
+        };
+    });*/
+
+

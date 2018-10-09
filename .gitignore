@@ -29,9 +29,12 @@ jspm_packages
 /server/config/local.env.js
 /server/config/local.env
 ecosystem.json
+client/js/analytics.js
 
 
 # Generated libs
 client/bower_components
 
+#data files
+client/data/*
 

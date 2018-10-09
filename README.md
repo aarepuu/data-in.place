@@ -1,26 +1,26 @@
-![raw header](imgs/raw_header.jpg)
-
 ## About
 
-**RAW** is an open web tool to create custom vector-based visualizations on top of the amazing [d3.js](https://github.com/mbostock/d3) library by [Mike Bostock](http://bost.ocks.org/mike/).
-It has been developed by [DensityDesign Research Lab](http://www.densitydesign.org/) ([Politecnico di Milano](http://www.polimi.it/)) and [Calibro](http://calib.ro/), and sustained through a corporate stewardship by [ContactLab](http://contactlab.com/it/).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Primarily conceived as a tool for designers and vis geeks, RAW aims at providing a missing link  between spreadsheet applications (e.g. Microsoft Excel, Apple Numbers, Google Docs, OpenRefine, …) and vector graphics editors (e.g. Adobe Illustrator, Inkscape, …).
+**DATA:IN PLACE** is geographic information system (GIS) for accessing and visualising open data. It has been developed in [Open Lab](https://openlab.ncl.ac.uk/) by [Aare Puussaar](https://github.com/aarepuu).
+System leverages an open source web tool [RAWGraphs](http://rawgraphs.io/) by [DensityDesign Research Lab](http://www.densitydesign.org/) ([Politecnico di Milano](http://www.polimi.it/)) and [Calibro](http://calib.ro/) to create custom vector-based visualisations from open data.
 
-RAW works with [tabular data](https://en.wikipedia.org/wiki/Table_(information)) (e.g. spreadhseets and comma-separated values) as well as with copied-and-pasted texts from other applications (e.g. Microsoft Excel, TextWrangler, TextEdit, …). Based on the [SVG](http://en.wikipedia.org/wiki/Svg) format, visualizations can be easily edited with vector graphics applications for further refinements, or directly embedded into web pages.
 
-Knowing the need of working with sensitive information, the data uploaded to RAW is processed only by the web browser: **no server-side operations or storages are performed** and no one will see, touch or copy your data!
+System connects to real time open governmental datasources (e.g., Office of National Statistics, Home Office, NHS, Department of Education, Ministry of Housing, Communities and Local Government etc.) and provides a interface for making place based queries. Instead of writing complex queries or scrolling through endless lists of tables to get the relevant data you need, you can use the map to focus on a specific area (i.e. draw a boundary on a map). Also by zooming in and out the area, the system displays statistics on different UK administration level (i.e. output areas, wards, local authorities, counties).
+DATA:IN PLACE aims to make open data accessible and usable for non-professionals.
 
-RAW is also highly customizable and extensible, accepting new custom layouts defined by users. For more information about how to add or edit layouts, see the [Developer Guide](https://github.com/densitydesign/raw/wiki/Developer-Guide).
+It also enables you to add your own datasets from different sources - pasting as text, from a file or from an url. System automatically then finds any geographical information (e.g. longitude and latitude, postcodes, ONS codes) from your data and outputs it onto the map. 
+This feature of the system gives the ability to overlay and intersect datasets (e.g. geographic surveys, local consultation data) collected by the community or other groups with the open datasets.
 
-- App page: [app.rawgraphs.io](http://app.rawgraphs.io)
-- Project official page: [rawgraphs.io](http://rawgraphs.io)
-- Documentation: [github.com/densitydesign/raw/wiki](https://github.com/densitydesign/raw/wiki)
-- Google group: [groups.google.com/forum/#!forum/densitydesign-raw](https://groups.google.com/forum/#!forum/densitydesign-raw)
+DATA:IN PLACE also enables you to request open datasets to be added to the platform and linked to the map based query system.
+
+- App page: [app.data-in.place](https://app.data-in.place)
+- Project official page: [data-in.place](http://data-in.place)
+- Documentation: [github.com/aarepuu/data-in.place/wiki](https://github.com/aarepuu/data-in.place/wiki)
 
 
 ## Usage
-The easiest way to use RAW is by accessing the most updated version on the **[official app page](http://app.rawgraphs.io)**. However, RAW can also run locally on your machine: see the installation instructions below to know how.
+The easiest way to use DATA:IN PLACE is by accessing the most updated version on the **[official app page](https://app.data-in.place)**. However, Data:In Place can also run locally on your machine: see the installation instructions below to know how.
 
 ## Installation
 If you want to run your instance of RAW locally on your machine, be sure you have the following requirements installed.
@@ -28,20 +28,38 @@ If you want to run your instance of RAW locally on your machine, be sure you hav
 ### Requirements
 
 - [git](http://git-scm.com/book/en/Getting-Started-Installing-Git)
+- [PostgreSQL](https://www.postgresql.org/download/)
+- [PostGIS](https://postgis.net/install/)
+- [npm](https://www.npmjs.com/get-npm)
 - [Bower](http://bower.io/#installing-bower)
+
+### Prerequisites
+
+Create database for the application
+
+``` sh
+$ psql
+$ postgres=> CREATE DATABASE data_in_place;
+```
 
 ### Instructions
 
-Clone RAW from the command line:
+Clone DATA:IN PLACE from the command line:
 
 ``` sh
-$ git clone https://github.com/densitydesign/raw.git
+$ git clone https://github.com/aarepuu/data-in.place.git
 ```
 
-browse to RAW root folder:
+browse to DATA:IN PLACE root folder:
 
 ``` sh
-$ cd raw
+$ cd data-in.place
+```
+
+install server-side dependencies:
+
+``` sh
+$ npm install
 ```
 
 install client-side dependencies:
@@ -58,36 +76,49 @@ $ cp js/analytics.sample.js js/analytics.js
 
 open the file ```js/analytics.js``` and add your analytics code (if any), otherwise leave the file as is.
 
-You can now run RAW from your local web server. For example, you can run Python's built-in server:
+
+You can now run RAW from your local web server using node:
 
 ``` sh
-$ python -m SimpleHTTPServer 4000
+$ node server/index.js
 ```
 
-or for Python 3+
+Once this is running, go to [http://localhost:3000/](http://localhost:3000/).
 
-``` sh
-$ python -m http.server 4000
-```
-
-Once this is running, go to [http://localhost:4000/](http://localhost:4000/).
-
-Troubles with the installation? Maybe a look at the [issues](https://github.com/densitydesign/raw/issues) page can solve your problem, otherwise join the [Google group](https://groups.google.com/forum/#!forum/densitydesign-raw).
 
 
 ## Documentation and Support
 
-Documentation and FAQs about how to use RAW can be found on the [wiki](https://github.com/densitydesign/raw/wiki/).
+Documentation and FAQs about how to use Data:In Place can be found on the [github.com/aarepuu/data-in.place/wiki](https://github.com/aarepuu/data-in.place/wiki).
 
-## Charts
+## RAWGRAPHS
 
+Documentation and FAQs about how to use RAWGraphs can be found on the [wiki](https://github.com/densitydesign/raw/wiki/).
 Information about the available charts can be found [here](https://github.com/densitydesign/raw/wiki/Available-Charts). Adding new charts is very easy in RAW, see how [here](https://github.com/densitydesign/raw/wiki/Adding-New-Charts)!
 
-If you have any suggestion or request about new layouts to include, please let us know! If you have already created new charts and you would like to see them included into Raw, please send us a [pull request](https://github.com/densitydesign/raw/pulls).
 
 ## Libraries
 
-**RAW** has been developed using a lot of cool stuff found out there:
+**DATA:IN PLACE** has been developed using a lot of cool stuff found out there:
+
+[nodejs](http://nodejs.org)
+
+[npm](https://www.npmjs.com/get-npm)
+
+[Express](https://expressjs.com/)
+
+[node-postgres](https://node-postgres.com/)
+
+[leafletjs](http://leafletjs.com/)
+
+[GeoJSON.js](https://github.com/caseycesari/geojson.js)
+
+[GeoJSON-Validation](https://github.com/craveprogramminginc/GeoJSON-Validation)
+
+
+
+
+plus the stuff that make up **RAW**
 
 [angular.js](https://github.com/angular/angular.js)
 
@@ -121,19 +152,13 @@ If you have any suggestion or request about new layouts to include, please let u
 
 [ZeroClipboard](https://github.com/zeroclipboard/zeroclipboard)
 
-## Core Team
-
-**RAW** is maintained by [DensityDesign Research Lab](http://www.densitydesign.org/) and [Calibro](http://calib.ro/).
-
-If you want to know more about RAW, how it works and future developments, please visit the [official website](http://rawgraphs.io). For any specific request or comment we suggest you to use Github or the [Google group](https://groups.google.com/forum/#!forum/densitydesign-raw). If none of these worked for you, you can write us at <hello@rawgraphs.io>.
-
-## Contributing
-
-Want to contribute to RAW's development? You are more than welcome! Start by forking the repository (the "Fork" button at the top-right corner of this page) and follow the instructions above to clone it and install dependencies. Then you can use Github's issues and pull requests to discuss and share your work.
-You will need to sign a [Contributor License Agreement (CLA)](https://en.wikipedia.org/wiki/Contributor_License_Agreement) before making a submission. We adopted CLA to be sure that the project will remain open source. For more information, write us: <hello@rawgraphs.io>.
-
 
 ## Authors
+
+**DATA:IN PLACE** has been originally developed by:
+
+* Aare Puussaar <a.puussaar2@ncl.ac.uk>
+
 **RAW** has been originally developed by:
 
 * Giorgio Caviglia <giorgio.caviglia@gmail.com>
@@ -142,6 +167,23 @@ You will need to sign a [Contributor License Agreement (CLA)](https://en.wikiped
 * Matteo Azzi <matteo@calib.ro>
 
 ## License
+
+DATA:IN PLACE is provided under [MIT](https://github.com/aarepuu/data-in.place/blob/master/LICENSE):
+
+	Copyright (c), 2016-2018 Open Lab at Newcastle University, Aare Puussaar
+
+	<openlab@ncl.ac.uk>
+	<a.puussaar2@ncl.ac.uk>
+
+	Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		https://opensource.org/licenses/MIT
+
+	Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and limitations under the License.
+
+
 
 RAW is provided under the [Apache License 2.0](https://github.com/densitydesign/raw/blob/master/LICENSE):
 
@@ -160,3 +202,7 @@ RAW is provided under the [Apache License 2.0](https://github.com/densitydesign/
 
 	Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and limitations under the License.
+
+## Funding
+
+DATA:IN PLACE project is funded through the [EPSRC](https://www.epsrc.ac.uk/) Centre for Doctoral Training in Digital Civics (EP/L016176/1).

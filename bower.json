@@ -1,17 +1,16 @@
 {
-  "name": "Raw",
-  "version": "1.2.0",
+  "name": "data-in.place",
+  "version": "1.0.0",
   "authors": [
-    "DensityDesign Lab",
-    "Calibro"
+    "Aare Puussaar"
   ],
-  "description": "The missing link between spreadsheet and data visualization",
+  "description": "The missing link between open data and communities",
   "main": "client/index.html",
   "keywords": [
-    "Raw"
+    "data-in-place"
   ],
-  "license": "Apache License 2.0",
-  "homepage": "rawgraphs.io",
+  "license": "MIT",
+  "homepage": "data-in.place",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -21,7 +20,13 @@
   ],
   "dependencies": {
     "angular": "1.6.2",
-    "d3": "3.5.17",
+    "d3": "5.4.0",
+    "d3-voronoi": "https://github.com/d3/d3-voronoi/releases/download/v1.1.2/d3-voronoi.zip",
+    "d3-delaunay": "https://github.com/d3/d3-delaunay/releases/download/v2.0.1/d3-delaunay.zip",
+    "d3-hexbin": "https://github.com/d3/d3-hexbin/releases/download/v0.2.2/d3-hexbin.zip",
+    "d3-sankey": "https://github.com/d3/d3-sankey/releases/download/v0.7.1/d3-sankey.zip",
+    "d3-contour": "https://github.com/d3/d3-contour/releases/download/v1.2.0/d3-contour.zip",
+    "d3-box": "https://gist.githubusercontent.com/mikima/28d130bd380fd9be113c7040315ec036/raw/ffc793f4843311dc6a898715eec2c4492c86aeb3/box.js",
     "bootstrap": "3.3.6",
     "angular-route": "1.6.2",
     "angular-strap": "2.3.12",
@@ -29,11 +34,10 @@
     "jquery-ui": "1.12.1",
     "angular-sanitize": "1.6.2",
     "angular-bootstrap-colorpicker": "latest",
-    "bootstrap-colorpicker": "latest",
+    "bootstrap-colorpicker": "2.5.3",
+    "FileSaver": "https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js",
     "d3-plugins": "*",
-    "FileSaver": "*",
     "angular-ui": "0.4.0",
-    "zeroclipboard": "2.3.0",
     "canvas-toBlob.js": "https://github.com/eligrey/canvas-toBlob.js.git",
     "jqueryui-touch-punch": "*",
     "codemirror": "latest",
@@ -42,7 +46,18 @@
     "js-xlsx": "0.8.5",
     "d3-plugins-density": "latest",
     "leaflet-draw": "leaflet.draw#^0.4.9",
-    "leaflet.fullscreen": "^1.4.3"
+    "leaflet.fullscreen": "^1.4.3",
+    "underscore": "^1.8.3",
+    "Leaflet.extra-markers": "^1.0.6",
+    "leaflet.markercluster": "^1.3.0",
+    "d3-scale-chromatic": "^1.1.1",
+    "angular-markdown-editor-ghiscoding": "^1.1.5",
+    "ng-tags-input": "^3.2.0",
+    "leaflet-loader": "^0.0.1",
+    "ng-showdown": "^1.1.0",
+    "clipboard": "^2.0.1",
+    "validator": "^0.0.5",
+    "angular-cookies": "1.6.2"
   },
   "resolutions": {
     "angular": "1.6.2"

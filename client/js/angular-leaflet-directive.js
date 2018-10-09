@@ -344,7 +344,7 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
     },
     fullscreen: {
       isPluginLoaded: function() {
-        if (!angular.isDefined(L.Control.Fullscreen)) {
+        if (!angular.isDefined(L.Control.FullScreen)) {
           $log.error(errorHeader + ' Fullscreen plugin is not loaded.');
           return false;
         }
@@ -357,7 +357,7 @@ angular.module('leaflet-directive').factory('leafletControlHelpers', ["$rootScop
       },
 
       createControl: function(params) {
-        return new L.Control.Fullscreen(params);
+        return new L.Control.FullScreen(params);
       },
     },
     search: {
@@ -2264,7 +2264,6 @@ angular.module('leaflet-directive').factory('leafletMapDefaults', ["$q", "leafle
     getMapCreationDefaults: function(scopeId) {
       var mapId = obtainEffectiveMapId(defaults, scopeId);
       var d = defaults[mapId];
-
       var mapDefaults = {
         maxZoom: d.maxZoom,
         keyboard: d.keyboard,
@@ -2470,8 +2469,8 @@ angular.module('leaflet-directive').service('leafletMarkersHelpers', ["$rootScop
 
     if (!isDefined(iconData) || !isDefined(iconData.iconUrl)) {
       return new L.Icon.Default({
-        iconUrl: base64icon,
-        shadowUrl: base64shadow,
+        iconUrl: 'marker-icon.png',
+        shadowUrl: 'marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
