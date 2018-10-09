@@ -5,8 +5,37 @@
 
 angular.module('raw.controllers', [])
 
-    .controller('RawCtrl', ['$scope', 'dataService', 'leafletData', '$http', '$timeout', '$sce', '$location', '$cookies', function ($scope, dataService, leafletData, $http, $timeout, $sce, $location, $cookies) {
+    .controller('RawCtrl', ['$scope', 'dataService', 'socket', 'leafletData', '$http', '$timeout', '$sce', '$location', '$cookies', function ($scope, dataService, socket, leafletData, $http, $timeout, $sce, $location, $cookies) {
 
+
+
+        //wavesurfer options
+        $scope.options1 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s1'
+        };
+        $scope.options2 = {
+            waveColor: '#c5c1be',
+            progressColor: '#2A9FD6',
+            normalize: true,
+            hideScrollbar: true,
+            skipLength: 15,
+            height: 53,
+            cursorColor: '#2A9FD6',
+            id: 'mwcad-t1s2'
+        };
+        $scope.wurl1 = './data/mwcad-t1s1.mp3';
+        $scope.wurl2 = './data/mwcad-t1s2.mp3';
+        $scope.wavesurfers = [];
+        $scope.$on('wavesurferInit', function (e, wavesurfer) {
+            $scope.wavesurfers.push(wavesurfer);
+        });
 
         $scope.boundaryTemplate = {
             //"id":
@@ -198,12 +227,12 @@ angular.module('raw.controllers', [])
                             }
                         }),
                         title: 'Draw a boundary'
+                    },
+                    {
+                        enabled: true,
+                        handler: new L.Draw.Marker(map, {icon: issueMarker}),
+                        title: 'Place an Issue Marker',
                     }/*,
-                     {
-                     enabled: true,
-                     handler: new L.Draw.Marker(map, {icon: issueMarker}),
-                     title: 'Place an Issue Marker',
-                     },
                      {
                      enabled: true,
                      handler: new L.Draw.Marker(map, {icon: dataMarker}),
@@ -549,28 +578,30 @@ angular.module('raw.controllers', [])
                         $scope.boundary = layer;
                         processBoundary(false);
                     } else {
-                        /*$scope.markerLayer.addLayer(layer);
-                         //$('#issueModal').modal('show');
-                         let id = layer._leaflet_id;
-                         layer.bindPopup('<input id="marker-' + id + '"type="text" placeholder="Insert Comment">').openPopup();
-                         //layer.dragging.enable();
-                         //Emit to socket
-                         socket.emit('send:marker', {
-                         id: id,
-                         loc: layer.getLatLng()
+                        $scope.markerLayer.addLayer(layer);
+                        //$('#issueModal').modal('show');
+                        let id = layer._leaflet_id;
+                        layer.bindPopup('<input id="marker-' + id + '"type="text" placeholder="Insert Comment">').openPopup();
+                        //layer.dragging.enable();
+                        //Emit to socket
+                        socket.emit('send:marker', {
+                            id: id,
+                            loc: layer.getLatLng()
 
-                         });
-                         layer.on('popupclose', function () {
-                         //layer._popup.setContent(layer._popup.getContent())
-                         if ($('#marker-' + id).val()) {
-                         socket.emit('send:issue', {
-                         markerId: id,
-                         text: $('#marker-' + id).val()
-                         });
-                         layer._popup.setContent($('#marker-' + id).val())
-                         }
+                        });
+                        layer.on('popupclose', function () {
+                            //console.log(layer._popup.getContent());
+                            //layer._popup.setContent(layer._popup.getContent())
+                            if ($('#marker-' + id).val()) {
+                                let issue = $('#marker-' + id).val();
+                                socket.emit('send:issue', {
+                                    markerId: id,
+                                    text: issue
+                                });
+                                layer._popup.setContent('<input id="marker-' + id + '"type="text" value="' + issue + '">')
+                            }
 
-                         })*/
+                        })
 
                     }
 
@@ -688,8 +719,8 @@ angular.module('raw.controllers', [])
                 bbox: $scope.mapBbox,
             }).then(function (response) {
                 controlLoader.hide();
-                if(is.not.undefined($scope.areas)){
-                    if(objectString($scope.areas,'code') === objectString(response.data.areas,'code'))
+                if (is.not.undefined($scope.areas)) {
+                    if (objectString($scope.areas, 'code') === objectString(response.data.areas, 'code'))
                         return;
                 }
 
@@ -1375,7 +1406,7 @@ angular.module('raw.controllers', [])
         }
 
         //function to return a string of delimiter values from a object position
-        function objectString(objectarr, key){
+        function objectString(objectarr, key) {
             let dataArray = [];
             objectarr.forEach(function (object) {
                 dataArray.push(object[key]);
@@ -1450,7 +1481,7 @@ angular.module('raw.controllers', [])
         //function for adding data to geometry
         //TODO - test with unstacking!!
         function datatoGeom() {
-            if($scope.legendControl){
+            if ($scope.legendControl) {
                 $scope.legendControl.remove();
                 $scope.legendControl = false;
             }
@@ -1477,7 +1508,7 @@ angular.module('raw.controllers', [])
                     $scope.data.forEach(function (row) {
                         let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);
                         //TODO - change querys for local db
-                        if(is.undefined(layer))
+                        if (is.undefined(layer))
                             return;
                         let rowCopy = Object.assign({}, row);
                         //TODO - hardcoded position, expect the area to be first?
@@ -1744,6 +1775,94 @@ angular.module('raw.controllers', [])
             return [chart.category(), chart.title()];
         };
 
+
+        // Socket listeners
+        // ================
+        socket.on('init', function (data) {
+            $scope.name = data.name;
+            $scope.users = data.users;
+        });
+        socket.on('send:message', function (message) {
+            $scope.messages.push(message);
+        });
+        socket.on('send:marker', function (marker) {
+            let layer = new L.marker(marker.loc, {icon: issueMarker});
+            layer._leaflet_id = marker.id;
+            $scope.markerLayer.addLayer(layer);
+        });
+        socket.on('send:issue', function (issue) {
+            let id = issue.markerId.toString();
+            let layer = $scope.markerLayer.getLayer(id);
+            layer.bindPopup(issue.text)
+        });
+        socket.on('change:name', function (data) {
+            changeName(data.oldName, data.newName);
+        });
+        socket.on('user:join', function (data) {
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + data.name + ' has joined.'
+            });
+            $scope.users.push(data.name);
+        });
+        // add a message to the conversation when a user disconnects or leaves the room
+        socket.on('user:left', function (data) {
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + data.name + ' has left.'
+            });
+            let i, user;
+            for (i = 0; i < $scope.users.length; i++) {
+                user = $scope.users[i];
+                if (user === data.name) {
+                    $scope.users.splice(i, 1);
+                    break;
+                }
+            }
+        });
+        // Private helpers
+        // ===============
+        var changeName = function (oldName, newName) {
+            // rename user in list of users
+            var i;
+            for (i = 0; i < $scope.users.length; i++) {
+                if ($scope.users[i] === oldName) {
+                    $scope.users[i] = newName;
+                }
+            }
+            $scope.messages.push({
+                user: 'chatroom',
+                text: 'User ' + oldName + ' is now known as ' + newName + '.'
+            });
+        };
+        // Methods published to the scope
+        // ==============================
+        $scope.changeName = function () {
+            socket.emit('change:name', {
+                name: $scope.newName
+            }, function (result) {
+                if (!result) {
+                    alert('There was an error changing your name');
+                } else {
+                    changeName($scope.name, $scope.newName);
+                    $scope.name = $scope.newName;
+                    $scope.newName = '';
+                }
+            });
+        };
+        $scope.messages = [];
+        $scope.sendMessage = function () {
+            socket.emit('send:message', {
+                message: $scope.message
+            });
+            // add the message to our model locally
+            $scope.messages.push({
+                user: $scope.name,
+                text: $scope.message
+            });
+            // clear message box
+            $scope.message = '';
+        };
 
         $(document).ready(refreshScroll);
 

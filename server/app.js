@@ -17,7 +17,7 @@ const server = http.createServer(app);
 
 require('./config/express')(app);
 require('./routes')(app);
-//const socket = require('./socket.js');
+const socket = require('./socket.js');
 // Hook Socket.io into Express
 const io = require('socket.io').listen(server);
 //require('./db')
@@ -26,7 +26,7 @@ const io = require('socket.io').listen(server);
 //if (config.seedDB) { require('./config/seed'); }
 
 // Socket.io Communication
-//io.sockets.on('connection', socket);
+io.sockets.on('connection', socket);
 
 // Start server
 function startServer() {

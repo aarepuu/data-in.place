@@ -57,7 +57,8 @@
     "ng-showdown": "^1.1.0",
     "clipboard": "^2.0.1",
     "validator": "^0.0.5",
-    "angular-cookies": "1.6.2"
+    "angular-cookies": "1.6.2",
+    "wavesurfer-angular": "https://github.com/aarepuu/wavesurfer-angular.git#1.0.2-alpha"
   },
   "resolutions": {
     "angular": "1.6.2"
