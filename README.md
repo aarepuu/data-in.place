@@ -1,4 +1,4 @@
-![header](imgs/cover-for-socials.jpg)
+![header](imgs/client/cover-for-socials.jpg)
 
 ## About
 
