@@ -124,7 +124,7 @@ exports.getDatasets = function (req, res, next) {
 
 exports.getChallenges = function (req, res, next) {
     const query = {
-        text: "SELECT * from stats.challenges;",
+        text: "SELECT * from stats.challenges_ws;",
     };
     db.query(query).then(result => {
         return res.json(result.rows);
