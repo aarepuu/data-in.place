@@ -44,7 +44,7 @@ ol, ul {
 
 .legend i {
     width: 18px;
-    height: 18px;
+    height: 16px;
     float: left;
     margin-right: 8px;
     opacity: 0.6;
@@ -96,6 +96,10 @@ Something wrong with the leaflet CSS
     font-size: 12px;
     font-weight: 600;
     line-height: 16px;
+}
+
+.extra-marker i {
+    font-size: 20px;
 }
 
 /** End Map Styles **/

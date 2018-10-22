@@ -124,6 +124,16 @@ exports.geoCode = function (req, res, next) {
     });
 }
 
+exports.postMarker = function (req, res, next) {
+    //if (process.env.NODE_ENV == "production") {
+    //  db.query("INSERT INTO stats.mapsession(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'" + req.sessionID + "')").then(res => {
+    //}).catch(e => console.error(e.stack));
+    //}
+    console.log(req.body);
+    console.log(req.sessionID);
+    return res.send({success: true, data: "Inserted"})
+}
+
 /**
  *
  * @param geomArray - geometry rows

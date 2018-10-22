@@ -611,10 +611,7 @@ angular.module('raw.directives', [])
                                 scope.markers.cc.lng = parseFloat(d.Longitude);
                             }
 
-                            console.log(scope.wavesurfers);
                             scope.wavesurfers.forEach(function (wave) {
-                                console.log(wave.container.id);
-                                console.log(d.Session);
                                 if (wave.container.id == d.Session) {
                                     wave.play(parseFloat(d.Start), parseFloat(d.End));
                                     wave.playing = true;

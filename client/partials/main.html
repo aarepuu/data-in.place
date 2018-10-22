@@ -11,7 +11,6 @@
                     <leaflet maxbounds="maxbounds" controls="controls" center="center" markers="markers" layers="layers" areas='areas'
                              height="480" width="100%" defaults="defaults"></leaflet>
                     </br>
-                    </br>
                     <!--Latitude : <input type="number" step="any" ng-model="center.lat">
                     Longitude : <input type="number" step="any" ng-model="center.lng">
                     Zoom : <input type="number" step="any" ng-model="center.zoom">
@@ -21,10 +20,10 @@
                     <button class="btn btn-success">Save</button>
                     <button bs-select class="btn btn-default" placeholder="Load boundary" ng-model="mode"
                             bs-options="m.label for m in boundarys"> Select <span class="caret"></span></button>-->
-                    look for a UK postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
-                    <button ng-model="postcode" class="btn btn-defaule" ng-click="searchPostcode(postcode)">Search
-                    </button>
-                    <br>
+                    <h4 class="pull-right">Your group's markers are coloured <i style="color:{{iconColour}}" class="fa fa-circle"></i></h4>
+                    <h4>look for a UK postcode: <input type="text" ng-model="postcode" ng-enter="searchPostcode(postcode)">
+                        <button ng-model="postcode" class="btn btn-default" ng-click="searchPostcode(postcode)">Search
+                        </button></h4>
                     <div data-ng-show="maploading" class="alert alert-loading"><i
                             class="fa breath-right fa-refresh fa-spin"></i>Loading your boundary. Please wait.
                     </div>

@@ -8,6 +8,9 @@ angular.module('raw.controllers', [])
     .controller('RawCtrl', ['$scope', 'dataService', 'socket', 'leafletData', '$http', '$timeout', '$sce', '$location', '$cookies', function ($scope, dataService, socket, leafletData, $http, $timeout, $sce, $location, $cookies) {
 
 
+        $scope.iconColour = getRandomColor();
+
+        let groups = {};
 
         //wavesurfer options
         $scope.options1 = {
@@ -197,9 +200,10 @@ angular.module('raw.controllers', [])
 
 
         var issueMarker = L.ExtraMarkers.icon({
-            icon: 'fa-exclamation',
-            markerColor: 'red',
+            icon: 'fa-circle',
+            markerColor: 'white',
             shape: 'circle',
+            iconColor: $scope.iconColour,
             prefix: 'fa'
         });
 
@@ -375,7 +379,7 @@ angular.module('raw.controllers', [])
                         type: 'group',
                         visible: true,
                         layerParams: {
-                            showOnSelector: false
+                            showOnSelector: false,
                         }
                     },
                     areas: {
@@ -586,7 +590,8 @@ angular.module('raw.controllers', [])
                         //Emit to socket
                         socket.emit('send:marker', {
                             id: id,
-                            loc: layer.getLatLng()
+                            loc: layer.getLatLng(),
+                            color: $scope.iconColour
 
                         });
                         layer.on('popupclose', function () {
@@ -596,40 +601,64 @@ angular.module('raw.controllers', [])
                                 let issue = $('#marker-' + id).val();
                                 socket.emit('send:issue', {
                                     markerId: id,
-                                    text: issue
+                                    text: issue,
+                                    groupId: $scope.iconColour,
+                                    loc: layer.getLatLng()
                                 });
+                                layer.options.title = issue;
                                 layer._popup.setContent('<input id="marker-' + id + '"type="text" value="' + issue + '">')
                             }
 
                         })
+                        $scope.layers.overlays.markers.layerParams.showOnSelector = true;
 
                     }
 
                 });
                 map.on('draw:edited', function (e) {
-                    //Police query format
-                    //TODO - use areas for query not the boundary
-                    //TODO - use the actual areas
-                    $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
-                    for (var i = 0, l = $scope.coords.length; i < l; i++) {
-                        $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
-                    }
-                    $scope.coords = $scope.coords.join(':');
-                    if ($scope.areaBbox == undefined) {
-                        $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
-                    } else {
-                        $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
-                    }
-                    $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
-                    $scope.boundaryLayer.addLayer($scope.boundary);
-                    $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
-                    getArea($scope.boundary.toGeoJSON());
+                    const layers = e.layers;
+                    layers.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            //Do marker specific actions here
+                            socket.emit('send:issue', {
+                                markerId: layer._leaflet_id,
+                                text: layer.options.title,
+                                groupId: $scope.iconColour,
+                                loc: layer.getLatLng()
+                            });
+                        } else {
+                            //Police query format
+                            //TODO - use areas for query not the boundary
+                            //TODO - use the actual areas
+                            $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
+                            for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                                $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+                            }
+                            $scope.coords = $scope.coords.join(':');
+                            if ($scope.areaBbox == undefined) {
+                                $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
+                            } else {
+                                $scope.oldareaBbox = JSON.parse(JSON.stringify($scope.areaBbox));
+                            }
+                            $scope.areaBbox = $scope.boundary.getBounds().toBBoxString();
+                            $scope.boundaryLayer.addLayer($scope.boundary);
+                            $scope.layers.overlays.boundary.layerParams.showOnSelector = true;
+                            getArea($scope.boundary.toGeoJSON());
+                        }
+                    });
 
                 });
 
                 map.on('draw:deleted', function (e) {
-                    resetMap();
-                    reset();
+                    const layers = e.layers;
+                    layers.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            $scope.markerLayer.removeLayer(layer);
+                        } else {
+                            resetMap();
+                            reset();
+                        }
+                    });
                 });
                 map.on('draw:editstart', function () {
                     console.log("editstart");
@@ -719,7 +748,7 @@ angular.module('raw.controllers', [])
                 bbox: $scope.mapBbox,
             }).then(function (response) {
                 controlLoader.hide();
-                if (is.not.undefined($scope.areas)) {
+                if (is.not.undefined($scope.areas) && $scope.areas != false) {
                     if (objectString($scope.areas, 'code') === objectString(response.data.areas, 'code'))
                         return;
                 }
@@ -1259,7 +1288,7 @@ angular.module('raw.controllers', [])
                     $scope.dataLayer.clearLayers();
                     $scope.dataLayer.addData(response.data);
                     $scope.dataLayer.setZIndex(9999);
-                    $scope.map.fitBounds($scope.dataLayer.getBounds());
+                    //$scope.map.fitBounds($scope.dataLayer.getBounds());
                     $scope.layers.overlays.data.layerParams.showOnSelector = true;
                     //$scope.maploading = false;
                     controlLoader.hide();
@@ -1732,6 +1761,25 @@ angular.module('raw.controllers', [])
             });
         }
 
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function submitMarkers(marker) {
+            $http.post('/api/geo/marker', {
+                markerid: marker.id,
+                loc: marker.loc,
+                group: $scope.iconColour
+            }).then(function (response) {
+
+            });
+        }
+
 
         $(window).scroll(function () {
             // check for mobile
@@ -1786,14 +1834,25 @@ angular.module('raw.controllers', [])
             $scope.messages.push(message);
         });
         socket.on('send:marker', function (marker) {
-            let layer = new L.marker(marker.loc, {icon: issueMarker});
+            let tableMarker = L.ExtraMarkers.icon({
+                icon: 'fa-circle',
+                markerColor: 'white',
+                shape: 'circle',
+                iconColor: marker.color,
+                prefix: 'fa'
+            });
+            let layer = new L.marker(marker.loc, {icon: tableMarker, riseOnHover: true});
             layer._leaflet_id = marker.id;
             $scope.markerLayer.addLayer(layer);
         });
         socket.on('send:issue', function (issue) {
             let id = issue.markerId.toString();
             let layer = $scope.markerLayer.getLayer(id);
-            layer.bindPopup(issue.text)
+            let newLatLng = new L.LatLng(issue.loc.lat, issue.loc.lng);
+            layer.setLatLng(newLatLng);
+            layer.bindPopup(issue.text);
+            groups[id] = issue;
+
         });
         socket.on('change:name', function (data) {
             changeName(data.oldName, data.newName);

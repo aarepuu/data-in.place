@@ -11,6 +11,7 @@ router.post('/area', controller.getArea);
 router.post('/lint', controller.validateGeoJson);
 router.post('/parse', controller.parseGeoJson);
 router.post('/code', controller.geoCode);
+router.post('/marker', controller.postMarker);
 
 
 module.exports = router;

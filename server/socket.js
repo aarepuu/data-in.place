@@ -79,7 +79,8 @@ module.exports = function (socket) {
         socket.broadcast.emit('send:marker', {
             user: name,
             loc: data.loc,
-            id: data.id
+            id: data.id,
+            color: data.color
         });
     });
 
@@ -87,7 +88,9 @@ module.exports = function (socket) {
         socket.broadcast.emit('send:issue', {
             user: name,
             markerId: data.markerId,
-            text: data.text
+            text: data.text,
+            groupId: data.groupId,
+            loc: data.loc,
         });
     });
 
