@@ -41,7 +41,7 @@ function mooqitaAuth() {
             userId = body.data.userId;
         }
     });
-}
+};
 
 function postChallenge(challenge) {
     challenge.origin = 'data-in.place'
@@ -70,12 +70,12 @@ exports.submitDataRequest = function (req, res, next) {
     let query;
     if (lat) {
         query = {
-            text: 'INSERT INTO stats.datarequests(title, source, description, loc, boundary, sessionid) VALUES($1,$2,$3,ST_SetSRID(ST_Point($4,$5),4326),$6,$7) RETURNING id',
+            text: 'INSERT INTO stats.datarequests_ws(title, source, description, loc, boundary, sessionid) VALUES($1,$2,$3,ST_SetSRID(ST_Point($4,$5),4326),$6,$7) RETURNING id',
             values: [req.body.title, req.body.source, req.body.description, lng, lat, JSON.stringify(boundary.geometry), req.sessionID],
         }
     } else {
         query = {
-            text: 'INSERT INTO stats.datarequests(title, source, description,boundary, sessionid) VALUES($1,$2,$3,$4,$5) RETURNING id',
+            text: 'INSERT INTO stats.datarequests_ws(title, source, description,boundary, sessionid) VALUES($1,$2,$3,$4,$5) RETURNING id',
             values: [req.body.title, req.body.source, req.body.description, JSON.stringify(boundary.geometry), req.sessionID],
         }
     }
@@ -94,7 +94,7 @@ exports.submitChallenge = function (req, res, next) {
     const bbox = req.body.bbox.split(',');
 
     const query = {
-        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(' + bbox[0] + '::double precision,' + bbox[1] + '::double precision,' + bbox[2] + '::double precision,' + bbox[3] + '::double precision,4326),$7) RETURNING id',
+        text: 'INSERT INTO stats.challenges_ws(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(' + bbox[0] + '::double precision,' + bbox[1] + '::double precision,' + bbox[2] + '::double precision,' + bbox[3] + '::double precision,4326),$7) RETURNING id',
         //text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(string_to_array($7,\',\')::double precision[],4326),$8) RETURNING id',
         values: [challengeId, req.body.title, req.body.line, req.body.content, req.body.tags, true, req.body.dataurl + '&cid=' + challengeId],
     };
@@ -107,12 +107,12 @@ exports.submitChallenge = function (req, res, next) {
         })
         .catch(e => console.error(e.stack))
 
-}
+};
 
 exports.getDatasets = function (req, res, next) {
     //mooqitaAuth();
     const query = {
-        text: "SELECT * from stats.datasets where active = true;",
+        text: "SELECT * from stats.datasets_ws where active = true;",
     };
     db.query(query).then(result => {
         return res.json(result.rows);
@@ -167,7 +167,7 @@ exports.getTravel = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 exports.getImd = function (req, res, next) {
     var items = req.body.codes;
@@ -183,7 +183,7 @@ exports.getImd = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 
 exports.getPop = function (req, res, next) {
@@ -200,7 +200,7 @@ exports.getPop = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 exports.getCrime = function (req, res, next) {
     var items = req.body.codes;
@@ -216,7 +216,7 @@ exports.getCrime = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 
 exports.getTenure = function (req, res, next) {
@@ -233,7 +233,7 @@ exports.getTenure = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 exports.getEco = function (req, res, next) {
     var items = req.body.codes;
@@ -249,7 +249,7 @@ exports.getEco = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 
 exports.getCc = function (req, res, next) {
@@ -268,7 +268,7 @@ exports.getCc = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 exports.getObes = function (req, res, next) {
     var items = req.body.codes;
@@ -285,7 +285,7 @@ exports.getObes = function (req, res, next) {
         console.error(e.stack)
         return res.status(500).json({success: false, data: e})
     });
-}
+};
 
 
 exports.getPublicHealth = function (req, res, next) {
@@ -297,7 +297,7 @@ exports.getPublicHealth = function (req, res, next) {
         }
         return resbond.send(body);
     });
-}
+};
 
 exports.getSchools = function (req, res, next) {
     //let boundary = JSON.parse(req.body.boundary);
@@ -321,7 +321,7 @@ exports.getSchools = function (req, res, next) {
         return res.status(500).json({success: false, data: e})
     });
 
-}
+};
 /**
  *
  * Function for converting objectArrays to CSV format

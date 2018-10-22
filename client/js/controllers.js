@@ -607,6 +607,13 @@ angular.module('raw.controllers', [])
                                 });
                                 layer.options.title = issue;
                                 layer._popup.setContent('<input id="marker-' + id + '"type="text" value="' + issue + '">')
+                                $http.post('/api/geo/marker', {
+                                    loc: layer.getLatLng(),
+                                    groupid: $scope.iconColour,
+                                    issue: issue,
+                                }).then(function (response) {
+
+                                });
                             }
 
                         })

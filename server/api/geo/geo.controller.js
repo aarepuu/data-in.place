@@ -45,10 +45,10 @@ exports.getArea = function (req, res, next) {
     //insert query boundary
     if (process.env.NODE_ENV == "production") {
         if (lat) {
-            db.query("INSERT INTO stats.boundary(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'"+req.sessionID+"')").then(res => {
+            db.query("INSERT INTO stats.boundary_ws(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'" + req.sessionID + "')").then(res => {
             }).catch(e => console.error(e.stack));
         } else {
-            db.query("INSERT INTO stats.boundary(gjson,sessionid) values('" + JSON.stringify(boundary.geometry) + "','"+req.sessionID+"')").then(res => {
+            db.query("INSERT INTO stats.boundary_ws(gjson,sessionid) values('" + JSON.stringify(boundary.geometry) + "','" + req.sessionID + "')").then(res => {
             }).catch(e => console.error(e.stack));
         }
     }
@@ -126,8 +126,9 @@ exports.geoCode = function (req, res, next) {
 
 exports.postMarker = function (req, res, next) {
     //if (process.env.NODE_ENV == "production") {
-    //  db.query("INSERT INTO stats.mapsession(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'" + req.sessionID + "')").then(res => {
-    //}).catch(e => console.error(e.stack));
+    console.log(req.body)
+    db.query("INSERT INTO stats.mapsession(loc,sessionid,groupid,issue) values(ST_SetSRID(ST_Point(" + req.body.loc.lng + "," + req.body.loc.lat + "),4326),'" + req.sessionID + "','" + req.body.groupid + "','" + req.body.issue + "')").then(res => {
+    }).catch(e => console.error(e.stack));
     //}
     console.log(req.body);
     console.log(req.sessionID);
