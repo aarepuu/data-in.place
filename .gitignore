@@ -37,4 +37,5 @@ client/bower_components
 
 #data files
 client/data/*
+geom/*
 

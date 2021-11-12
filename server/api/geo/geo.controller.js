@@ -17,7 +17,7 @@ const GJV = require("geojson-validation");
 //TODO - use this for making features from Postgres
 const GeoJSON = require('geojson');
 
-const schema = 'geom';
+// const schema = 'geom';
 
 //TODO - integrate this
 function respondWithResult(res, statusCode) {
@@ -45,15 +45,15 @@ exports.getArea = function (req, res, next) {
     //insert query boundary
     if (process.env.NODE_ENV == "production") {
         if (lat) {
-            db.query("INSERT INTO stats.boundary(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'"+req.sessionID+"')").then(res => {
+            db.query("INSERT INTO boundary(gjson,loc,sessionid) values('" + JSON.stringify(boundary.geometry) + "',ST_SetSRID(ST_Point(" + lng + "," + lat + "),4326),'"+req.sessionID+"')").then(res => {
             }).catch(e => console.error(e.stack));
         } else {
-            db.query("INSERT INTO stats.boundary(gjson,sessionid) values('" + JSON.stringify(boundary.geometry) + "','"+req.sessionID+"')").then(res => {
+            db.query("INSERT INTO boundary(gjson,sessionid) values('" + JSON.stringify(boundary.geometry) + "','"+req.sessionID+"')").then(res => {
             }).catch(e => console.error(e.stack));
         }
     }
     const query = {
-        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + schema + "." + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326)) AND geom && ST_MakeEnvelope(" + bbox[0] + "::double precision," + bbox[1] + "::double precision," + bbox[2] + "::double precision," + bbox[3] + "::double precision,4326)",
+        text: "SELECT area_code, name, ST_AsGeoJSON(geom) as geometry FROM " + table_name + " WHERE ST_Intersects(geom, ST_SetSRID(ST_GeomFromGeoJSON($1),4326)) AND geom && ST_MakeEnvelope(" + bbox[0] + "::double precision," + bbox[1] + "::double precision," + bbox[2] + "::double precision," + bbox[3] + "::double precision,4326)",
         values: [JSON.stringify(boundary.geometry)]
     };
 
@@ -81,7 +81,7 @@ exports.getArea = function (req, res, next) {
 
 exports.getLoc = function (req, res, next) {
     const query = {
-        text: "SELECT latitude as lat, longitude as lng from geom.postcode_query WHERE pcd=$1;",
+        text: "SELECT latitude as lat, longitude as lng from postcode_query WHERE pcd=$1;",
         values: [req.params.postcode.replace(' ', '').toUpperCase()]
     };
     db.query(query).then(result => {
@@ -114,7 +114,7 @@ exports.parseGeoJson = function (req, res, next) {
 exports.geoCode = function (req, res, next) {
     var pcodes = queryParams(req.body);
     const query = {
-        text: "SELECT * from geom.postcode_query WHERE pcd IN (" + pcodes + ");",
+        text: "SELECT * from postcode_query WHERE pcd IN (" + pcodes + ");",
     };
     db.query(query).then(result => {
         return res.json(result.rows);

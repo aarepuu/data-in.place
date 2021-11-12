@@ -35,7 +35,7 @@
     "angular-sanitize": "1.6.2",
     "angular-bootstrap-colorpicker": "latest",
     "bootstrap-colorpicker": "2.5.3",
-    "FileSaver": "https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js",
+    "FileSaver": "2.0.4",
     "d3-plugins": "*",
     "angular-ui": "0.4.0",
     "canvas-toBlob.js": "https://github.com/eligrey/canvas-toBlob.js.git",
@@ -45,7 +45,8 @@
     "is_js": "0.9.0",
     "js-xlsx": "0.8.5",
     "d3-plugins-density": "latest",
-    "leaflet-draw": "leaflet.draw#^0.4.9",
+    "leaflet": "1.3.4",
+    "leaflet-draw": "1.0.4",
     "leaflet.fullscreen": "^1.4.3",
     "underscore": "^1.8.3",
     "Leaflet.extra-markers": "^1.0.6",
@@ -56,7 +57,7 @@
     "leaflet-loader": "^0.0.1",
     "ng-showdown": "^1.1.0",
     "clipboard": "^2.0.1",
-    "validator": "^0.0.5",
+    "validatorjs": "3.22.1",
     "angular-cookies": "1.6.2"
   },
   "resolutions": {
