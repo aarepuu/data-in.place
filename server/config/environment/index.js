@@ -29,7 +29,7 @@ var all = {
 
   // Secret for session, you will want to change this and make it an environment variable
   secrets: {
-    session: process.env.SESSION_SECRET || 'nedatagis-secret'
+    session: process.env.SESSION_SECRET || 'data-in-place-secret'
   },
 
   // MongoDB connection options

@@ -4,12 +4,14 @@
   "description": "Open Data GIS tool for neighbourhood data",
   "main": "server/index.js",
   "dependencies": {
+    "axios": "^0.24.0",
     "body-parser": "^1.18.2",
     "bower": "^1.8.12",
     "compression": "^1.7.3",
     "connect-livereload": "^0.6.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
+    "dotenv": "^10.0.0",
     "ejs": "^2.5.7",
     "errorhandler": "^1.5.0",
     "express": "^4.16.3",
@@ -28,14 +30,15 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "nodemon": "^1.17.5"
+    "nodemon": "^1.19.4"
   },
   "engines": {
     "node": "^8.9.0",
     "npm": "^6.0.0"
   },
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "dev": "NODE_ENV=development nodemon"
   },
   "repository": {
     "type": "git",

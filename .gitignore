@@ -39,3 +39,4 @@ client/bower_components
 client/data/*
 geom/*
 
+.DS_Store

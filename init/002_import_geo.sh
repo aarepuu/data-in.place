@@ -7,7 +7,7 @@ function sqlCommand() {
 }
 
 function restoreFile() {
-  PGPASSWORD="${POSTGRES_PASSWORD}" pg_restore -U${POSTGRES_USER} -Ft -d ${POSTGRES_DB} < "$1"
+  PGPASSWORD="${POSTGRES_PASSWORD}" zcat "$1" | psql -U${POSTGRES_USER} -d ${POSTGRES_DB}
 }
 
 

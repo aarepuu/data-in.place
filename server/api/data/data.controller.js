@@ -113,7 +113,7 @@ exports.getDatasets = function (req, res, next) {
     //mooqitaAuth();
     const query = {
         text: "SELECT * from datasets where active = true;",
-    };
+    };    
     db.query(query).then(result => {
         return res.json(result.rows);
     }).catch(e => {

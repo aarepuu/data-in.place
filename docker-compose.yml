@@ -6,6 +6,7 @@ volumes:
 services:
   database:
     container_name: data-in-place-db
+    # image: gangstead/postgis:13-3.1-arm
     image: postgis/postgis:13-3.0-alpine
     restart: always
     platform: "linux/amd64"
@@ -20,8 +21,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${PGDATABASE}
-      POSTGRES_USER: ${PGUSER}
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: ${PGUSER}      
       POSTGRES_PASSWORD: ${PGPASSWORD}
     ports:
       - "${PGPORT}:5432"

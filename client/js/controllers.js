@@ -457,7 +457,7 @@ angular.module('raw.controllers', [])
         }
 
         function onEachFeature(feature, layer) {
-            layer._leaflet_id = layer.feature.properties.code;
+            layer._leaflet_id = layer.feature.properties[$scope.fcode];
             //TODO - set fill based on parameter
             //layer.setStyle ({fillColor: getColor(Math.floor(Math.random() * 1000) + 1)});
             layer.on({
@@ -484,9 +484,9 @@ angular.module('raw.controllers', [])
             if (layer == undefined) return;
             layer.setStyle({fillColor: 'blue'});
             //TODO - make it into a function or build when data is added
-            let info = '<h4>' + layer.feature.properties.name + '</h4>Code: ' + layer.feature.properties.code + '</br>';
+            let info = '<h4>' + layer.feature.properties[$scope.fname] + '</h4>Code: ' + layer.feature.properties[$scope.fcode] + '</br>';
             for (let key in layer.feature.properties) {
-                if (key !== 'name' && key !== 'code') {
+                if (key !== $scope.fcode && key !== $scope.fname) {
                     info += key + ': ' + layer.feature.properties[key] + '</br>';
 
                 }
@@ -679,26 +679,31 @@ angular.module('raw.controllers', [])
             //$scope.maploading = true;
             controlLoader.show();
             if (!json) return;
-            setLevel($scope.center.zoom);
+            setLevel($scope.center.zoom);        
             if (json.features)
                 json = json.features[0];
             $http.post('/api/geo/area', {
                 zoom: $scope.center.zoom,
                 boundary: JSON.stringify(json),
-                bbox: $scope.mapBbox,
+                bbox: $scope.areaBbox,
             }).then(function (response) {
                 controlLoader.hide();
+                $scope.fcode = response.data.data.field +'cd'
+                $scope.fname = response.data.data.field +'nm'
+                let areas = response.data.data.features.map(function (area) {
+                    return {code: area.properties[$scope.fcode], name: area.properties[$scope.fname] }
+                });              
                 if(is.not.undefined($scope.areas)){
-                    if(objectString($scope.areas,'code') === objectString(response.data.areas,'code'))
+                    if(objectString($scope.areas, 'code') === objectString(areas, 'code'))
                         return;
                 }
-
-                $scope.areas = response.data.areas;
+                $scope.areas = areas
+                $scope.features = response.data.data.features;
                 $scope.areas.forEach(function (obj) {
                     obj.isChecked = true;
                 });
                 //TODO - add properties to areas
-                $scope.features = response.data.features;
+                // $scope.features = response.data.features;
                 /*response.data.features.features.forEach(function (feature) {
                  console.log(feature.code);
                  });*/
@@ -1010,9 +1015,7 @@ angular.module('raw.controllers', [])
                 }
                 $scope.url = requestURL;
                 return;
-            }
-
-
+            }            
             var codes = $scope.areas.map(function (area) {
                 return area.code;
             });
@@ -1054,6 +1057,7 @@ angular.module('raw.controllers', [])
         });
 
         $scope.$watch('areas', function (n, o) {
+            console.log("areas chance")            
             $scope.areachange = true;
             //workaround with url datasets
             if (($scope.importMode == 'dataset' || $scope.importMode == 'challenge') && $scope.currentDataset) {
@@ -1457,18 +1461,18 @@ angular.module('raw.controllers', [])
             //TODO - Nomisweb specific??
             if ($scope.currentDataset.geom == "ons") {
                 //clear previous data from layers
-                $scope.areaLayer.eachLayer(function (layer) {
+                $scope.areaLayer.eachLayer(function (layer) {                    
                     let temp = {};
-                    temp.code = layer.feature.properties.code;
-                    temp.name = layer.feature.properties.name;
-                    layer.feature.properties = angular.copy(temp);
+                    temp[$scope.fcode] = layer.feature.properties[$scope.fcode];
+                    temp[$scope.fname] = layer.feature.properties[$scope.fname];
+                    layer.feature.properties = angular.copy(temp);                    
                     //TODO - need to make style changin into a function
                     layer.setStyle({fillColor: '#FD8D3C'})
                 });
                 if ($scope.currentDataset.ext) {
                     $scope.data.forEach(function (row) {
                         //TODO - find index of geotype!!
-                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);
+                        let layer = $scope.areaLayer.getLayer(row[Object.keys(row)[0]]);                        
                         let propkey = Object.keys(row)[1];
                         let propval = Object.keys(row)[2];
                         layer.feature.properties[row[propkey]] = row[propval];
@@ -1536,7 +1540,7 @@ angular.module('raw.controllers', [])
             }
         }
 
-        $scope.addremoveArea = function (e) {
+        $scope.addremoveArea = function (e) {                 
             if (e.isChecked) {
                 $scope.areaLayer.addLayer($scope.removedAreaLayers[e.code]);
                 delete $scope.removedAreaLayers[e.code];
@@ -1546,6 +1550,7 @@ angular.module('raw.controllers', [])
                 }
 
             } else {
+                console.log($scope.areaLayer.getLayer(e.code))
                 $scope.removedAreaLayers[e.code] = $scope.areaLayer.getLayer(e.code);
                 $scope.areaLayer.removeLayer(e.code);
                 if (!Object.keys($scope.areaLayer.getLayers()).length) {
