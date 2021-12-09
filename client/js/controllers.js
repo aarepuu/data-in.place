@@ -1020,7 +1020,7 @@ angular.module('raw.controllers', [])
                 return area.code;
             });
             $scope.loading = true;
-            dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom}).then(
+            dataService.loadDataset(dataset, {"codes": codes, "zoom": $scope.center.zoom, "bbox": $scope.areaBbox}).then(
                 function (data) {
                     if (Array.isArray(data)) {
                         try {

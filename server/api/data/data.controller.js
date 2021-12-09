@@ -12,6 +12,9 @@ const db = require('../../db');
 
 const uuidv1 = require('uuid/v1');
 const request = require('request');
+const axios = require('axios');
+const response = require('../../utils/response');
+
 
 const schema = 'stats';
 
@@ -169,20 +172,75 @@ exports.getTravel = function (req, res, next) {
     });
 }
 
-exports.getImd = function (req, res, next) {
-    var items = req.body.codes;
-    var areas = queryParams(items);
-    var header = 'Area Code;Score;Rank;Decile\r\n';
-    const query = {
-        text: 'SELECT lsoa_code_2011, index_of_multiple_deprivation_imd_score, index_of_multiple_deprivation_imd_rank, index_of_multiple_deprivation_imd_decile FROM all_ranks_imd_2015 WHERE lsoa_code_2011 IN (' + areas + ')',
-        rowMode: 'array'
-    };
-    db.query(query).then(result => {
-        return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
-    }).catch(e => {
-        console.error(e.stack)
-        return res.status(500).json({success: false, data: e})
-    });
+exports.getImd = async function (req, res, next) {
+    // var items = req.body.codes;
+    // var areas = queryParams(items);
+    // var header = 'Area Code;Score;Rank;Decile\r\n';
+    // const query = {
+    //     text: 'SELECT lsoa_code_2011, index_of_multiple_deprivation_imd_score, index_of_multiple_deprivation_imd_rank, index_of_multiple_deprivation_imd_decile FROM all_ranks_imd_2015 WHERE lsoa_code_2011 IN (' + areas + ')',
+    //     rowMode: 'array'
+    // };
+    // db.query(query).then(result => {
+    //     return res.send(ConvertToCSV(header, JSON.stringify(result.rows)));
+    // }).catch(e => {
+    //     console.error(e.stack)
+    //     return res.status(500).json({success: false, data: e})
+    // });
+    const bbox = req.body.bbox.split(',');
+    try {
+        if (!bbox[0] || !bbox[1] || !bbox[2] || !bbox[3]) {
+          throw new Error('Incomplete bounding box. sw_lat, sw_lng, ne_lat, ne_lng required.');
+        }
+    
+        const query = `PREFIX  qb:   <http://purl.org/linked-data/cube#>
+          PREFIX  owl:  <http://www.w3.org/2002/07/owl#>
+          PREFIX  rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+          PREFIX  xsd:  <http://www.w3.org/2001/XMLSchema#>
+          PREFIX  dcterms: <http://purl.org/dc/terms/>
+          PREFIX  skos: <http://www.w3.org/2004/02/skos/core#>
+          PREFIX  rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    
+          SELECT  ?lsoa11cd ?lsoa11nm ?statsLabel ?imdRank ?imdDecile
+          WHERE
+            {   { ?s        <http://opendatacommunities.org/def/ontology/communities/societal_wellbeing/imd/indices>  ?o ;
+                            <http://opendatacommunities.org/def/ontology/geography/refArea>  ?refAreaURI ;
+                            <http://opendatacommunities.org/def/ontology/communities/societal_wellbeing/imd/decObs>  ?imdDecile .
+                  ?o        rdfs:label            ?statsLabel .
+                  ?refAreaURI  rdfs:label         ?lsoa11nm ;
+                            skos:notation         ?lsoa11cd ;
+                            <http://www.w3.org/2003/01/geo/wgs84_pos#lat>  ?lat ;
+                            <http://www.w3.org/2003/01/geo/wgs84_pos#long>  ?lng .
+                }
+              UNION
+                { ?s        <http://opendatacommunities.org/def/ontology/communities/societal_wellbeing/imd/indices>  ?o ;
+                            <http://opendatacommunities.org/def/ontology/geography/refArea>  ?refAreaURI ;
+                            <http://opendatacommunities.org/def/ontology/communities/societal_wellbeing/imd/rankObs>  ?imdRank .
+                  ?o        rdfs:label            ?statsLabel .
+                  ?refAreaURI  rdfs:label         ?lsoa11nm ;
+                            skos:notation         ?lsoa11cd ;
+                            <http://www.w3.org/2003/01/geo/wgs84_pos#lat>  ?lat ;
+                            <http://www.w3.org/2003/01/geo/wgs84_pos#long>  ?lng .
+                }
+    
+            FILTER (
+              ?lat >= ${bbox[1]} && # bottom right lat
+              ?lat < ${bbox[3]} && # top left lat
+              ?lng >= ${bbox[2]} && # bottom right lng
+              ?lng < ${bbox[0]} ) . # top left lng
+            }
+          ORDER BY ?lsoa11cd ?statsLabel
+        `;
+        // console.log(query)
+    //southwest_lng,southwest_lat,northeast_lng,northeast_lat
+        const result = await axios.post('http://opendatacommunities.org/sparql.json', {
+          query
+        });
+        res.send(JSON.stringify(result.data))
+      }
+      catch (error) {
+        console.log(error);
+        response.failed(res, [error.message]);
+      }
 }
 
 

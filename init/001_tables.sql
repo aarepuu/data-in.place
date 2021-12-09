@@ -2,79 +2,13 @@ BEGIN;
 
 DROP TABLE IF EXISTS "datasets";
 DROP TABLE IF EXISTS "boundary";
-DROP TABLE IF EXISTS "postcode_query";
-DROP TABLE IF EXISTS "oa11";
-DROP TABLE IF EXISTS "lsoa11";
-DROP TABLE IF EXISTS "wd16";
-DROP TABLE IF EXISTS "lad16";
-DROP TABLE IF EXISTS "rgn16";
-DROP TABLE IF EXISTS "ctry16";
 DROP TABLE IF EXISTS "oa11_postcodes";
 DROP TABLE IF EXISTS "challenges";
 
 -- Sequences
 CREATE SEQUENCE IF NOT EXISTS challenges_id_seq;
 
--- Geo Tables for UK
-CREATE TABLE "postcode_query" (
-    "pcd" text,
-    "county_code" varchar(255),
-    "ladcd" varchar(255),
-    "wdcd" varchar(255),
-    "country_code" varchar(255),
-    "rgncd" varchar(255),
-    "parcd" varchar(255),
-    "area_code" varchar(9),
-    "lsoacd" varchar(255),
-    "msoacd" varchar(255),
-    "latitude" float4,
-    "longitude" float4
-);
-
-CREATE TABLE "oa11" (
-    "area_code" varchar(9),
-    "name" text,
-    "lsoa11cd" varchar(255),
-    "wd16cd" varchar(255),
-    "lad16cd" varchar(255),
-    "geom" geometry
-);
-
-CREATE TABLE "lsoa11" (
-    "area_code" varchar(80),
-    "name" varchar(80),
-    "wd16cd" varchar(255),
-    "lad16cd" varchar(255),
-    "geom" geometry
-);
-
-CREATE TABLE "wd16" (
-    "area_code" varchar(80),
-    "name" varchar(80),
-    "lad16cd" varchar(255),
-    "geom" geometry
-);
-
-CREATE TABLE "lad16" (
-    "area_code" varchar(9),
-    "name" varchar(60),
-    "gor10cd" varchar(255),
-    "geom" geometry
-);
-
-CREATE TABLE "rgn16" (
-    "area_code" varchar(80),
-    "name" varchar(80),
-    "geom" geometry
-);
-
-CREATE TABLE "ctry16" (
-    "area_code" varchar(80),
-    "name" varchar(80),
-    "geom" geometry
-);
-
--- ultimate lookup table
+-- ultimate lookup table for UK
 CREATE TABLE "oa11_postcodes" (
     "postcode" varchar,
     "positional_quality_indicator" varchar,
@@ -150,6 +84,16 @@ CREATE TABLE "boundary" (
     "loc" geometry,
     "sessionid" varchar
 );
+
+
+-- indexes
+CREATE INDEX oa11_postcodes_postcode
+  ON oa11_postcodes
+  USING btree(postcode);
+
+CREATE INDEX oa11_postcodes_location
+  ON oa11_postcodes
+  USING gist(location);
 
 INSERT INTO "datasets" ("id", "title", "description", "date_issued", "publisher", "publisher_link", "api_link", "table_name", "last_update", "levels", "license", "comment", "source", "reference", "ctype", "update_feq", "api_docs", "api_key", "geom", "active", "ext") VALUES
 (11, 'Age by single year', 'This dataset provides 2011 estimates that classify usual residents in England and Wales by single year of age', '2011-03-27', 'Office of National Statistics', 'https://www.nomisweb.co.uk/census/2011/qs103ew', 'https://www.nomisweb.co.uk/api/v01/dataset/NM_503_1.data.csv?select=geography_code%2Cc_age_name%2Cobs_value&rural_urban=0&measures=20100&time=latest&geography=', NULL, '2018-02-01 10:50:13.706725', 'lad,msoa,lsoa,oa,rgn,wd', 'OGL', NULL, 'Census 2011', 'QS103EW', NULL, NULL, 'https://www.nomisweb.co.uk/api/v01/help', NULL, 'ons', 't', 't'),
