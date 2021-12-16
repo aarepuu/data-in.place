@@ -12,6 +12,6 @@ RUN node_modules/bower/bin/bower install
 # [1] A builder to install all dependancies and run the build
 FROM base as prod
 COPY [ ".", "/app/" ]
-EXPOSE 80
+EXPOSE 3000
 # RUN npm run build -s
 CMD node server/index.js
