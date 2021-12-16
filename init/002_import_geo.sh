@@ -11,6 +11,6 @@ function restoreFile() {
 }
 
 
-FILE=/tmp/geom/oa11_postcodes-11-02-2019.gz
+# FILE=/tmp/geom/oa11_postcodes-11-02-2019.gz
 
-restoreFile "$FILE" 
+# restoreFile "$FILE" 

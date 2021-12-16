@@ -17,7 +17,7 @@ services:
         max-file: "10"
     volumes:
       - ./init:/docker-entrypoint-initdb.d:ro
-      - ./geom:/tmp/geom:ro
+      # - ./geom:/tmp/geom:ro
       - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${PGDATABASE}
