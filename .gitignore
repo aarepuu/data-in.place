@@ -38,3 +38,5 @@ client/bower_components
 #data files
 client/data/*
 
+.env
+.DS_Store

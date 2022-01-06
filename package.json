@@ -4,6 +4,8 @@
   "description": "Open Data GIS tool for neighbourhood data",
   "main": "server/index.js",
   "dependencies": {
+    "@terraformer/arcgis": "^2.1.0",
+    "axios": "^0.24.0",
     "body-parser": "^1.18.2",
     "compression": "^1.7.3",
     "connect-livereload": "^0.6.0",

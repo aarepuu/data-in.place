@@ -11,8 +11,6 @@ const _ = require('lodash');
 const db = require('../../db');
 const axios = require('axios');
 const response = require('../../utils/response');
-const Terraformer = require('@terraformer/arcgis');
-
 
 
 //Geojson validator
@@ -22,7 +20,7 @@ const GJV = require("geojson-validation");
 //TODO - use this for making features from Postgres
 const GeoJSON = require('geojson');
 
-const schema = 'geom';
+// const schema = 'geom';
 
 //TODO - integrate this
 function respondWithResult(res, statusCode) {
@@ -82,40 +80,40 @@ exports.getArea = async function (req, res, next) {
     //     console.error(e.stack)
     //     return res.status(500).json({success: false, data: e})
     // });
-    // https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/SA1/MapServer/1/query?where=1%3D1&text=&objectIds=&time=&geometry=144.95915707200768%2C-37.840444382242225%2C144.96406283229592%2C-37.8357834008135&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=%5B%27objectid%2Cshape%2Csa1_code_2021%27%5D&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson
     try {
         const queryDefaults = {
           where: '1=1',
           geometryType: 'esriGeometryEnvelope',
-          inSR: '4326',        
+          inSR: '4326',
+          /* outFields: 'objectid,ctry17cd,ctry17nm,ctry17nmw,shape', */
           spatialRel: 'esriSpatialRelIntersects',
           outSR: '4326',
-          f: 'pjson'
+          f: 'geojson'
         };
         const zooms = {
           country: {
-            url: 'ASGS2021/AUS',
-            layer: '1',
-            fields: ['objectid', 'shape', 'aus_code_2021', 'aus_name_2021'],
-            field: 'aus'
+            url: 'Administrative_Boundaries/Countries_December_2017_Boundaries_UK_WGS84',
+            layer: '4',
+            fields: ['objectid', 'shape', 'ctry17cd', 'ctry17nm'], /* no 2018 boundary data available */
+            field: 'ctry17'
           },
-          state: {
-            url: 'ASGS2021/STE',
-            layer: '1',
-            fields: ['objectid', 'shape', 'state_code_2021', 'state_name_2021'],
-            field: 'state'
+          region: {
+            url: 'Administrative_Boundaries/Regions_December_2017_Boundaries',
+            layer: '4',
+            fields: ['objectid', 'shape', 'rgn17cd', 'rgn17nm'], /* no 2018 boundary data available */
+            field: 'rgn17'
           },
-          capital: {
-            url: 'ASGS2021/GCCSA',
-            layer: '1',
-            fields: ['objectid', 'shape', 'gccsa_code_2021', 'gccsa_name_2021'],
-            field: 'gccsa'
+          county: {
+            url: 'Administrative_Boundaries/WGS84_UK_Counties_and_Unitary_Authorities_December_2017_Boundaries',
+            layer: '4',
+            fields: ['objectid', 'shape', 'ctyua17cd', 'ctyua17nm'], /* no 2018 boundary data available */
+            field: 'ctyua17'
           },
-          level4: {
-            url: 'ASGS2021/SA4',
-            layer: '1',
-            fields: ['objectid', 'shape', 'sa4_code_2021', 'sa4_name_2021'],
-            field: 'sa4'
+          lad: {
+            url: 'Administrative_Boundaries/Local_Authority_Districts_May_2018_Boundaries',
+            layer: '4',
+            fields: ['objectid', 'shape', 'lad18cd', 'lad18nm'],
+            field: 'lad18'
           },
           // ward: {
           //   url: 'Administrative_Boundaries/Wards_December_2018_Boundaries',
@@ -123,98 +121,94 @@ exports.getArea = async function (req, res, next) {
           //   fields: ['objectid', 'shape', 'wd18cd', 'wd18nm'],
           //   field: 'wd18'
           // },
-          level3: {
-            url: 'ASGS2021/SA3',
-            layer: '1',
-            fields: ['objectid', 'shape', 'sa3_code_2021', 'sa3_name_2021'],
-            field: 'sa3'
+          ward: {
+            url: 'Administrative_Boundaries/Wards_December_2015_Boundaries',
+            layer: '2',
+            fields: ['objectid', 'shape', 'wd15cd', 'wd15nm'],
+            field: 'wd15'
           },
-          level2: {
-            url: 'ASGS2021/SA2',
-            layer: '1',
-            fields: ['objectid', 'shape', 'sa2_code_2021', 'sa2_name_2021'],
-            field: 'sa2'
+          msoa: {
+            url: 'Census_Boundaries/Middle_Super_Output_Areas_December_2011_Boundaries',
+            layer: '3',
+            fields: ['objectid', 'shape', 'msoa11cd', 'msoa11nm'],
+            field: 'msoa11'
           },
-          level1: {
-            url: 'ASGS2021/SA1',
-            layer: '1',
-            fields: ['objectid', 'shape', 'sa1_code_2021'],
-            field: 'sa1'
+          lsoa: {
+            url: 'Census_Boundaries/Lower_Super_Output_Areas_December_2011_Boundaries',
+            layer: '2',
+            fields: ['objectid', 'shape', 'lsoa11cd', 'lsoa11nm'],
+            field: 'lsoa11'
           },
-          block: {
-            url: 'ASGS2021/MB',
+          oa: {
+            url: 'Census_Boundaries/Output_Area_December_2011_Boundaries',
             layer: '1',
-            fields: ['objectid', 'shape', 'mb_code_2021'],
-            field: 'mb' 
+            fields: ['objectid', 'shape', 'oa11cd', 'lad11cd'],
+            field: 'oa11'
           }
         };
     
         let zoomlevel = {};
         // check we have zoom
-        // switch (true) {
-        //   // case req.query.zoom >= 14:
-        //   //   zoomlevel = zooms.oa;
-        //   //   break;
-        //   // case (req.query.zoom < 14 && req.query.zoom >= 12):
-        //   //   zoomlevel = zooms.lsoa;
-        //   //   break;
-        //   // case (req.query.zoom < 12 && req.query.zoom >= 10):
-        //   //   zoomlevel = zooms.msoa;
-        //   //   break;
-        //   // case (req.query.zoom < 10 && req.query.zoom >= 8):
-        //   //   zoomlevel = zooms.ward;
-        //   //   break;
-        //   // case (req.query.zoom < 8 && req.query.zoom >= 6):
-        //   //   zoomlevel = zooms.lad;
-        //   //   break;
-        //   // case (req.query.zoom < 6 && req.query.zoom >= 4):
-        //   //   zoomlevel = zooms.county;
-        //   //   break;
-        //   // case (req.query.zoom < 4 && req.query.zoom >= 2):
-        //   //   zoomlevel = zooms.region;
-        //   //   break;
-        //   case req.body.zoom >= 15:
-        //     zoomlevel = zooms.block;
-        //     break;
-        //   case (req.body.zoom < 15 && req.body.zoom >= 13):
-        //     zoomlevel = zooms.level1;
-        //     break;
-        //   case (req.body.zoom < 13 && req.body.zoom >= 11):  
-        //     zoomlevel = zooms.msoa;
-        //     break;
-        //   // case (req.query.zoom < 13 && req.query.zoom >= 11):
-        //   //   zoomlevel = zooms.ward;
-        //   //   break;
-        //   case (req.body.zoom < 11 && req.body.zoom >= 10):
-        //     zoomlevel = zooms.lad;
-        //     break;
-        //   case (req.body.zoom < 10 && req.body.zoom >= 9):
-        //     zoomlevel = zooms.county;
-        //     break;
-        //   case (req.body.zoom < 9 && req.body.zoom >= 4):
-        //     zoomlevel = zooms.region;
-        //     break;
-        //   default:
-        //     zoomlevel = zooms.country;
-        // }
+        switch (true) {
+          // case req.query.zoom >= 14:
+          //   zoomlevel = zooms.oa;
+          //   break;
+          // case (req.query.zoom < 14 && req.query.zoom >= 12):
+          //   zoomlevel = zooms.lsoa;
+          //   break;
+          // case (req.query.zoom < 12 && req.query.zoom >= 10):
+          //   zoomlevel = zooms.msoa;
+          //   break;
+          // case (req.query.zoom < 10 && req.query.zoom >= 8):
+          //   zoomlevel = zooms.ward;
+          //   break;
+          // case (req.query.zoom < 8 && req.query.zoom >= 6):
+          //   zoomlevel = zooms.lad;
+          //   break;
+          // case (req.query.zoom < 6 && req.query.zoom >= 4):
+          //   zoomlevel = zooms.county;
+          //   break;
+          // case (req.query.zoom < 4 && req.query.zoom >= 2):
+          //   zoomlevel = zooms.region;
+          //   break;
+          case req.body.zoom >= 15:
+            zoomlevel = zooms.oa;
+            break;
+          case (req.body.zoom < 15 && req.body.zoom >= 13):
+            zoomlevel = zooms.lsoa;
+            break;
+          case (req.body.zoom < 13 && req.body.zoom >= 11):
+            zoomlevel = zooms.msoa;
+            break;
+          // case (req.query.zoom < 13 && req.query.zoom >= 11):
+          //   zoomlevel = zooms.ward;
+          //   break;
+          case (req.body.zoom < 11 && req.body.zoom >= 10):
+            zoomlevel = zooms.lad;
+            break;
+          case (req.body.zoom < 10 && req.body.zoom >= 9):
+            zoomlevel = zooms.county;
+            break;
+          case (req.body.zoom < 9 && req.body.zoom >= 4):
+            zoomlevel = zooms.region;
+            break;
+          default:
+            zoomlevel = zooms.country;
+        }
     
-        zoomlevel = zooms[getzoomLevel(req.body.zoom)]
         // const bboxstring = `${req.query.sw_lng},${req.query.sw_lat},${req.query.ne_lng},${req.query.ne_lat}`;
         const bboxstring = req.body.bbox;
         const queryParams = Object.assign({}, queryDefaults, {
           geometry: bboxstring,
           outFields: zoomlevel.fields.toString()
         });
-        console.log(queryParams)
-        console.log(`https://geo.abs.gov.au/arcgis/rest/services/${zoomlevel.url}/MapServer/${zoomlevel.layer}/query`)
-        const result = await axios.get(`https://geo.abs.gov.au/arcgis/rest/services/${zoomlevel.url}/MapServer/${zoomlevel.layer}/query`, {
+    
+        const result = await axios.get(`https://ons-inspire.esriuk.com/arcgis/rest/services/${zoomlevel.url}/MapServer/${zoomlevel.layer}/query`, {
           params: queryParams
         });
-        console.log(zoomlevel.field)
-
         if (!result.data.error) {
-          response.success(res, Object.assign({}, Terraformer.arcgisToGeoJSON(result.data), {
-            field: zoomlevel.field.toUpperCase()
+          response.success(res, Object.assign({}, result.data, {
+            field: zoomlevel.field
           }));
         }
         else {
@@ -230,7 +224,7 @@ exports.getArea = async function (req, res, next) {
 
 exports.getLoc = function (req, res, next) {
     const query = {
-        text: "SELECT latitude as lat, longitude as lng from geom.postcode_query WHERE pcd=$1;",
+        text: "SELECT latitude as lat, longitude as lng from postcode_query WHERE pcd=$1;",
         values: [req.params.postcode.replace(' ', '').toUpperCase()]
     };
     db.query(query).then(result => {
@@ -263,7 +257,7 @@ exports.parseGeoJson = function (req, res, next) {
 exports.geoCode = function (req, res, next) {
     var pcodes = queryParams(req.body);
     const query = {
-        text: "SELECT * from geom.postcode_query WHERE pcd IN (" + pcodes + ");",
+        text: "SELECT * from postcode_query WHERE pcd IN (" + pcodes + ");",
     };
     db.query(query).then(result => {
         return res.json(result.rows);
@@ -306,36 +300,32 @@ function queryParams(items) {
  * @param zoom
  * @returns level - admin table name
  */
-function getzoomLevel(zoom) {
+function zoomLevel(zoom) {
     var level = '';
     console.log(zoom);
     switch (true) {
-        case zoom >= 14:
-            level = 'block';
-            console.log('block');
+        case zoom >= 16:
+            level = 'oa11';
+            console.log('oa11');
+            break;
+        case (zoom < 16 && zoom >= 14):
+            level = 'lsoa11';
+            console.log('lsoa11');
             break;
         case (zoom < 14 && zoom >= 12):
-            level = 'level1';
-            console.log('level1');
+            console.log('wd16');
+            level = 'wd16';
             break;
         case (zoom < 12 && zoom >= 10):
-            console.log('level2');
-            level = 'level2';
+            console.log('lad16');
+            level = 'lad16';
             break;
         case (zoom < 10 && zoom >= 8):
-            console.log('level3');
-            level = 'level3';
+            console.log('rgn16');
+            level = 'rgn16';
             break;
-        case (zoom < 8 && zoom >= 6):
-            console.log('level4');
-            level = 'level4';
-            break;
-        // case (zoom < 8 && zoom >= 6):
-        //     console.log('capital');
-        //     level = 'capital';
-        //     break;
         default:
-          level = 'capital';
+            level = 'ctry16';
     }
     return level;
 }
