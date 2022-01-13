@@ -12,6 +12,9 @@ const db = require('../../db');
 
 const uuidv1 = require('uuid/v1');
 const request = require('request');
+const axios = require('axios');
+const response = require('../../utils/response');
+
 
 const schema = 'stats';
 
@@ -70,12 +73,12 @@ exports.submitDataRequest = function (req, res, next) {
     let query;
     if (lat) {
         query = {
-            text: 'INSERT INTO stats.datarequests(title, source, description, loc, boundary, sessionid) VALUES($1,$2,$3,ST_SetSRID(ST_Point($4,$5),4326),$6,$7) RETURNING id',
+            text: 'INSERT INTO datarequests(title, source, description, loc, boundary, sessionid) VALUES($1,$2,$3,ST_SetSRID(ST_Point($4,$5),4326),$6,$7) RETURNING id',
             values: [req.body.title, req.body.source, req.body.description, lng, lat, JSON.stringify(boundary.geometry), req.sessionID],
         }
     } else {
         query = {
-            text: 'INSERT INTO stats.datarequests(title, source, description,boundary, sessionid) VALUES($1,$2,$3,$4,$5) RETURNING id',
+            text: 'INSERT INTO datarequests(title, source, description,boundary, sessionid) VALUES($1,$2,$3,$4,$5) RETURNING id',
             values: [req.body.title, req.body.source, req.body.description, JSON.stringify(boundary.geometry), req.sessionID],
         }
     }
@@ -94,8 +97,8 @@ exports.submitChallenge = function (req, res, next) {
     const bbox = req.body.bbox.split(',');
 
     const query = {
-        text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(' + bbox[0] + '::double precision,' + bbox[1] + '::double precision,' + bbox[2] + '::double precision,' + bbox[3] + '::double precision,4326),$7) RETURNING id',
-        //text: 'INSERT INTO stats.challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(string_to_array($7,\',\')::double precision[],4326),$8) RETURNING id',
+        text: 'INSERT INTO challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(' + bbox[0] + '::double precision,' + bbox[1] + '::double precision,' + bbox[2] + '::double precision,' + bbox[3] + '::double precision,4326),$7) RETURNING id',
+        //text: 'INSERT INTO challenges(cid, title, line, content, tags, publish, bbox, dataurl) VALUES($1,$2,$3,$4,$5::json[],$6,ST_MakeEnvelope(string_to_array($7,\',\')::double precision[],4326),$8) RETURNING id',
         values: [challengeId, req.body.title, req.body.line, req.body.content, req.body.tags, true, req.body.dataurl + '&cid=' + challengeId],
     };
     //console.log(query.text)
@@ -112,8 +115,8 @@ exports.submitChallenge = function (req, res, next) {
 exports.getDatasets = function (req, res, next) {
     //mooqitaAuth();
     const query = {
-        text: "SELECT * from stats.datasets where active = true;",
-    };
+        text: "SELECT * from datasets where active = true;",
+    };    
     db.query(query).then(result => {
         return res.json(result.rows);
     }).catch(e => {
@@ -124,7 +127,7 @@ exports.getDatasets = function (req, res, next) {
 
 exports.getChallenges = function (req, res, next) {
     const query = {
-        text: "SELECT * from stats.challenges;",
+        text: "SELECT * from challenges;",
     };
     db.query(query).then(result => {
         return res.json(result.rows);
@@ -140,7 +143,7 @@ exports.getHealth = function (req, res, next) {
     var areas = queryParams(items);
     const header = 'Area Code;Very Good;Good;Fair;Bad;Very Bad\r\n';
     const query = {
-        text: 'SELECT area_code, very_good, good, fair, bad, very_bad FROM stats.census_2011_health WHERE area_code IN (' + areas + ')',
+        text: 'SELECT area_code, very_good, good, fair, bad, very_bad FROM census_2011_health WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     //TODO - make into a function
@@ -158,7 +161,7 @@ exports.getTravel = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area Code,Work Home,Metro,Train,Bus,Taxi,Motocycle,Car or Van,Car Share,Bicycle,By Foot,Other,Not in Employment\r\n';
     const query = {
-        text: 'SELECT area_code, work_home, metro, train, bus, taxi, motocycle, car_or_van, car_share, bicycle, foot, other, unemployed FROM stats.census_2011_towork WHERE area_code IN (' + areas + ')',
+        text: 'SELECT area_code, work_home, metro, train, bus, taxi, motocycle, car_or_van, car_share, bicycle, foot, other, unemployed FROM census_2011_towork WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -260,7 +263,7 @@ exports.getPop = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area code;All ages;16 and under;aged 16-24;aged 25-64;aged 65-84;aged 85 and over\r\n';
     const query = {
-        text: 'SELECT area_code, all_ages, ("0" + "1" + "2" + "3" + "4" + "5" + "6" + "7" + "8" + "9" + "10" + "11" + "12" + "13" + "14" + "15") AS "16 and under",("16" + "17" + "18" + "19" + "20" + "21" + "22" + "23" + "24") AS "aged 16-24", ("25" + "26" + "27" + "28" + "29" + "30" + "31" + "32" + "33" + "34" + "35" + "36" + "37" + "38" + "39" + "40" + "41" + "42" + "43" + "44" + "45" + "46" + "47" + "48" + "49" + "50" + "51" + "52" + "53" + "54" + "55" + "56" + "57" + "58" + "59" + "60" + "61" + "62" + "63" + "64") AS "aged 25-64", ("65" + "66" + "67" + "68" + "69" + "70" + "71" + "72" + "73" + "74" + "75" + "76" + "77" + "78" + "79" + "80" + "81" + "82" + "83" + "84") AS "aged 65-84", ("85"+"86"+"87"+"88"+"89"+"90+") AS "aged 85 and over" FROM stats.mid16_est_lsoa_pop WHERE area_code IN (' + areas + ')',
+        text: 'SELECT area_code, all_ages, ("0" + "1" + "2" + "3" + "4" + "5" + "6" + "7" + "8" + "9" + "10" + "11" + "12" + "13" + "14" + "15") AS "16 and under",("16" + "17" + "18" + "19" + "20" + "21" + "22" + "23" + "24") AS "aged 16-24", ("25" + "26" + "27" + "28" + "29" + "30" + "31" + "32" + "33" + "34" + "35" + "36" + "37" + "38" + "39" + "40" + "41" + "42" + "43" + "44" + "45" + "46" + "47" + "48" + "49" + "50" + "51" + "52" + "53" + "54" + "55" + "56" + "57" + "58" + "59" + "60" + "61" + "62" + "63" + "64") AS "aged 25-64", ("65" + "66" + "67" + "68" + "69" + "70" + "71" + "72" + "73" + "74" + "75" + "76" + "77" + "78" + "79" + "80" + "81" + "82" + "83" + "84") AS "aged 65-84", ("85"+"86"+"87"+"88"+"89"+"90+") AS "aged 85 and over" FROM mid16_est_lsoa_pop WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -276,7 +279,7 @@ exports.getCrime = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area Code;Year;Type,Number of Reports\r\n';
     const query = {
-        text: 'SELECT lsoa_code,year,type, COUNT(*) FROM stats.police_years WHERE lsoa_code IN (' + areas + ') GROUP by lsoa_code, year,type',
+        text: 'SELECT lsoa_code,year,type, COUNT(*) FROM police_years WHERE lsoa_code IN (' + areas + ') GROUP by lsoa_code, year,type',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -293,7 +296,7 @@ exports.getTenure = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area Code,Number of social houses,Number of other houses\r\n';
     const query = {
-        text: 'SELECT area_code,social_total, sum-social_total AS other from stats.census_2011_lsoa_tenure WHERE area_code IN (' + areas + ')',
+        text: 'SELECT area_code,social_total, sum-social_total AS other from census_2011_lsoa_tenure WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -309,7 +312,7 @@ exports.getEco = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area Code,In Employment,Unemployed,Students,Unable to work\r\n';
     const query = {
-        text: 'SELECT area_code,(active_full_time+active_part_time+active_self_employed) as working,(active_unemployed) as unemployed,(active_student+inactive_student) as students,(inactive_retired+inactive_stayhome+inactive_disabled+inactive_other) as unable from stats.census_2011_economic_activity WHERE area_code IN (' + areas + ')',
+        text: 'SELECT area_code,(active_full_time+active_part_time+active_self_employed) as working,(active_unemployed) as unemployed,(active_student+inactive_student) as students,(inactive_retired+inactive_stayhome+inactive_disabled+inactive_other) as unable from census_2011_economic_activity WHERE area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -328,7 +331,7 @@ exports.getCc = function (req, res, next) {
     var area_level = zoomLevel(zoom);
     var header = 'Session;Start;End;Area Code;Latitude;Longitude\r\n';
     const query = {
-        text: 'SELECT sessionid, starts, ends, ' + area_level + 'cd, lat, lng from stats.cc_t1simple WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
+        text: 'SELECT sessionid, starts, ends, ' + area_level + 'cd, lat, lng from cc_t1simple WHERE oa11cd IN (' + areas + ') OR lsoa11cd IN (' + areas + ') OR wd16cd IN (' + areas + ') OR lad16cd IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {
@@ -345,7 +348,7 @@ exports.getObes = function (req, res, next) {
     var areas = queryParams(items);
     var header = 'Area Code;Area Name;Year;Classification;Metric;Value\r\n';
     const query = {
-        text: 'SELECT area_code, org_name, year, classification, metric, value from stats.obes where area_code IN (' + areas + ')',
+        text: 'SELECT area_code, org_name, year, classification, metric, value from obes where area_code IN (' + areas + ')',
         rowMode: 'array'
     };
     db.query(query).then(result => {

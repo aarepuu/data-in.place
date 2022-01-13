@@ -22,7 +22,7 @@ const GJV = require("geojson-validation");
 //TODO - use this for making features from Postgres
 const GeoJSON = require('geojson');
 
-const schema = 'geom';
+// const schema = 'geom';
 
 //TODO - integrate this
 function respondWithResult(res, statusCode) {
@@ -230,7 +230,7 @@ exports.getArea = async function (req, res, next) {
 
 exports.getLoc = function (req, res, next) {
     const query = {
-        text: "SELECT latitude as lat, longitude as lng from geom.postcode_query WHERE pcd=$1;",
+        text: "SELECT latitude as lat, longitude as lng from postcode_query WHERE pcd=$1;",
         values: [req.params.postcode.replace(' ', '').toUpperCase()]
     };
     db.query(query).then(result => {
@@ -263,7 +263,7 @@ exports.parseGeoJson = function (req, res, next) {
 exports.geoCode = function (req, res, next) {
     var pcodes = queryParams(req.body);
     const query = {
-        text: "SELECT * from geom.postcode_query WHERE pcd IN (" + pcodes + ");",
+        text: "SELECT * from postcode_query WHERE pcd IN (" + pcodes + ");",
     };
     db.query(query).then(result => {
         return res.json(result.rows);

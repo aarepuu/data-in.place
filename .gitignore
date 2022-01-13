@@ -37,6 +37,9 @@ client/bower_components
 
 #data files
 client/data/*
+geom/*
+
+
+.DS_Store
 
 .env
-.DS_Store
