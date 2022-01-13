@@ -575,15 +575,9 @@ angular.module('raw.controllers', [])
                     }
 
                 });
-                map.on('draw:edited', function (e) {
-                    //Police query format
-                    //TODO - use areas for query not the boundary
-                    //TODO - use the actual areas
+                map.on('draw:edited', function (e) {                
                     $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
-                    for (var i = 0, l = $scope.coords.length; i < l; i++) {
-                        $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
-                    }
-                    $scope.coords = $scope.coords.join(':');
+                    extractCoords()
                     if ($scope.areaBbox == undefined) {
                         $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
                     } else {
@@ -627,15 +621,15 @@ angular.module('raw.controllers', [])
 
                 //TODO - make it separate
                 $scope.$watch('center', function (newval, oldval) {
+                    console.log($scope.center.zoom)
                     $scope.mapBbox = map.getBounds().toBBoxString();
                     if ($scope.layers.overlays.areas.layerParams.showOnSelector) {
                         console.log($scope.previousZoom - $scope.center.zoom)
                         if (Math.abs($scope.previousZoom - $scope.center.zoom) > 1) {
-                            $scope.previousZoom = angular.copy($scope.center.zoom);
-                        }
-                        if ((!($scope.center.zoom > 16) && !($scope.center.zoom < 7)))
+                            $scope.previousZoom = angular.copy($scope.center.zoom);                        
+                        if ((!($scope.center.zoom > 16) && !($scope.center.zoom < 7)))                            
                             getArea($scope.boundary.toGeoJSON());
-
+                        }
                     }
 
                 }, true);
@@ -651,14 +645,7 @@ angular.module('raw.controllers', [])
             } else {
                 $scope.coords = $scope.boundary.toGeoJSON().geometry.coordinates[0];
             }
-
-            //Police query format
-            //TODO - use areas for query not the boundary
-            //TODO - use the actual areas
-            for (var i = 0, l = $scope.coords.length; i < l; i++) {
-                $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
-            }
-            $scope.coords = $scope.coords.join(':');
+            extractCoords()
 
             if ($scope.areaBbox == undefined) {
                 $scope.oldareaBbox = $scope.boundary.getBounds().toBBoxString();
@@ -676,6 +663,16 @@ angular.module('raw.controllers', [])
             getArea($scope.boundary.toGeoJSON());
         }
 
+        function extractCoords() {
+            //Police query format
+            //TODO - use areas for query not the boundary
+            //TODO - use the actual areas
+            for (var i = 0, l = $scope.coords.length; i < l; i++) {
+                $scope.coords[i] = [$scope.coords[i][1], $scope.coords[i][0]];
+            }
+            $scope.coords = $scope.coords.join(':');
+        }
+
         function getArea(json) {
             //$scope.maploading = true;
             controlLoader.show();
@@ -683,10 +680,12 @@ angular.module('raw.controllers', [])
             setLevel($scope.center.zoom);        
             if (json.features)
                 json = json.features[0];
+            // console.log($scope.map.getBounds().contains($scope.boundary.getBounds()))
             $http.post('/api/geo/area', {
                 zoom: $scope.center.zoom,
                 boundary: JSON.stringify(json),
                 bbox: $scope.areaBbox,
+                extent: $scope.mapBbox,            
             }).then(function (response) {
                 controlLoader.hide();
                 $scope.fcode = response.data.data.field +'_CODE_2021' // make this configurable                
@@ -876,13 +875,13 @@ angular.module('raw.controllers', [])
             var error = null;
             //TODO - look into using dataservice for this
             // first trying jsonp
-            $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback'})
+            $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback', headers: {"accept": "text/csv"}})
                 .then(function (response) {
                     if (!$scope.currentDataset)
                         $scope.fileName = url;
                     parseData(response.data);
                 }, function (response) {
-                    $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer'})
+                    $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer', headers: {"accept": "text/csv"}})
                         .then(function (response) {
                                 var data = new Uint8Array(response.data);
                                 var arr = [];
@@ -974,6 +973,12 @@ angular.module('raw.controllers', [])
         };
         $scope.selectDataset = function (dataset) {
             if (!dataset) return;
+            console.log(showDataSource(dataset.levels))
+           if(!showDataSource(dataset.levels)) {
+            reset();
+            $scope.text = "";
+            return;
+           }
             //TODO - if url has changed need to do an update
             if (($scope.areaBbox == $scope.oldareaBbox) && ($scope.currentDataset == dataset) && !$scope.areachange) {
                 $scope.parsed = true;
@@ -992,7 +997,7 @@ angular.module('raw.controllers', [])
             //TODO - rework this
             if (dataset.ext) {
                 switch (dataset.geom) {
-                    case "ons":
+                    case "abs": // make configurable
                         //All areas in a comma separated string
                         let areastring = [];
                         $scope.areas.forEach(function (area) {
@@ -1004,7 +1009,7 @@ angular.module('raw.controllers', [])
                             $scope.loading = false;
                             return;
                         }
-                        requestURL = requestURL + areastring.toString();
+                        requestURL = requestURL + areastring.join('+') + '.A?startPeriod=2020&dimensionAtObservation=AllDimensions';
                         break;
                     case "poly":
                         requestURL = requestURL + $scope.coords;
@@ -1511,24 +1516,32 @@ angular.module('raw.controllers', [])
                 return 'disabled'
         };
 
+        function showDataSource(levels) {
+            let larray = levels.split(',');
+            return (larray.includes($scope.level) || larray.includes('latlon') || larray.includes('bbox'))                
+        }
+
 
         function setLevel(zoom) {
             let level = '';
             switch (true) {
                 case zoom >= 16:
-                    level = 'oa';
+                    level = 'mb';
                     break;
                 case (zoom < 16 && zoom >= 14):
-                    level = 'lsoa';
+                    level = 'sa1';
                     break;
                 case (zoom < 14 && zoom >= 12):
-                    level = 'wd';
+                    level = 'sa2';
                     break;
                 case (zoom < 12 && zoom >= 10):
-                    level = 'lad';
+                    level = 'sa3';
+                    break;
+                case (zoom < 10 && zoom >= 8):
+                    level = 'sa4';
                     break;
                 default:
-                    level = 'rgn';
+                    level = 'gccsa';
             }
             $scope.level = level;
         }

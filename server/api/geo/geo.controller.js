@@ -90,28 +90,31 @@ exports.getArea = async function (req, res, next) {
           inSR: '4326',        
           spatialRel: 'esriSpatialRelIntersects',
           outSR: '4326',
+          geometryPrecision: '4',
+          returnTrueCurves: false,
+          returnExtentsOnly: true,
           f: 'pjson'
         };
         const zooms = {
-          country: {
+          aus: {
             url: 'ASGS2021/AUS',
             layer: '1',
             fields: ['objectid', 'shape', 'aus_code_2021', 'aus_name_2021'],
             field: 'aus'
           },
-          state: {
+          ste: {
             url: 'ASGS2021/STE',
             layer: '1',
             fields: ['objectid', 'shape', 'state_code_2021', 'state_name_2021'],
             field: 'state'
           },
-          capital: {
+          gccsa: {
             url: 'ASGS2021/GCCSA',
             layer: '1',
             fields: ['objectid', 'shape', 'gccsa_code_2021', 'gccsa_name_2021'],
             field: 'gccsa'
           },
-          level4: {
+          sa4: {
             url: 'ASGS2021/SA4',
             layer: '1',
             fields: ['objectid', 'shape', 'sa4_code_2021', 'sa4_name_2021'],
@@ -123,25 +126,25 @@ exports.getArea = async function (req, res, next) {
           //   fields: ['objectid', 'shape', 'wd18cd', 'wd18nm'],
           //   field: 'wd18'
           // },
-          level3: {
+          sa3: {
             url: 'ASGS2021/SA3',
             layer: '1',
             fields: ['objectid', 'shape', 'sa3_code_2021', 'sa3_name_2021'],
             field: 'sa3'
           },
-          level2: {
+          sa2: {
             url: 'ASGS2021/SA2',
             layer: '1',
             fields: ['objectid', 'shape', 'sa2_code_2021', 'sa2_name_2021'],
             field: 'sa2'
           },
-          level1: {
+          sa1: {
             url: 'ASGS2021/SA1',
             layer: '1',
             fields: ['objectid', 'shape', 'sa1_code_2021'],
             field: 'sa1'
           },
-          block: {
+          mb: {
             url: 'ASGS2021/MB',
             layer: '1',
             fields: ['objectid', 'shape', 'mb_code_2021'],
@@ -310,32 +313,32 @@ function getzoomLevel(zoom) {
     var level = '';
     console.log(zoom);
     switch (true) {
-        case zoom >= 14:
-            level = 'block';
-            console.log('block');
+        case zoom >= 16:
+            level = 'mb';
+            console.log('mb');
+            break;
+        case (zoom < 16 && zoom >= 14):
+            level = 'sa1';
+            console.log('sa1');
             break;
         case (zoom < 14 && zoom >= 12):
-            level = 'level1';
-            console.log('level1');
+            console.log('sa2');
+            level = 'sa2';
             break;
         case (zoom < 12 && zoom >= 10):
-            console.log('level2');
-            level = 'level2';
+            console.log('sa3');
+            level = 'sa3';
             break;
         case (zoom < 10 && zoom >= 8):
-            console.log('level3');
-            level = 'level3';
-            break;
-        case (zoom < 8 && zoom >= 6):
-            console.log('level4');
-            level = 'level4';
+            console.log('sa4');
+            level = 'sa4';
             break;
         // case (zoom < 8 && zoom >= 6):
         //     console.log('capital');
         //     level = 'capital';
         //     break;
         default:
-          level = 'capital';
+          level = 'gccsa';
     }
     return level;
 }

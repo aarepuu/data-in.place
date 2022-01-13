@@ -65,7 +65,7 @@ function postChallenge(challenge) {
 }
 
 
-exports.submitDataRequest = function (req, res, next) {
+exports.submitDataRequest = async function (req, res, next) {
     let lat = req.cookies.lat;
     let lng = req.cookies.lng;
     let boundary = JSON.parse(req.body.boundary);
@@ -90,7 +90,7 @@ exports.submitDataRequest = function (req, res, next) {
 
 }
 
-exports.submitChallenge = function (req, res, next) {
+exports.submitChallenge = async function (req, res, next) {
     const challengeId = uuidv1();
 
 
@@ -125,7 +125,7 @@ exports.getDatasets = function (req, res, next) {
     });
 };
 
-exports.getChallenges = function (req, res, next) {
+exports.getChallenges = async function (req, res, next) {
     const query = {
         text: "SELECT * from challenges;",
     };
@@ -137,7 +137,7 @@ exports.getChallenges = function (req, res, next) {
     });
 };
 
-exports.getHealth = function (req, res, next) {
+exports.getHealth = async function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
@@ -156,7 +156,7 @@ exports.getHealth = function (req, res, next) {
 }
 
 
-exports.getTravel = function (req, res, next) {
+exports.getTravel = async function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
     var header = 'Area Code,Work Home,Metro,Train,Bus,Taxi,Motocycle,Car or Van,Car Share,Bicycle,By Foot,Other,Not in Employment\r\n';
@@ -258,7 +258,7 @@ exports.getImd = async function (req, res, next) {
 }
 
 
-exports.getPop = function (req, res, next) {
+exports.getPop = async function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
     var header = 'Area code;All ages;16 and under;aged 16-24;aged 25-64;aged 65-84;aged 85 and over\r\n';
@@ -274,7 +274,7 @@ exports.getPop = function (req, res, next) {
     });
 }
 
-exports.getCrime = function (req, res, next) {
+exports.getCrime = async function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
     var header = 'Area Code;Year;Type,Number of Reports\r\n';
@@ -291,7 +291,7 @@ exports.getCrime = function (req, res, next) {
 }
 
 
-exports.getTenure = function (req, res, next) {
+exports.getTenure = async function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
     var header = 'Area Code,Number of social houses,Number of other houses\r\n';
@@ -307,7 +307,7 @@ exports.getTenure = function (req, res, next) {
     });
 }
 
-exports.getEco = function (req, res, next) {
+exports.getEco = async function (req, res, next) {
     var items = req.body.codes;
     var areas = queryParams(items);
     var header = 'Area Code,In Employment,Unemployed,Students,Unable to work\r\n';
@@ -324,7 +324,7 @@ exports.getEco = function (req, res, next) {
 }
 
 
-exports.getCc = function (req, res, next) {
+exports.getCc = async function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
@@ -342,7 +342,7 @@ exports.getCc = function (req, res, next) {
     });
 }
 
-exports.getObes = function (req, res, next) {
+exports.getObes = async function (req, res, next) {
     var items = req.body.codes;
     var zoom = req.body.zoom;
     var areas = queryParams(items);
@@ -360,7 +360,7 @@ exports.getObes = function (req, res, next) {
 }
 
 
-exports.getPublicHealth = function (req, res, next) {
+exports.getPublicHealth = async function (req, res, next) {
     var resbond = res;
     request('http://fingertips.phe.org.uk/api/profiles', {json: true}, (err, res, body) => {
         if (err) {
@@ -371,7 +371,7 @@ exports.getPublicHealth = function (req, res, next) {
     });
 }
 
-exports.getSchools = function (req, res, next) {
+exports.getSchools = async function (req, res, next) {
     //let boundary = JSON.parse(req.body.boundary);
     let items = req.body.codes;
     let areas = queryParams(items);
