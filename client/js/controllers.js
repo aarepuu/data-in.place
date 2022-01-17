@@ -1009,7 +1009,7 @@ angular.module('raw.controllers', [])
                             $scope.loading = false;
                             return;
                         }
-                        requestURL = requestURL + areastring.join('+') + '.A?startPeriod=2020&dimensionAtObservation=AllDimensions';
+                        requestURL = requestURL + areastring.join('+') + '.A?startPeriod=2016&dimensionAtObservation=AllDimensions';
                         break;
                     case "poly":
                         requestURL = requestURL + $scope.coords;
