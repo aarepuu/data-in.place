@@ -15,7 +15,7 @@ angular.module('raw.controllers', [])
         }
 
         $scope.urlparams = $location.search();
-        $scope.previousZoom = 14;
+        $scope.previousZoom = 12;
         processUrl($scope.urlparams);
 
         function processUrl(params) {
