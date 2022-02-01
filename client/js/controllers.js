@@ -875,13 +875,13 @@ angular.module('raw.controllers', [])
             var error = null;
             //TODO - look into using dataservice for this
             // first trying jsonp
-            $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback', headers: {"accept": "text/csv"}})
+            $http.jsonp($sce.trustAsResourceUrl(url), {jsonpCallbackParam: 'callback', headers: {"accept": "application/vnd.sdmx.data+csv;labels=both"}})
                 .then(function (response) {
                     if (!$scope.currentDataset)
                         $scope.fileName = url;
                     parseData(response.data);
                 }, function (response) {
-                    $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer', headers: {"accept": "text/csv"}})
+                    $http.get($sce.trustAsResourceUrl(url), {responseType: 'arraybuffer', headers: {"accept": "application/vnd.sdmx.data+csv;labels=both"}})
                         .then(function (response) {
                                 var data = new Uint8Array(response.data);
                                 var arr = [];
