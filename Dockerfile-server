@@ -1,0 +1,16 @@
+# Dockerfile-server
+# Start with a node 12 image with package info
+# Installs *all* npm packages and runs build script
+FROM node:8.9-alpine as base
+RUN apk --no-cache add git
+WORKDIR /app
+COPY ["package*.json", "/app/"]
+
+
+# [1] A builder to install all dependancies and run the build
+FROM base as prod
+ENV NODE_ENV production
+RUN npm i
+COPY ["server", "/app/server"]
+# RUN npm run build -s
+CMD [ "node", "server/index.js", "-s" ]
