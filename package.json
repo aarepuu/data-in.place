@@ -1,49 +1,77 @@
 {
-  "name": "data-in.place",
-  "version": "1.0.0",
-  "description": "Open Data GIS tool for neighbourhood data",
-  "main": "server/index.js",
+  "name": "rawgraphs-frontend",
+  "homepage": "https://app.rawgraphs.io",
+  "version": "2.0.0-beta.13",
+  "private": true,
   "dependencies": {
-    "axios": "^0.24.0",
-    "body-parser": "^1.18.2",
-    "bower": "^1.8.12",
-    "compression": "^1.7.3",
-    "connect-livereload": "^0.6.0",
-    "cookie-parser": "^1.4.3",
-    "cors": "^2.8.4",
-    "dotenv": "^10.0.0",
-    "ejs": "^2.5.7",
-    "errorhandler": "^1.5.0",
-    "express": "^4.16.3",
-    "express-session": "^1.15.6",
-    "geojson": "^0.5.0",
-    "geojson-validation": "^0.2.0",
-    "lodash": "^4.17.10",
-    "lusca": "^1.5.1",
-    "method-override": "^3.0.0",
-    "pg": "^7.4.0",
-    "request": "^2.87.0",
-    "serve-favicon": "^2.5.0",
-    "socket.io": "^2.1.1",
-    "to": "^0.2.9",
-    "update": "^0.7.4",
-    "uuid": "^3.3.2"
-  },
-  "devDependencies": {
-    "nodemon": "^1.19.4"
-  },
-  "engines": {
-    "node": "^8.9.0",
-    "npm": "^6.0.0"
+    "@mapbox/mapbox-gl-draw": "^1.3.0",
+    "@rawgraphs/rawgraphs-calendar-heatmap": "^1.0.0-beta.5",
+    "@rawgraphs/rawgraphs-charts": "^1.0.0-beta.27",
+    "@rawgraphs/rawgraphs-core": "^1.0.0-beta.16",
+    "@rdfjs-elements/sparql-editor": "^0.1.6",
+    "@terraformer/arcgis": "^2.1.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.3.2",
+    "@testing-library/user-event": "^7.1.2",
+    "@turf/area": "^6.5.0",
+    "@turf/bbox": "^6.5.0",
+    "array-insert": "^2.0.0",
+    "array-move": "^3.0.1",
+    "bootstrap": "^4.5.0",
+    "classnames": "^2.2.6",
+    "clipboard": "^2.0.8",
+    "comlink": "^4.3.0",
+    "d3": "^7.2.0",
+    "dayjs": "^1.8.33",
+    "lit-html": "^1.3.0",
+    "lodash": "^4.17.15",
+    "mapbox-gl": "^2.7.0",
+    "mapbox-gl-geocoder": "^2.0.1",
+    "rdf-literal": "^1.2.0",
+    "react": "^16.13.1",
+    "react-bootstrap": "^1.5.0",
+    "react-color": "2.17.3",
+    "react-cookie-consent": "^6.2.3",
+    "react-data-grid": "^7.0.0-canary.16",
+    "react-dnd": "^11.1.3",
+    "react-dnd-html5-backend": "^11.1.3",
+    "react-dom": "^16.13.1",
+    "react-dropzone": "^11.0.3",
+    "react-icons": "^3.10.0",
+    "react-map-gl": "^7.0.7",
+    "react-scripts": "3.4.1",
+    "sparql-http-client": "^2.4.0",
+    "sparqljs": "^3.5.1",
+    "typeface-inter": "^3.12.0",
+    "worker-loader": "^3.0.2"
   },
   "scripts": {
-    "test": "test",
-    "dev": "NODE_ENV=development nodemon"
+    "format": "prettier --write src",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aarepuu/data-in.place.git"
+  "eslintConfig": {
+    "extends": "react-app"
   },
-  "author": "Aare Puussaar",
-  "license": "MIT"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "node-sass": "^4.14.1",
+    "prettier": "^2.1.2"
+  },
+  "engines": {
+    "node": "^14"
+  }
 }
