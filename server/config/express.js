@@ -21,11 +21,13 @@ const config = require('./environment');
 //const passport= require('passport');
 
 
+
 const cors = require('cors');
+const { Console } = require('console');
 
 module.exports = function (app) {
     const env = app.get('env');
-
+    console.log(env)
 
     if (env === 'development' || env === 'test') {
         app.use(express.static(path.join(config.root, '.tmp')));
@@ -69,7 +71,7 @@ module.exports = function (app) {
      * Lusca - express server security
      * https://github.com/krakenjs/lusca
      */
-    if (env !== 'test') {
+    if (env !== 'test' && env !== 'development' ) {
         app.use(lusca({
             csrf: { angular: true },
             xframe: 'SAMEORIGIN',

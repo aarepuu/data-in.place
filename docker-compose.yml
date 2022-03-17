@@ -1,0 +1,41 @@
+version: "3.3"
+
+volumes:
+  pgdata:
+
+services:
+  database:
+    container_name: data-in-place-db
+    # image: gangstead/postgis:13-3.1-arm
+    image: postgis/postgis:13-3.0-alpine
+    restart: always
+    platform: "linux/amd64"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1024k"
+        max-file: "10"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d:ro
+      # - ./geom:/tmp/geom:ro
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${PGDATABASE}
+      POSTGRES_USER: ${PGUSER}      
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+    ports:
+      - "${PGPORT}:5432"
+  app:
+    container_name: data-in-place-app
+    restart: always
+    build: .
+    platform: "linux/amd64"
+    ports:
+      - "80:${PORT}"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1024k"
+        max-file: "10"
+    env_file:
+      - .env
