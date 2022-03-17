@@ -14,7 +14,7 @@ export default function Footer(props) {
         <Row>
           <Col xs={6} sm={{ span: 5, order: 1 }} lg={{ span: 3, order: 1 }}>
             <p className="Xsmall">
-              Data:In Place is an open source tool developed by{' '}
+              data-in.place is an open source tool developed by{' '}
               <a
                 href="http://github.com/aarepuu"
                 target="_blank"

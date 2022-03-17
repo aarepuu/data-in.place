@@ -6,8 +6,8 @@ export default function Header({ menuItems }) {
   return (
     <Navbar bg="white" expand="lg" sticky="top" className={styles.navbar}>
       <Navbar.Brand href="/">
-        <b>Data</b>
-        <span className="text-primary">:In Place</span> 2.0 alpha
+        <b>data-</b>
+        <span className="text-primary">in.place</span> 2.0 alpha
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
