@@ -375,6 +375,7 @@ function DataLoader({
                 const dataSourceIndex = options.findIndex(
                   (opt) => opt.id === dataSource?.type
                 )
+                console.log(dataSourceIndex)
                 setOptionIndex(Math.max(dataSourceIndex, 0))
                 startDataReplace()
               }}

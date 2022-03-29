@@ -26,10 +26,14 @@ export default function DataSources({
   }, [])
 
   const select = async (sample) => {
-    const { delimiter, url } = sample
+    const { delimiter, url, join, params } = sample
     let response
     try {
-      response = await fetch(`${url}${selectedAreas.toString()}`)
+      const fetchUrl = `${url}${selectedAreas.join(join)}${params}`
+      response = await fetch(fetchUrl, {
+        // TODO: make this an option
+        headers: { accept: 'application/vnd.sdmx.data+csv;labels=both' },
+      })
     } catch (e) {
       setLoadingError('Loading error. ' + e.message)
       return

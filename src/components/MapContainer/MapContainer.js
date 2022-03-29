@@ -220,6 +220,7 @@ function MapContainer({
       setLat(map.current.getCenter().lat.toFixed(4))
       setZoom(map.current.getZoom().toFixed(2))
       // TODO: check if zoom changes enough to do area request again
+      // TODO: add timeout when moving around fast
       if (currentBoundary) {
         // BUG: draw freatures and currentBoundary are not the same when draw updates
         // console.log(`Current Boundary: ${BBox(currentBoundary).toString()}`)
