@@ -1,0 +1,20 @@
+[
+    {
+        "name":"UK General Health",
+        "description": "This dataset provides 2011 estimates that classify usual residents in England and Wales by the state of their general health.",
+        "dateIssued": "2011-03-27",
+        "lastUpdated": "2013-01-30",
+        "sourceName": "Office of National Statistics",
+        "sourceURL": "https://www.nomisweb.co.uk/census/2011/qs302ew",
+        "url": "https://www.nomisweb.co.uk/api/v01/dataset/NM_531_1.data.csv?select=geography_code%2Cc_health_name%2Cobs_value&rural_urban=0&measures=20100&time=latest&geography=",
+        "join": "+",
+        "params": "",       
+        "zoom": [0,1],
+        "license": "Crown Copyright",        
+        "reference": "QS302EW",
+        "category": "Pie chart",
+        "delimiter": ",",        
+        "geom": "codes",
+        "layerStyle": {}
+    }
+]

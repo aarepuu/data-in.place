@@ -46,6 +46,7 @@
     "worker-loader": "^3.0.2"
   },
   "scripts": {
+    "postinstall": "cp ./config/dataSources.json ./public/dataSources.json && cp ./config/geom.js ./src/geom.js",
     "format": "prettier --write src",
     "start": "react-scripts start",
     "build": "react-scripts build",
