@@ -22,6 +22,8 @@ mapboxgl.accessToken = process.env.REACT_APP_MAPBOXGL_TOKEN
 const baseUrl = process.env.REACT_APP_MAPSERVER_BASEURL
 // TODO: add loading from previous project
 function MapContainer({
+  currentZoom,
+  setCurrentZoom,
   currentBoundary,
   setCurrentBoundary,
   currentAreas,
@@ -219,8 +221,10 @@ function MapContainer({
       setLng(map.current.getCenter().lng.toFixed(4))
       setLat(map.current.getCenter().lat.toFixed(4))
       setZoom(map.current.getZoom().toFixed(2))
-      // TODO: check if zoom changes enough to do area request again
-      // TODO: add timeout when moving around fast
+      setCurrentZoom(map.current.getZoom().toFixed(2))
+    })
+    map.current.on('moveend', () => {
+      //TODO: check if boundary is visible on map
       if (currentBoundary) {
         // BUG: draw freatures and currentBoundary are not the same when draw updates
         // console.log(`Current Boundary: ${BBox(currentBoundary).toString()}`)
@@ -236,7 +240,7 @@ function MapContainer({
         }
       }
     })
-  }, [currentBoundary, fetchAreas])
+  }, [setCurrentZoom, currentBoundary, fetchAreas])
 
   return (
     <div>

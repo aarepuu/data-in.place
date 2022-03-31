@@ -396,6 +396,21 @@ export default function useDataLoader() {
     )
   }
 
+  /*
+   * Callback to handle user selecting a data source from dataSources.json list
+   * When this happens, we have data parsed with dsv with a proper separator out of the box
+   *   since in this case data are rigorously checked
+   * So we just take them as good and use the raw-core library to infer types
+   */
+  function loadSource(rawData, sourceeSeparator) {
+    setSeparator(sourceeSeparator)
+    setUserDataAndDetect(
+      rawData,
+      { type: 'source' },
+      { separator: sourceeSeparator }
+    )
+  }
+
   function handleInlineEdit(newDataset) {
     setUserData(newDataset)
     parseDatasetAndSetData(newDataset, data.dataTypes, {
@@ -482,6 +497,7 @@ export default function useDataLoader() {
     loading,
     coerceTypes,
     loadSample,
+    loadSource,
     handleInlineEdit,
     handleStackOperation,
     setJsonData,

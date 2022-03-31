@@ -23,6 +23,7 @@ import { serializeProject } from '@rawgraphs/rawgraphs-core'
 import useDataLoader from './hooks/useDataLoader'
 import isPlainObject from 'lodash/isPlainObject'
 import CookieConsent from 'react-cookie-consent'
+import { MAP_DEFAULTS } from './geom'
 
 // #TODO: i18n
 
@@ -45,9 +46,10 @@ function App() {
     loading,
     hydrateFromSavedProject,
   } = dataLoader
-
+  /* Map related stuff */
   const [currentBoundary, setCurrentBoundary] = useState(null)
   const [currentAreas, setCurrentAreas] = useState([])
+  const [currentZoom, setCurrentZoom] = useState(MAP_DEFAULTS.ZOOM)
   /* From here on, we deal with viz state */
   const [currentChart, setCurrentChart] = useState(null)
   const [mapping, setMapping] = useState({})
@@ -100,6 +102,10 @@ function App() {
 
   const handleBoundaryChange = useCallback((boundary) => {
     setCurrentBoundary(boundary)
+  }, [])
+
+  const handleZoomChange = useCallback((zoom) => {
+    setCurrentZoom(zoom)
   }, [])
 
   const handleAreasChange = useCallback((areas) => {
@@ -179,6 +185,8 @@ function App() {
       <div className="app-sections">
         <Section title={`1. Draw a boundary`} loading={loading}>
           <Map
+            currentZoom={currentZoom}
+            setCurrentZoom={handleZoomChange}
             currentBoundary={currentBoundary}
             setCurrentBoundary={handleBoundaryChange}
             currentAreas={currentAreas}
@@ -190,6 +198,7 @@ function App() {
             <DataLoader
               {...dataLoader}
               hydrateFromProject={importProject}
+              currentZoom={currentZoom}
               currentAreas={currentAreas}
             />
           </Section>

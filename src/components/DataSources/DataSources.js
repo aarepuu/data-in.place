@@ -9,8 +9,9 @@ function getSources() {
 }
 
 export default function DataSources({
-  onSampleReady,
+  onSourceReady,
   setLoadingError,
+  mapZoom,
   selectedAreas,
 }) {
   const [sourcesList, setDataSources] = useState([])
@@ -38,7 +39,7 @@ export default function DataSources({
       return
     }
     const text = await response.text()
-    onSampleReady(text, delimiter)
+    onSourceReady(text, delimiter)
     setLoadingError(null)
   }
   return (
@@ -49,7 +50,14 @@ export default function DataSources({
         .map((d, i) => {
           return (
             <Col xs={6} lg={4} xl={3} key={i} style={{ marginBottom: 15 }}>
-              <Card className="cursor-pointer h-100">
+              <Card
+                className={
+                  mapZoom <= parseInt(d.zoom[0]) &&
+                  mapZoom > parseInt(d.zoom[1])
+                    ? 'cursor-pointer h-100'
+                    : 'cursor-pointer h-100 disabled'
+                }
+              >
                 <Card.Body
                   onClick={() => {
                     select(d)

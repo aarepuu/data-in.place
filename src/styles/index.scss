@@ -219,3 +219,7 @@ h5 {
   border-top: 1px solid var(--gray-400);
   display: inline-block;
 }
+.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+}

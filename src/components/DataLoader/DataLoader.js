@@ -50,6 +50,7 @@ function DataLoader({
   loading,
   coerceTypes,
   loadSample,
+  loadSource,
   handleInlineEdit,
   handleStackOperation,
   setJsonData,
@@ -60,6 +61,7 @@ function DataLoader({
   commitDataReplace,
   replaceRequiresConfirmation,
   hydrateFromProject,
+  currentZoom,
   currentAreas,
 }) {
   const [loadingError, setLoadingError] = useState()
@@ -72,8 +74,9 @@ function DataLoader({
       message: '',
       loader: (
         <DataSources
-          onSampleReady={loadSample}
+          onSourceReady={loadSource}
           setLoadingError={setLoadingError}
+          mapZoom={currentZoom}
           selectedAreas={[...currentAreas]}
         />
       ),
@@ -375,7 +378,7 @@ function DataLoader({
                 const dataSourceIndex = options.findIndex(
                   (opt) => opt.id === dataSource?.type
                 )
-                console.log(dataSourceIndex)
+                console.log(dataSource?.type)
                 setOptionIndex(Math.max(dataSourceIndex, 0))
                 startDataReplace()
               }}

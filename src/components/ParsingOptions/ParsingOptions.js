@@ -5,6 +5,7 @@ import ThousandsSeparatorSelector from './ThousandsSeparatorSelector'
 import DecimalsSeparatorSelector from './DecimalsSeparatorSelector'
 import DateLocaleSelector from './DateLocaleSelector'
 import StackSelector from './StackSelector'
+import GeoSelector from './GeoSelector'
 
 import styles from './ParsingOptions.module.scss'
 import { BsArrowRepeat } from 'react-icons/bs'
@@ -13,18 +14,19 @@ import { fetchData as fetchDataFromUrl } from '../DataLoader/loaders/UrlFetch'
 import { fetchData as fetchDataFromSparql } from '../DataLoader/loaders/SparqlFetch'
 
 const dataRefreshWorkers = {
-  "url": fetchDataFromUrl,
-  "sparql": fetchDataFromSparql
+  url: fetchDataFromUrl,
+  sparql: fetchDataFromSparql,
 }
 
 const dataRefreshCaptions = {
-  "url": "Refresh data from url",
-  "sparql": "Refresh data from query"
+  url: 'Refresh data from url',
+  sparql: 'Refresh data from query',
 }
 
 export default function ParsingOptions(props) {
   const refreshData = async () => {
-    const dataRefreshImpl = dataRefreshWorkers[get(props.dataSource, "type", "")]
+    const dataRefreshImpl =
+      dataRefreshWorkers[get(props.dataSource, 'type', '')]
     const data = await dataRefreshImpl(props.dataSource)
     props.onDataRefreshed(data)
   }
@@ -69,7 +71,11 @@ export default function ParsingOptions(props) {
             onClick={() => refreshData()}
           >
             <BsArrowRepeat className="mr-2" />
-            {get(dataRefreshCaptions, get(props.dataSource, 'type', ''), "Refresh data")}
+            {get(
+              dataRefreshCaptions,
+              get(props.dataSource, 'type', ''),
+              'Refresh data'
+            )}
           </Button>
         )}
 
@@ -79,6 +85,14 @@ export default function ParsingOptions(props) {
 
         <StackSelector
           title="Stack on"
+          value={props.stackDimension}
+          list={props.dimensions}
+          onChange={(nextStackDimension) =>
+            props.setStackDimension(nextStackDimension)
+          }
+        />
+        <GeoSelector
+          title="Geo field"
           value={props.stackDimension}
           list={props.dimensions}
           onChange={(nextStackDimension) =>
