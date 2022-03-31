@@ -35,6 +35,7 @@ function MapContainer({
   const geoCoder = useRef(null)
   const loader = useRef()
   const previousZoom = useRef(MAP_DEFAULTS.ZOOM)
+  const previousLevel = useRef(null)
   const [lng, setLng] = useState(MAP_DEFAULTS.CENTER[0])
   const [lat, setLat] = useState(MAP_DEFAULTS.CENTER[1])
   const [zoom, setZoom] = useState(MAP_DEFAULTS.ZOOM)
@@ -86,6 +87,11 @@ function MapContainer({
         const zoomlevel = ZOOM_LEVELS.filter(
           (l) => zoom < l.zoom[0] && zoom >= l.zoom[1]
         )[0]
+        if (zoomlevel.name === previousLevel.current) {
+          finishedLoading()
+          return
+        }
+        previousLevel.current = zoomlevel.name
         try {
           const queryParams = Object.assign({}, ESRI_QUERY_DEFAULTS, {
             geometry: bbox.toString(),
@@ -124,6 +130,7 @@ function MapContainer({
       console.log(e.type)
       const data = draw.current.getAll()
       const answer = document.getElementById('calculated-area')
+      previousLevel.current = null
       if (data.features.length > 0) {
         // remove previus boundaries
         const pids = []
@@ -141,6 +148,7 @@ function MapContainer({
         const rounded_area = Math.round(area * 100) / 100
         answer.innerHTML = `<p><strong>${rounded_area}</strong></p><p>square meters</p>`
       } else {
+        // TODO: reset map
         answer.innerHTML = ''
         if (e.type !== 'draw.delete') alert('Click the map to draw a polygon.')
       }
