@@ -26,33 +26,43 @@ The easiest way to use data-in.place is by accessing the most updated version on
 
 ## Installation
 
-If you want to run your instance of RAW locally on your machine, be sure you have the following requirements installed.
+If you want to run your instance of data-in.place locally on your machine, be sure you have the following requirements installed.
 
 ### Requirements
 
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) (it could be used through the interface of [GitHub Desktop](https://desktop.github.com/))
 - [Node.js](https://nodejs.org/en/)
 - [Yarn](https://yarnpkg.com/getting-started/install)
+- [MapBox](https://account.mapbox.com/) (this is used as a Map API)
 
 ### Instructions
 
 Clone data-in.place from the command line:
 
 ```shell
-$ git clone https://github.com/aarepuu/data-in.place.git
+git clone https://github.com/aarepuu/data-in.place.git
 ```
 
 browse to data-in.place root folder:
 
 ```shell
-$ cd data-in.place
+cd data-in.place
 ```
 
 set `.env` variables:
 
 ```shell
-$ cp .env.example .env # need to add your own https://mapbox.com/ api key
+cp .env.example .env # need to add your own https://mapbox.com/ api key
 ```
+
+set `configuration` for map and datasources:
+
+```shell
+cp config/dataSources.json.example config/dataSources.json # datasource links
+cp config/geom.js.example config/geom.js # geom configurations
+```
+
+Read more about how to configure datasources and mapping from the [Developer Guide](https://github.com/aarepuu/data-in.place/wiki/Developer-Guide)
 
 Install the needed dependencies through Yarn:
 
@@ -98,7 +108,7 @@ This data-in.place tool is an extension of RAWGraphs and originally "Forked" fro
 If you would like to contribute to development of RAWGraps you can fork their software from [https://github.com/rawgraphs/rawgraphs-app](here).
 
 Documentation and FAQs about how to use RAWGraphs can be found on the [wiki](https://github.com/rawgraphs/rawgraphs-app/wiki).
-Information about the available charts can be found [here](https://github.com/rawgraphs/rawgraphs-app/wiki/Available-Charts). For more information about adding or editing layouts, see the [Developer Guide](https://github.com/rawgraphs/raw/wiki/Developer-Guide).
+Information about the available charts can be found [here](https://github.com/rawgraphs/rawgraphs-app/wiki/Available-Charts). For more information about adding or editing layouts, see the [Developer Guide](https://github.com/rawgraphs/rawgraphs-app/wiki/Developer-Guide).
 
 ## Licenses
 

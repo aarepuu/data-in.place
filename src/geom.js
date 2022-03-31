@@ -1,95 +1,86 @@
 // start zoom and centre point of the map
 export const MAP_DEFAULTS = {
   ZOOM: 12,
-  CENTER: [-1.6125, 54.982],
+  CENTER: [145.133957, -37.907803],
 }
 // restrict map panning
 export const MAP_RESTRICTIONS = {
   // see https://gist.github.com/graydon/11198540
   BOUNDS: [
-    [-7.57216793459, 49.959999905], // Southwest coordinates
-    [1.68153079591, 58.6350001085], // Northeast coordinates
+    [113.338953078, -43.6345972634], // Southwest coordinates
+    [153.569469029, -10.6681857235], // Northeast coordinates
   ],
   MAX_ZOOM_LEVEL: 17,
   MIN_ZOOM_LEVEL: 6,
 }
 //  ArcGIS MapServer query parameters
-export const ZOOM_LEVELS = [
-  {
-    name: 'country',
-    path:
-      'Administrative_Boundaries/Countries_December_2017_Boundaries_UK_WGS84', // mapserver subpath
-    layer: '4', // layer number
-    fields: ['objectid', 'shape', 'ctry17cd', 'ctry17nm'], // return fields
-    field: 'ctry17cd', // id field for data queries
-    zoom: [6, -1], // [ max, min ]
-  },
-  {
-    name: 'region',
-    path: 'Administrative_Boundaries/Regions_December_2017_Boundaries',
-    layer: '4',
-    fields: ['objectid', 'shape', 'rgn17cd', 'rgn17nm'],
-    field: 'rgn17cd',
-    zoom: [11, 6],
-  },
-  {
-    name: 'county',
-    path:
-      'Administrative_Boundaries/WGS84_UK_Counties_and_Unitary_Authorities_December_2017_Boundaries',
-    layer: '4',
-    fields: ['objectid', 'shape', 'ctyua17cd', 'ctyua17nm'],
-    field: 'ctyua17cd',
-    zoom: [12, 11],
-  },
-  {
-    name: 'lad',
-    path:
-      'Administrative_Boundaries/Local_Authority_Districts_May_2018_Boundaries',
-    layer: '4',
-    fields: ['objectid', 'shape', 'lad18cd', 'lad18nm'],
-    field: 'lad18cd',
-    zoom: [13, 12],
-  },
-  // {
-  //   name: 'ward',
-  //   path: 'Administrative_Boundaries/Wards_December_2015_Boundaries',
-  //   layer: '2',
-  //   fields: ['objectid', 'shape', 'wd15cd', 'wd15nm'],
-  //   field: 'wd15',
-  //   zoom: [13,11],
-  // },
-  {
-    name: 'msoa',
-    path:
-      'Census_Boundaries/Middle_Super_Output_Areas_December_2011_Boundaries',
-    layer: '3',
-    fields: ['objectid', 'shape', 'msoa11cd', 'msoa11nm'],
-    field: 'msoa11cd',
-    zoom: [15, 13],
-  },
-  {
-    name: 'lsoa',
-    path: 'Census_Boundaries/Lower_Super_Output_Areas_December_2011_Boundaries',
-    layer: '2',
-    fields: ['objectid', 'shape', 'lsoa11cd', 'lsoa11nm'],
-    field: 'lsoa11cd',
-    zoom: [17, 15],
-  },
-  {
-    name: 'oa',
-    path: 'Census_Boundaries/Output_Area_December_2011_Boundaries',
-    layer: '1',
-    fields: ['objectid', 'shape', 'oa11cd', 'lad11cd'],
-    field: 'oa11cd',
-    zoom: [22, 17], // 22 is max zoom on mapox map
-  },
-]
 export const ESRI_QUERY_DEFAULTS = {
   where: '1=1',
   geometryType: 'esriGeometryEnvelope',
   inSR: '4326',
-  /* outFields: 'objectid,ctry17cd,ctry17nm,ctry17nmw,shape', */
   spatialRel: 'esriSpatialRelIntersects',
   outSR: '4326',
-  f: 'geojson',
+  geometryPrecision: '4',
+  returnTrueCurves: false,
+  returnExtentsOnly: true,
+  f: 'geoJSON',
 }
+
+export const ZOOM_LEVELS = [
+  {
+    name: 'country',
+    path: 'ASGS2021/AUS', // mapserver subpath
+    layer: '1', // layer number
+    fields: ['objectid', 'shape', 'aus_code_2021', 'aus_name_2021'], // return fields
+    field: 'AUS_CODE_2021', // id field for data queries
+    zoom: [2, -1], // [ max, min ]
+  },
+  {
+    name: 'state',
+    path: 'ASGS2021/STE',
+    layer: '1',
+    fields: ['objectid', 'shape', 'state_code_2021', 'state_name_2021'],
+    field: 'STATE_CODE_2021',
+    zoom: [4, 2],
+  },
+  {
+    name: 'gccsa',
+    path: 'ASGS2021/GCCSA',
+    layer: '1',
+    fields: ['objectid', 'shape', 'gccsa_code_2021', 'gccsa_name_2021'],
+    field: 'GCCSA_CODE_2021',
+    zoom: [6, 4],
+  },
+  {
+    name: 'sa4',
+    path: 'ASGS2021/SA4',
+    layer: '1',
+    fields: ['objectid', 'shape', 'sa4_code_2021', 'sa4_name_2021'],
+    field: 'SA4_CODE_2021',
+    zoom: [8, 6],
+  },
+  {
+    name: 'sa3',
+    path: 'ASGS2021/SA3',
+    layer: '1',
+    fields: ['objectid', 'shape', 'sa3_code_2021', 'sa3_name_2021'],
+    field: 'SA3_CODE_2021',
+    zoom: [10, 8],
+  },
+  {
+    name: 'sa2',
+    path: 'ASGS2021/SA2',
+    layer: '1',
+    fields: ['objectid', 'shape', 'sa2_code_2021', 'sa2_name_2021'],
+    field: 'SA2_CODE_2021',
+    zoom: [12, 10],
+  },
+  {
+    name: 'mb',
+    path: 'ASGS2021/MB',
+    layer: '1',
+    fields: ['objectid', 'shape', 'mb_code_2021'],
+    field: 'MB_CODE_2021',
+    zoom: [22, 12], // 22 is max zoom on mapox map
+  },
+]

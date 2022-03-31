@@ -26,10 +26,13 @@ export default function DataSources({
   }, [])
 
   const select = async (sample) => {
-    const { delimiter, url } = sample
+    const { delimiter, url, headers, join, params } = sample
     let response
     try {
-      response = await fetch(`${url}${selectedAreas.toString()}`)
+      const fetchUrl = `${url}${selectedAreas.join(join)}${params}`
+      response = await fetch(fetchUrl, {
+        headers: headers,
+      })
     } catch (e) {
       setLoadingError('Loading error. ' + e.message)
       return
