@@ -41,6 +41,7 @@ export default function useDataLoader() {
   const [decimalsSeparator, setDecimalsSeparator] = useState('.')
   const [locale, setLocale] = useState(navigator.language || 'en-US')
   const [stackDimension, setStackDimension] = useState()
+  const [geoField, setGeoField] = useState(null)
 
   /* Third stage: data ready to become a chart */
   const [data, setData] = useState(null)
@@ -141,6 +142,7 @@ export default function useDataLoader() {
         unstackedData,
         dataTypes,
         separator,
+        geoField,
         thousandsSeparator,
         decimalsSeparator,
         locale,
@@ -150,6 +152,7 @@ export default function useDataLoader() {
       setUserInput(userInput)
       setUserDataType(userDataType)
       setSeparator(separator)
+      setGeoField(geoField)
       setThousandsSeparator(thousandsSeparator)
       setDecimalsSeparator(decimalsSeparator)
       setLocale(locale)
@@ -270,9 +273,12 @@ export default function useDataLoader() {
     setDataSource(source)
     setUserDataType(dataType)
     setParserError(error)
-    if (extra && typeof extra === 'object' && 'separator' in extra) {
-      setSeparator(extra.separator)
+    console.log(extra)
+    if (extra && typeof extra === 'object') {
+      if ('separator' in extra) setSeparator(extra.separator)
+      if ('geom' in extra) setGeoField(extra.geom)
     }
+
     // Data parsed ok set parent data
     if (dataType !== 'json' && !error) {
       handleNewUserData(parsedUserData)
@@ -484,6 +490,7 @@ export default function useDataLoader() {
     unstackedData,
     unstackedColumns,
     separator,
+    geoField,
     setSeparator: handleChangeSeparator,
     thousandsSeparator,
     setThousandsSeparator: handleChangeThousandsSeparator,

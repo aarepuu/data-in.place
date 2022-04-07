@@ -166,7 +166,7 @@ function DataTypeSelector({
                     {'Date'}
                     {currentType === 'date' && (
                       <span className={S['date-format-preview']}>
-                        {' (' + (currentTypeComplete.dateFormat) + ')  '}
+                        {' (' + currentTypeComplete.dateFormat + ')  '}
                       </span>
                     )}
                   </div>
@@ -219,6 +219,7 @@ function HeaderRenderer({ ...props }) {
       >
         {column.name}
       </span>
+      {/* <BsFillXCircleFill style={{ marginRight: 1, fill: 'var(--gray-700)' }} /> */}
     </div>
   )
 }
@@ -243,9 +244,13 @@ export default function DataGrid({
   //   of digits of the highest id
   const idColumnWidth =
     24 + 8 * (Math.floor(Math.log10(userDataset.length)) + 1)
-  
-  const equalDinstribution = (containerEl.current?.getBoundingClientRect().width - idColumnWidth - 1) / Object.keys(dataTypes).length
-  const columnWidth = equalDinstribution ? Math.max(equalDinstribution, 170) : 170;
+
+  const equalDinstribution =
+    (containerEl.current?.getBoundingClientRect().width - idColumnWidth - 1) /
+    Object.keys(dataTypes).length
+  const columnWidth = equalDinstribution
+    ? Math.max(equalDinstribution, 170)
+    : 170
 
   const columns = useMemo(() => {
     if (!userDataset || !dataTypes) {
@@ -282,7 +287,7 @@ export default function DataGrid({
           coerceTypes({ ...dataTypes, [k]: nextType }),
         sortable: true,
         resizable: true,
-        width: columnWidth
+        width: columnWidth,
       })),
     ]
   }, [
@@ -344,9 +349,7 @@ export default function DataGrid({
         sortDirection={sortDirection}
         onSort={handleSort}
         height={432}
-        onColumnResize={() => {
-          
-        }}
+        onColumnResize={() => {}}
         onRowsUpdate={(update) => {
           if (update.action === 'CELL_UPDATE') {
             const newDataset = [...userDataset]

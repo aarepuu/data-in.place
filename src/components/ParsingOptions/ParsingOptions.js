@@ -24,6 +24,7 @@ const dataRefreshCaptions = {
 }
 
 export default function ParsingOptions(props) {
+  console.log(props)
   const refreshData = async () => {
     const dataRefreshImpl =
       dataRefreshWorkers[get(props.dataSource, 'type', '')]

@@ -37,6 +37,8 @@ function DataLoader({
   parseError,
   unstackedColumns,
   separator,
+  geoField,
+  setGeoField,
   setSeparator,
   thousandsSeparator,
   setThousandsSeparator,
@@ -348,6 +350,7 @@ function DataLoader({
               locale={locale}
               setLocale={setLocale}
               separator={separator}
+              geoField={geoField}
               setSeparator={setSeparator}
               thousandsSeparator={thousandsSeparator}
               setThousandsSeparator={setThousandsSeparator}

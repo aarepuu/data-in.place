@@ -38,6 +38,7 @@ function App() {
     unstackedColumns,
     data,
     separator,
+    geoField,
     thousandsSeparator,
     decimalsSeparator,
     locale,
@@ -122,6 +123,7 @@ function App() {
       unstackedColumns,
       data,
       separator,
+      geoField,
       thousandsSeparator,
       decimalsSeparator,
       locale,
@@ -140,6 +142,7 @@ function App() {
     mapping,
     parseError,
     separator,
+    geoField,
     stackDimension,
     thousandsSeparator,
     userData,
@@ -193,16 +196,16 @@ function App() {
             setCurrentAreas={handleAreasChange}
           />
         </Section>
-        {currentAreas.length > 0 && (
-          <Section title={`2. Load your data`} loading={loading}>
-            <DataLoader
-              {...dataLoader}
-              hydrateFromProject={importProject}
-              currentZoom={currentZoom}
-              currentAreas={currentAreas}
-            />
-          </Section>
-        )}
+        {/* {currentAreas.length > 0 && ( */}
+        <Section title={`2. Load your data`} loading={loading}>
+          <DataLoader
+            {...dataLoader}
+            hydrateFromProject={importProject}
+            currentZoom={currentZoom}
+            currentAreas={currentAreas}
+          />
+        </Section>
+        {/* )} */}
         {data && (
           <Section title="3. Choose a chart">
             <ChartSelector
