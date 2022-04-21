@@ -24,7 +24,7 @@ const dataRefreshCaptions = {
 }
 
 export default function ParsingOptions(props) {
-  console.log(props)
+  // console.log(props)
   const refreshData = async () => {
     const dataRefreshImpl =
       dataRefreshWorkers[get(props.dataSource, 'type', '')]
@@ -92,14 +92,17 @@ export default function ParsingOptions(props) {
             props.setStackDimension(nextStackDimension)
           }
         />
-        <GeoSelector
-          title="Geo field"
-          value={props.stackDimension}
-          list={props.dimensions}
-          onChange={(nextStackDimension) =>
-            props.setStackDimension(nextStackDimension)
-          }
-        />
+        {props && props.geoField && (
+          <GeoSelector
+            title="Geo field"
+            type={props.geoField.geoType}
+            value={props.stackDimension}
+            list={props.dimensions}
+            onChange={(nextStackDimension) =>
+              props.setStackDimension(nextStackDimension)
+            }
+          />
+        )}
       </Col>
     </Row>
   )

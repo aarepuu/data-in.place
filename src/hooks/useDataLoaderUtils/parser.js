@@ -1,5 +1,6 @@
 import { dsvFormat } from 'd3'
 import { DefaultSeparator, separatorsList } from '../../constants'
+import { point, featureCollection } from '@turf/helpers'
 
 function JsonParser(dataString) {
   //Removing white lines (useful when pasting from sheets, ecc)
@@ -67,18 +68,22 @@ const PARSERS = [
 ]
 
 function geoParser(columns) {
+  // change to regex
+  const geoColumns = []
   let obj = columns.find(
     (o) => o.toLowerCase() === 'latitude' || o.toLowerCase() === 'lat'
   )
   if (obj !== undefined) {
     const geoType = 'Longitude and Latitude'
-    const lat = obj
-    const lon = columns.find(
-      (o) => o.toLowerCase() === 'longitude' || o.toLowerCase() === 'lon'
+    geoColumns.push(obj)
+    geoColumns.push(
+      columns.find(
+        (o) => o.toLowerCase() === 'longitude' || o.toLowerCase() === 'lon'
+      )
     )
     // const geotype = true
     // $scope.geoReference()
-    return { geoType, columns: { lat, lon } }
+    return { geoType, columns: geoColumns }
   }
   // obj = $scope.metadata.find((o) => o.type === 'Postcode')
   // if (obj !== undefined) {
@@ -96,13 +101,24 @@ function geoParser(columns) {
   // //console.log(obj.key)
 }
 
+function geoReference(data, geom) {
+  const columns = geom.columns
+  console.log({ ...columns })
+  const lonlats = data.map(({ ...columns }) => {
+    return { ...columns }
+  })
+  console.log(lonlats)
+}
+
 export function parseData(data, opts) {
   for (const parser of PARSERS) {
     try {
       const [parsed, extra] = parser.parse(data, opts)
-      // console.log(geoParser(Object.keys(parsed[0])))
       const geom = geoParser(parsed.columns)
-      if (geom) extra.geom = geom
+      if (geom) {
+        geoReference(parsed, geom)
+        extra.geom = geom
+      }
       return [parser.dataType, parsed, extra]
     } catch (e) {
       // console.error('Parsing error', e)

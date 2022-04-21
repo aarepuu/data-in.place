@@ -273,7 +273,6 @@ export default function useDataLoader() {
     setDataSource(source)
     setUserDataType(dataType)
     setParserError(error)
-    console.log(extra)
     if (extra && typeof extra === 'object') {
       if ('separator' in extra) setSeparator(extra.separator)
       if ('geom' in extra) setGeoField(extra.geom)

@@ -3,6 +3,7 @@ import { Dropdown } from 'react-bootstrap'
 
 export default function GeoSelector({
   title,
+  type,
   value,
   list,
   onChange,
@@ -20,6 +21,7 @@ export default function GeoSelector({
   return (
     <div className="option">
       {title}
+      {type}
       <Dropdown className="d-inline-block raw-dropdown">
         <Dropdown.Toggle
           variant="white"
