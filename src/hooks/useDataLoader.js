@@ -41,7 +41,8 @@ export default function useDataLoader() {
   const [decimalsSeparator, setDecimalsSeparator] = useState('.')
   const [locale, setLocale] = useState(navigator.language || 'en-US')
   const [stackDimension, setStackDimension] = useState()
-  const [geoField, setGeoField] = useState(null)
+  const [geoData, setGeoData] = useState(null)
+  const [geoFields, setGeoFields] = useState([])
 
   /* Third stage: data ready to become a chart */
   const [data, setData] = useState(null)
@@ -128,6 +129,7 @@ export default function useDataLoader() {
     setDataSource(null)
     setParserError(null)
     setStackDimension(null)
+    setGeoFields([])
     setUnstackedInfo([null, null])
   }, [])
 
@@ -142,7 +144,8 @@ export default function useDataLoader() {
         unstackedData,
         dataTypes,
         separator,
-        geoField,
+        geoData,
+        geoFields,
         thousandsSeparator,
         decimalsSeparator,
         locale,
@@ -152,11 +155,12 @@ export default function useDataLoader() {
       setUserInput(userInput)
       setUserDataType(userDataType)
       setSeparator(separator)
-      setGeoField(geoField)
+      setGeoData(geoData)
       setThousandsSeparator(thousandsSeparator)
       setDecimalsSeparator(decimalsSeparator)
       setLocale(locale)
       setStackDimension(stackDimension)
+      setGeoFields(geoFields)
       setDataSource(dataSource)
       setUserData(userData)
       setParserError(parseError)
@@ -170,6 +174,7 @@ export default function useDataLoader() {
     [parseDatasetAndSetData]
   )
 
+  //TODO: add georeferencing
   const handleReplacingData = useCallback(
     (userData) => {
       parseDatasetAuto(userData, undefined, {
@@ -275,12 +280,13 @@ export default function useDataLoader() {
     setParserError(error)
     if (extra && typeof extra === 'object') {
       if ('separator' in extra) setSeparator(extra.separator)
-      if ('geom' in extra) setGeoField(extra.geom)
+      if ('geom' in extra) setGeoData(extra.geom)
     }
 
     // Data parsed ok set parent data
     if (dataType !== 'json' && !error) {
       handleNewUserData(parsedUserData)
+      // TODO: add geodata
     }
     const jsonPath = dataSource?.jsonPath ?? undefined
     if (dataType === 'json' && !error && jsonPath !== undefined) {
@@ -451,6 +457,13 @@ export default function useDataLoader() {
     }
   }
 
+  function handleGeoType(geoType) {
+    // geoData.geoType = geoType
+    // setGeoData
+    // setGeoType(geoType)
+    // TODO: re georef data
+  }
+
   const startDataReplace = useCallback(() => {
     setMode(DATA_LOADER_MODE.REPLACE)
     __cache.userInput = userInput
@@ -477,6 +490,7 @@ export default function useDataLoader() {
     setData(__cache.replacedData)
     setParserError(null)
     setStackDimension(null)
+    setGeoFields([])
     setUnstackedInfo([null, null])
   }, [])
 
@@ -489,7 +503,8 @@ export default function useDataLoader() {
     unstackedData,
     unstackedColumns,
     separator,
-    geoField,
+    geoData,
+    geoFields,
     setSeparator: handleChangeSeparator,
     thousandsSeparator,
     setThousandsSeparator: handleChangeThousandsSeparator,
@@ -506,6 +521,7 @@ export default function useDataLoader() {
     loadSource,
     handleInlineEdit,
     handleStackOperation,
+    handleGeoType,
     setJsonData,
     resetDataLoader: reset,
     hydrateFromSavedProject,

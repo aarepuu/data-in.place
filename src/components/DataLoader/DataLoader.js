@@ -37,8 +37,9 @@ function DataLoader({
   parseError,
   unstackedColumns,
   separator,
-  geoField,
-  setGeoField,
+  geoData,
+  geoFields,
+  setGeoData,
   setSeparator,
   thousandsSeparator,
   setThousandsSeparator,
@@ -55,6 +56,7 @@ function DataLoader({
   loadSource,
   handleInlineEdit,
   handleStackOperation,
+  handleGeoType,
   setJsonData,
   resetDataLoader,
   dataLoaderMode,
@@ -350,7 +352,8 @@ function DataLoader({
               locale={locale}
               setLocale={setLocale}
               separator={separator}
-              geoField={geoField}
+              geoType={geoData ? geoData.geoType : ''}
+              geoFields={geoData ? geoData.columns : []}
               setSeparator={setSeparator}
               thousandsSeparator={thousandsSeparator}
               setThousandsSeparator={setThousandsSeparator}
@@ -358,6 +361,7 @@ function DataLoader({
               setDecimalsSeparator={setDecimalsSeparator}
               dimensions={data ? unstackedColumns || data.dataTypes : []}
               stackDimension={stackDimension}
+              setGeoType={handleGeoType}
               setStackDimension={handleStackOperation}
               userDataType={userDataType}
               dataSource={dataSource}

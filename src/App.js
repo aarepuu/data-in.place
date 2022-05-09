@@ -38,7 +38,8 @@ function App() {
     unstackedColumns,
     data,
     separator,
-    geoField,
+    geoData,
+    geoFields,
     thousandsSeparator,
     decimalsSeparator,
     locale,
@@ -123,7 +124,8 @@ function App() {
       unstackedColumns,
       data,
       separator,
-      geoField,
+      geoData,
+      geoFields,
       thousandsSeparator,
       decimalsSeparator,
       locale,
@@ -142,7 +144,8 @@ function App() {
     mapping,
     parseError,
     separator,
-    geoField,
+    geoData,
+    geoFields,
     stackDimension,
     thousandsSeparator,
     userData,
@@ -194,6 +197,7 @@ function App() {
             setCurrentBoundary={handleBoundaryChange}
             currentAreas={currentAreas}
             setCurrentAreas={handleAreasChange}
+            userData={geoData}
           />
         </Section>
         {/* {currentAreas.length > 0 && ( */}

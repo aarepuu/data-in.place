@@ -1,5 +1,5 @@
 import { dsvFormat } from 'd3'
-import { DefaultSeparator, separatorsList } from '../../constants'
+import { DefaultSeparator, separatorsList, GEO_REFS } from '../../constants'
 import { point, featureCollection } from '@turf/helpers'
 
 function JsonParser(dataString) {
@@ -71,14 +71,15 @@ function geoParser(columns) {
   // change to regex
   const geoColumns = []
   let obj = columns.find(
-    (o) => o.toLowerCase() === 'latitude' || o.toLowerCase() === 'lat'
+    (o) => o.toLowerCase() === 'longitude' || o.toLowerCase() === 'lon'
   )
   if (obj !== undefined) {
-    const geoType = 'Longitude and Latitude'
+    // TODO: use constant
+    const geoType = GEO_REFS.lonlat
     geoColumns.push(obj)
     geoColumns.push(
       columns.find(
-        (o) => o.toLowerCase() === 'longitude' || o.toLowerCase() === 'lon'
+        (o) => o.toLowerCase() === 'latitude' || o.toLowerCase() === 'lat'
       )
     )
     // const geotype = true
@@ -103,11 +104,13 @@ function geoParser(columns) {
 
 function geoReference(data, geom) {
   const columns = geom.columns
-  console.log({ ...columns })
-  const lonlats = data.map(({ ...columns }) => {
-    return { ...columns }
-  })
-  console.log(lonlats)
+  // console.log({ ...columns })
+  if (geom.geoType === GEO_REFS.lonlat) {
+    const lonlats = data.map((el) => {
+      return point([el[columns[0]], el[columns[1]]])
+    })
+    return featureCollection(lonlats)
+  }
 }
 
 export function parseData(data, opts) {
@@ -116,7 +119,8 @@ export function parseData(data, opts) {
       const [parsed, extra] = parser.parse(data, opts)
       const geom = geoParser(parsed.columns)
       if (geom) {
-        geoReference(parsed, geom)
+        const data = geoReference(parsed, geom)
+        geom.data = data
         extra.geom = geom
       }
       return [parser.dataType, parsed, extra]

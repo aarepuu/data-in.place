@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { Dropdown } from 'react-bootstrap'
+import { GEO_REFS } from '../../constants'
 
 export default function GeoSelector({
   title,
@@ -10,9 +11,9 @@ export default function GeoSelector({
   ...props
 }) {
   const handleChange = useCallback(
-    (nextDimension) => {
+    (nextGeoType) => {
       if (onChange) {
-        onChange(nextDimension)
+        onChange(nextGeoType)
       }
     },
     [onChange]
@@ -21,25 +22,19 @@ export default function GeoSelector({
   return (
     <div className="option">
       {title}
-      {type}
       <Dropdown className="d-inline-block raw-dropdown">
         <Dropdown.Toggle
           variant="white"
           className="truncate-160px"
-          disabled={list.length === 0}
+          disabled={GEO_REFS.length === 0}
         >
-          {value ? value : 'Column'}
+          {type}
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {value && (
-            <Dropdown.Item onSelect={() => handleChange(null)}>
-              {'Do not reference'}
-            </Dropdown.Item>
-          )}
-          {Object.keys(list).map((d) => {
+          {Object.keys(GEO_REFS).map((d) => {
             return (
               <Dropdown.Item key={d} onSelect={() => handleChange(d)}>
-                {d}
+                {GEO_REFS[d]}
               </Dropdown.Item>
             )
           })}

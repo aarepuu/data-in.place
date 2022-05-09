@@ -124,3 +124,8 @@ export const COLOR_SCHEMES_LABELS = {
   interpolateTurbo: 'Turbo discrete',
   interpolateSpectral: 'Spectral discrete',
 }
+
+export const GEO_REFS = {
+  lonlat: 'Longitude and Latitude',
+  postcode: 'Postcodes',
+}

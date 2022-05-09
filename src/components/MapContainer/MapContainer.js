@@ -7,6 +7,7 @@ import 'mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
 import Area from '@turf/area'
 import BBox from '@turf/bbox'
 import { arcgisToGeoJSON } from '@terraformer/arcgis'
+import { GEO_REFS } from '../../constants'
 
 import './MapContainer.scss'
 
@@ -28,6 +29,7 @@ function MapContainer({
   setCurrentBoundary,
   currentAreas,
   setCurrentAreas,
+  userData,
 }) {
   const mapContainer = useRef(null)
   const map = useRef(null)
@@ -165,7 +167,7 @@ function MapContainer({
       style: 'mapbox://styles/mapbox/streets-v11?optimize=true',
       center: [lng, lat],
       zoom: zoom,
-      maxBounds: MAP_RESTRICTIONS.BOUNDS,
+      // maxBounds: MAP_RESTRICTIONS.BOUNDS,
     }).on('load', finishedLoading) // when the tiles load, remove the screen
     draw.current = new MapboxDraw({
       displayControlsDefault: false,
@@ -188,10 +190,18 @@ function MapContainer({
     map.current.addControl(geoCoder.current)
 
     map.current.on('load', () => {
+      // make empty datasources
+      // area
       map.current.addSource('area', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       })
+      // points
+      map.current.addSource('points', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      })
+      // area layer for geo boundaries
       map.current.addLayer({
         id: 'area',
         type: 'fill',
@@ -211,6 +221,16 @@ function MapContainer({
         paint: {
           'line-color': '#000',
           'line-width': 3,
+        },
+      })
+      // Add a symbol layer
+      map.current.addLayer({
+        id: 'points',
+        type: 'circle',
+        source: 'points',
+        paint: {
+          'circle-color': '#f28cb1',
+          'circle-radius': 20,
         },
       })
     })
@@ -249,6 +269,14 @@ function MapContainer({
       }
     })
   }, [setCurrentZoom, currentBoundary, fetchAreas])
+
+  useEffect(() => {
+    if (!userData) return
+    console.log(userData)
+    if (userData.geoType === GEO_REFS.lonlat)
+      // add/replace points on map
+      map.current.getSource('points').setData(userData.data)
+  }, [userData])
 
   return (
     <div>
