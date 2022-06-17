@@ -167,7 +167,7 @@ function MapContainer({
       style: 'mapbox://styles/mapbox/streets-v11?optimize=true',
       center: [lng, lat],
       zoom: zoom,
-      // maxBounds: MAP_RESTRICTIONS.BOUNDS,
+      maxBounds: MAP_RESTRICTIONS.BOUNDS,
     }).on('load', finishedLoading) // when the tiles load, remove the screen
     draw.current = new MapboxDraw({
       displayControlsDefault: false,
@@ -230,7 +230,7 @@ function MapContainer({
         source: 'points',
         paint: {
           'circle-color': '#f28cb1',
-          'circle-radius': 20,
+          'circle-radius': 10,
         },
       })
     })
