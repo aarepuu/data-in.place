@@ -12,22 +12,43 @@ import ScreenSizeAlert from './components/ScreenSizeAlert'
 
 import Map from './components/MapContainer'
 import DataLoader from './components/DataLoader'
-import charts from './charts'
 import ChartSelector from './components/ChartSelector'
 import DataMapping from './components/DataMapping'
 import ChartPreviewWithOptions from './components/ChartPreviewWIthOptions'
 import Exporter from './components/Exporter'
 import get from 'lodash/get'
+import find from 'lodash/find'
 import usePrevious from './hooks/usePrevious'
 import { serializeProject } from '@rawgraphs/rawgraphs-core'
+import baseCharts from './charts'
+import useSafeCustomCharts from './hooks/useSafeCustomCharts'
 import useDataLoader from './hooks/useDataLoader'
 import isPlainObject from 'lodash/isPlainObject'
 import CookieConsent from 'react-cookie-consent'
+import CustomChartLoader from './components/CustomChartLoader'
+import CustomChartWarnModal from './components/CustomChartWarnModal'
+
 import { MAP_DEFAULTS } from './geom'
 
 // #TODO: i18n
 
 function App() {
+  const [
+    customCharts,
+    {
+      toConfirmCustomChart,
+      confirmCustomChartLoad,
+      abortCustomChartLoad,
+      uploadCustomCharts,
+      loadCustomChartsFromUrl,
+      loadCustomChartsFromNpm,
+      importCustomChartFromProject,
+      removeCustomChart,
+      exportCustomChart,
+    },
+  ] = useSafeCustomCharts()
+  const charts = useMemo(() => baseCharts.concat(customCharts), [customCharts])
+
   const dataLoader = useDataLoader()
   const {
     userInput,
@@ -53,7 +74,7 @@ function App() {
   const [currentAreas, setCurrentAreas] = useState([])
   const [currentZoom, setCurrentZoom] = useState(MAP_DEFAULTS.ZOOM)
   /* From here on, we deal with viz state */
-  const [currentChart, setCurrentChart] = useState(null)
+  const [currentChart, setCurrentChart] = useState(charts[0])
   const [mapping, setMapping] = useState({})
   const [visualOptions, setVisualOptions] = useState({})
   const [rawViz, setRawViz] = useState(null)
@@ -90,6 +111,27 @@ function App() {
     }
   }, [columnNames, prevColumnNames, clearLocalMapping])
 
+  // update current chart when the related custom charts change under the hood
+  // if the related custom chart is removed set the first chart
+  useEffect(() => {
+    if (currentChart.rawCustomChart) {
+      const currentCustom = find(
+        customCharts,
+        (c) => c.metadata.id === currentChart.metadata.id
+      )
+      if (!currentCustom) {
+        setCurrentChart(baseCharts[0])
+        return
+      }
+      if (
+        currentCustom.rawCustomChart.source !==
+        currentChart.rawCustomChart.source
+      ) {
+        setCurrentChart(currentCustom)
+      }
+    }
+  }, [customCharts, currentChart])
+
   const handleChartChange = useCallback(
     (nextChart) => {
       setMapping({})
@@ -114,7 +156,8 @@ function App() {
     setCurrentAreas([...areas])
   }, [])
 
-  const exportProject = useCallback(() => {
+  const exportProject = useCallback(async () => {
+    const customChart = await exportCustomChart(currentChart)
     return serializeProject({
       userInput,
       userData,
@@ -134,6 +177,7 @@ function App() {
       currentChart,
       mapping,
       visualOptions,
+      customChart,
     })
   }, [
     currentChart,
@@ -154,13 +198,33 @@ function App() {
     visualOptions,
     unstackedColumns,
     unstackedData,
+    exportCustomChart,
   ])
 
   // project import
   const importProject = useCallback(
-    (project) => {
+    async (project, fromUrl) => {
+      let nextCurrentChart
+      if (project.currentChart.rawCustomChart) {
+        try {
+          nextCurrentChart = await importCustomChartFromProject(
+            project.currentChart
+          )
+        } catch (err) {
+          if (err.isAbortByUser) {
+            if (fromUrl) {
+              // NOTE: clean the url when the user abort loading custom js
+              window.history.replaceState(null, null, '/')
+            }
+            return
+          }
+          throw err
+        }
+      } else {
+        nextCurrentChart = project.currentChart
+      }
       hydrateFromSavedProject(project)
-      setCurrentChart(project.currentChart)
+      setCurrentChart(nextCurrentChart)
       setMapping(project.mapping)
       // adding "annotations" for color scale:
       // we annotate the incoming options values (complex ones such as color scales)
@@ -175,19 +239,29 @@ function App() {
       })
       setVisualOptions(project.visualOptions)
     },
-    [hydrateFromSavedProject]
+    [hydrateFromSavedProject, importCustomChartFromProject]
   )
 
-  //setting initial chart and related options
-  useEffect(() => {
-    setCurrentChart(charts[0])
-    const options = getOptionsConfig(charts[0]?.visualOptions)
-    setVisualOptions(getDefaultOptionsValues(options))
-  }, [])
+  // //setting initial chart and related options
+  // useEffect(() => {
+  //   setCurrentChart(charts[0])
+  //   const options = getOptionsConfig(charts[0]?.visualOptions)
+  //   setVisualOptions(getDefaultOptionsValues(options))
+  // }, [])
+  const [isModalCustomChartOpen, setModalCustomChartOpen] = useState(false)
+  const toggleModalCustomChart = useCallback(
+    () => setModalCustomChartOpen((o) => !o),
+    []
+  )
 
   return (
     <div className="App">
       <Header menuItems={HeaderItems} />
+      <CustomChartWarnModal
+        toConfirmCustomChart={toConfirmCustomChart}
+        confirmCustomChartLoad={confirmCustomChartLoad}
+        abortCustomChartLoad={abortCustomChartLoad}
+      />
       <div className="app-sections">
         <Section title={`1. Draw a boundary`} loading={loading}>
           <Map
@@ -212,7 +286,16 @@ function App() {
         {/* )} */}
         {data && (
           <Section title="3. Choose a chart">
+            <CustomChartLoader
+              isOpen={isModalCustomChartOpen}
+              onClose={toggleModalCustomChart}
+              loadCustomChartsFromNpm={loadCustomChartsFromNpm}
+              loadCustomChartsFromUrl={loadCustomChartsFromUrl}
+              uploadCustomCharts={uploadCustomCharts}
+            />
             <ChartSelector
+              onAddChartClick={toggleModalCustomChart}
+              onRemoveCustomChart={removeCustomChart}
               availableCharts={charts}
               currentChart={currentChart}
               setCurrentChart={handleChartChange}
@@ -267,7 +350,7 @@ function App() {
           This website uses Google Analytics to anonymously collect browsing
           data.{' '}
           <a
-            href="https://rawgraphs.io/privacy/"
+            href="https://data-in.placec/privacy/"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 text-body border-bottom border-dark"
