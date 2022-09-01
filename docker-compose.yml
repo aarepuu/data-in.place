@@ -17,10 +17,10 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=web'
-      - 'traefik.http.routers.league-${LEAGUE}-web.rule=Host(`app.${DEPLOYMENT}`)'
-      - 'traefik.http.routers.league-${LEAGUE}-web.entrypoints=websecure'
-      - 'traefik.http.routers.league-${LEAGUE}-web.tls=true'
-      - 'traefik.http.routers.league-${LEAGUE}-web.tls.certresolver=myresolver'
+      - 'traefik.http.routers.aus-datainplace.rule=Host(`app.${DEPLOYMENT}`)'
+      - 'traefik.http.routers.aus-datainplace.entrypoints=websecure'
+      - 'traefik.http.routers.aus-datainplace-web.tls=true'
+      - 'traefik.http.routers.aus-datainplace.tls.certresolver=myresolver'
     env_file: .env
     logging:
       driver: 'json-file'
