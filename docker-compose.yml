@@ -1,0 +1,29 @@
+version: '3.3'
+
+networks:
+  web:
+    external: true
+
+services:
+  app:
+    container_name: aus-datainplace
+    platform: linux/amd64
+    build: .
+    restart: always
+    expose:
+      - 80
+    networks:
+      - web
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=web'
+      - 'traefik.http.routers.league-${LEAGUE}-web.rule=Host(`app.${DEPLOYMENT}`)'
+      - 'traefik.http.routers.league-${LEAGUE}-web.entrypoints=websecure'
+      - 'traefik.http.routers.league-${LEAGUE}-web.tls=true'
+      - 'traefik.http.routers.league-${LEAGUE}-web.tls.certresolver=myresolver'
+    env_file: .env
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '1024k'
+        max-file: '10'
