@@ -1,7 +1,7 @@
 # Start with a node 14 image with package info
 # Installs *all* packages and runs build script
 FROM node:14-alpine as build-stage
-RUN apk update && apk add --no-cache bash git openssh yarn
+RUN apk update && apk add --no-cache bash git openssh
 WORKDIR /app
 COPY [ ".", "/app/" ]
 RUN yarn install

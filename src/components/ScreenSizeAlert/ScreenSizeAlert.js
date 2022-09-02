@@ -37,17 +37,18 @@ function ScreenSizeAlert() {
           <span role="img" aria-label="Party icon">
             🎉
           </span>{' '}
-          Welcome to the new RAWGraphs!
+          Welcome to the new data-in.place!
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p className="big">
-          RAWGraphs 2.0 is designed for {size.width >= 768 ? 'slightly ' : ' '}
+          data-in.place 2.0 is designed for{' '}
+          {size.width >= 768 ? 'slightly ' : ' '}
           bigger screens!
         </p>
         <p>
           Resize your browser window or{' '}
-          <a href="mailto:?subject=Visit+RAWGraphs+2.0&body=Hello%21%0D%0APlease+do+not+forget+to+take+a+look+at+the+new+version+of+RAWGraphs%21%0D%0A%0D%0AVisit%3A+https%3A%2F%2Fdev.rawgraphs.io%2F%0D%0A%0D%0ASee+you+later%2C%0D%0AThe+RAWGraphs+Team">
+          <a href="mailto:?subject=Visit+data-in.place+2.0&body=Hello%21%0D%0APlease+do+not+forget+to+take+a+look+at+the+new+version+of+data-in.place%21%0D%0A%0D%0AVisit%3A+https%3A%2F%2app.data-in.place%2F%0D%0A%0D%0ASee+you+later%2C%0D%0AThe+data-in.place+Team">
             <BsEnvelopeFill /> send yourself a reminder
           </a>{' '}
           to come back at a better time.
