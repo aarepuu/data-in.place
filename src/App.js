@@ -274,16 +274,16 @@ function App() {
             userData={geoData}
           />
         </Section>
-        {/* {currentAreas.length > 0 && ( */}
-        <Section title={`2. Load your data`} loading={loading}>
-          <DataLoader
-            {...dataLoader}
-            hydrateFromProject={importProject}
-            currentZoom={currentZoom}
-            currentAreas={currentAreas}
-          />
-        </Section>
-        {/* )} */}
+        {currentAreas.length > 0 && (
+          <Section title={`2. Load your data`} loading={loading}>
+            <DataLoader
+              {...dataLoader}
+              hydrateFromProject={importProject}
+              currentZoom={currentZoom}
+              currentAreas={currentAreas}
+            />
+          </Section>
+        )}
         {data && (
           <Section title="3. Choose a chart">
             <CustomChartLoader
