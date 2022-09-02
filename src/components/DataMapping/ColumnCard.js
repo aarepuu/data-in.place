@@ -1,7 +1,6 @@
 import React from 'react'
 import { dataTypeIcons } from '../../constants'
 import { getTypeName } from '@rawgraphs/rawgraphs-core'
-
 import { useDrag } from 'react-dnd'
 
 import styles from './DataMapping.module.scss'

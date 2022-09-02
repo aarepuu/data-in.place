@@ -7,7 +7,8 @@ import React, {
 } from 'react'
 import { Row, Col } from 'react-bootstrap'
 import map from 'lodash/map'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+// import { HTML5Backend } from 'react-dnd-html5-backend'
+import { TouchBackend } from 'react-dnd-touch-backend'
 import { DndProvider } from 'react-dnd'
 import ColumnCard from './ColumnCard'
 import ChartDimensionCard from './ChartDimensionCard'
@@ -174,9 +175,13 @@ function DataMapping({ dataTypes, dimensions, mapping, setMapping }, ref) {
       setLocalMapping({})
     },
   }))
+  // allow vertical scrolling
+  const options = {
+    enableMouseEvents: true,
+  }
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={TouchBackend} options={options}>
       <Row>
         <Col xs={3}>
           <h5 className="text-uppercase">Dimensions</h5>

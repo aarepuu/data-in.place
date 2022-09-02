@@ -10,11 +10,7 @@ function DataTypeIcon({ type }) {
       <OverlayTrigger
         key="top"
         placement="top"
-        overlay={
-          <Tooltip id={`tooltip-top`}>
-            Accepts {type}s
-          </Tooltip>
-        }
+        overlay={<Tooltip id={`tooltip-top`}>Accepts {type}s</Tooltip>}
       >
         <DataTypeIcon className={styles['accepted-type-icon']} />
       </OverlayTrigger>

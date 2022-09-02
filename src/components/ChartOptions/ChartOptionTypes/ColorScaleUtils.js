@@ -40,14 +40,20 @@ function LockBtn({ handleChangeLocked, locked }) {
     <OverlayTrigger
       key="bottom"
       placement="bottom"
-      overlay={<Tooltip id={`tooltip-top`}>{locked ? 'Unlock' : 'Lock'} scale</Tooltip>}
+      overlay={
+        <Tooltip id={`tooltip-top`}>{locked ? 'Unlock' : 'Lock'} scale</Tooltip>
+      }
     >
       <span
         type="button"
         className={`btn ${locked ? 'Xbtn-primary' : ''}`}
         onClick={() => handleChangeLocked(!locked)}
       >
-        {locked ? <BsUnlockFill width="16" height="16" /> : <BsLockFill width="16" height="16" />}
+        {locked ? (
+          <BsUnlockFill width="16" height="16" />
+        ) : (
+          <BsLockFill width="16" height="16" />
+        )}
       </span>
     </OverlayTrigger>
   )

@@ -219,7 +219,6 @@ function HeaderRenderer({ ...props }) {
       >
         {column.name}
       </span>
-      {/* <BsFillXCircleFill style={{ marginRight: 1, fill: 'var(--gray-700)' }} /> */}
     </div>
   )
 }

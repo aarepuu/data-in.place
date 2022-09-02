@@ -9,7 +9,7 @@ function RequiredIcon() {
       placement="top"
       overlay={<Tooltip id={`tooltip-top`}>Mandatory</Tooltip>}
     >
-      <Asterisk width="1rem" height="1rem" style={{marginRight:"2px"}} />
+      <Asterisk width="1rem" height="1rem" style={{ marginRight: '2px' }} />
     </OverlayTrigger>
   )
 }
